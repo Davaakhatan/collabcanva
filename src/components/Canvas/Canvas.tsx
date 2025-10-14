@@ -72,10 +72,13 @@ export default function Canvas({ onShowHelp }: CanvasProps) {
   // Handle stage drag (pan)
   const handleDragEnd = useCallback(
     (e: Konva.KonvaEventObject<DragEvent>) => {
-      setPosition({
-        x: e.target.x(),
-        y: e.target.y(),
-      });
+      // Only update position if we're dragging the stage itself, not a shape
+      if (e.target === e.target.getStage()) {
+        setPosition({
+          x: e.target.x(),
+          y: e.target.y(),
+        });
+      }
     },
     [setPosition]
   );
