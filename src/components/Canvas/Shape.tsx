@@ -97,7 +97,12 @@ export default function Shape({ shape, isSelected, onSelect, onChange, onLock, o
     <>
       <Rect
         ref={shapeRef}
-        {...shape}
+        x={shape.x}
+        y={shape.y}
+        width={shape.width}
+        height={shape.height}
+        fill={shape.fill}
+        rotation={shape.rotation || 0}
         draggable={!isLockedByOther}
         onClick={onSelect}
         onTap={onSelect}

@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from "react";
+import { useEffect, useCallback, useState } from "react";
 import { Stage, Layer, Rect } from "react-konva";
 import type Konva from "konva";
 import { useCanvas } from "../../contexts/CanvasContext";
@@ -6,10 +6,15 @@ import { useCursors } from "../../hooks/useCursors";
 import Shape from "./Shape";
 import Cursor from "../Collaboration/Cursor";
 import PresenceList from "../Collaboration/PresenceList";
+import EmptyState from "./EmptyState";
 import { CANVAS_WIDTH, CANVAS_HEIGHT, MIN_ZOOM, MAX_ZOOM, ZOOM_SPEED } from "../../utils/constants";
 import { clamp } from "../../utils/helpers";
 
-export default function Canvas() {
+interface CanvasProps {
+  onShowHelp?: () => void;
+}
+
+export default function Canvas({ onShowHelp }: CanvasProps) {
   const {
     shapes,
     selectedId,
@@ -24,9 +29,11 @@ export default function Canvas() {
     deleteShape,
     lockShape,
     unlockShape,
+    addShape,
   } = useCanvas();
 
   const { cursors, updateCursor } = useCursors();
+  const [hasInteracted, setHasInteracted] = useState(false);
 
   // Handle zoom
   const handleWheel = useCallback(
@@ -84,9 +91,19 @@ export default function Canvas() {
 
       // Update cursor position (throttled in hook)
       updateCursor(pointer.x, pointer.y);
+      
+      // Mark as interacted
+      if (!hasInteracted) {
+        setHasInteracted(true);
+      }
     },
-    [stageRef, updateCursor]
+    [stageRef, updateCursor, hasInteracted]
   );
+
+  const handleAddFirstShape = () => {
+    addShape('rectangle', { x: CANVAS_WIDTH / 2 - 50, y: CANVAS_HEIGHT / 2 - 50 });
+    setHasInteracted(true);
+  };
 
   // Handle clicking on empty canvas
   const handleStageClick = useCallback(
@@ -136,8 +153,10 @@ export default function Canvas() {
   
   console.log('Canvas loaded:', { shapesCount: shapes.length, loading });
 
+  const showEmptyState = shapes.length === 0 && !hasInteracted;
+
   return (
-    <div className="relative w-full h-screen overflow-hidden bg-white">
+    <div className="relative w-full h-screen overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
       {/* Konva Canvas */}
       <Stage
         ref={stageRef}
@@ -157,7 +176,7 @@ export default function Canvas() {
             y={0}
             width={CANVAS_WIDTH}
             height={CANVAS_HEIGHT}
-            fill="#fafafa"
+            fill="#ffffff"
             listening={false}
           />
           
@@ -200,6 +219,14 @@ export default function Canvas() {
 
       {/* Presence list */}
       <PresenceList />
+
+      {/* Empty State */}
+      {showEmptyState && (
+        <EmptyState
+          onAddShape={handleAddFirstShape}
+          onShowHelp={() => onShowHelp?.()}
+        />
+      )}
     </div>
   );
 }
