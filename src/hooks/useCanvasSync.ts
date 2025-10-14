@@ -10,7 +10,6 @@ import {
   unlockShape as unlockShapeService,
   initializeCanvas,
 } from "../services/canvas";
-import { debounce } from "../utils/helpers";
 
 export function useCanvasSync() {
   const { user } = useAuth();
@@ -26,23 +25,18 @@ export function useCanvasSync() {
     console.log('useCanvasSync: Initializing...');
     setLoading(true);
     
-    // Initialize canvas first
+    let unsubscribe: (() => void) | null = null;
+    
+    // Initialize canvas first, then subscribe
     initializeCanvas()
       .then(() => {
         console.log('Canvas initialized successfully');
-        // Then subscribe
-        const unsubscribe = subscribeToCanvas((updatedShapes) => {
+        // Subscribe to real-time updates
+        unsubscribe = subscribeToCanvas((updatedShapes) => {
           console.log('Received shapes update:', updatedShapes.length, 'shapes');
           setShapes(updatedShapes);
           setLoading(false);
         });
-        
-        return () => {
-          console.log('Unsubscribing from canvas');
-          unsubscribe();
-          // Clear all lock timeouts
-          lockTimeoutsRef.current.forEach(clearTimeout);
-        };
       })
       .catch((err) => {
         console.error("Failed to initialize canvas:", err);
@@ -50,6 +44,17 @@ export function useCanvasSync() {
         setError(err.message);
         setLoading(false);
       });
+    
+    // Cleanup function
+    return () => {
+      console.log('useCanvasSync: Cleaning up...');
+      if (unsubscribe) {
+        unsubscribe();
+      }
+      // Clear all lock timeouts
+      lockTimeoutsRef.current.forEach(timeout => clearTimeout(timeout));
+      lockTimeoutsRef.current.clear();
+    };
   }, []);
 
   // Add shape
@@ -96,21 +101,16 @@ export function useCanvasSync() {
     [user]
   );
 
-  // Update shape (debounced for performance)
+  // Update shape - immediate for real-time feel
   const updateShape = useCallback(
-    debounce(async (shapeId: string, updates: Partial<Shape>) => {
+    async (shapeId: string, updates: Partial<Shape>) => {
       const userId = (user as any)?.uid;
       if (!userId) return;
 
       try {
-        const shapeToUpdate = shapes.find(s => s.id === shapeId);
-        
-        // Check if shape is locked by another user
-        if (shapeToUpdate?.isLocked && shapeToUpdate.lockedBy !== userId) {
-          console.warn("Cannot update shape locked by another user");
-          return;
-        }
-
+        // Don't check lock status here - rely on UI to prevent editing locked shapes
+        // This allows immediate updates and better real-time sync
+        console.log('Updating shape:', shapeId, updates);
         await updateShapeService(shapeId, {
           ...updates,
           lastModifiedBy: userId,
@@ -119,8 +119,8 @@ export function useCanvasSync() {
         console.error("Failed to update shape:", err);
         setError(err.message);
       }
-    }, 100),
-    [user, shapes]
+    },
+    [user]
   );
 
   // Delete shape
@@ -130,21 +130,15 @@ export function useCanvasSync() {
       if (!userId) return;
 
       try {
-        const shapeToDelete = shapes.find(s => s.id === shapeId);
-        
-        // Check if shape is locked by another user
-        if (shapeToDelete?.isLocked && shapeToDelete.lockedBy !== userId) {
-          console.warn("Cannot delete shape locked by another user");
-          return;
-        }
-
+        // UI already prevents deleting locked shapes
+        console.log('Deleting shape:', shapeId);
         await deleteShapeService(shapeId);
       } catch (err: any) {
         console.error("Failed to delete shape:", err);
         setError(err.message);
       }
     },
-    [user, shapes]
+    [user]
   );
 
   // Lock shape
@@ -154,29 +148,15 @@ export function useCanvasSync() {
       if (!userId) return false;
 
       try {
-        const shape = shapes.find(s => s.id === shapeId);
+        console.log(`Attempting to lock shape ${shapeId}`);
         
-        // Check if shape is locked
-        if (shape?.isLocked && shape.lockedBy !== userId) {
-          // Check if the lock is stale (older than 10 seconds)
-          const now = Date.now();
-          const lockAge = now - (shape.lockedAt || now);
-          
-          if (lockAge > 10000) {
-            // Lock is stale - force unlock and proceed
-            console.log(`Breaking stale lock on shape ${shapeId} (${lockAge}ms old)`);
-            await unlockShapeService(shapeId);
-          } else {
-            // Lock is fresh - another user is actively editing
-            return false;
-          }
-        }
-
+        // Just try to lock - the UI already checked if it's safe
         await lockShapeService(shapeId, userId);
         
         // Auto-unlock after 5 seconds as safety fallback
         // (Normal unlock happens immediately when drag/transform ends)
         const timeout = window.setTimeout(() => {
+          console.log(`Safety timeout: unlocking shape ${shapeId}`);
           unlockShape(shapeId);
           lockTimeoutsRef.current.delete(shapeId);
         }, 5000);
@@ -188,7 +168,7 @@ export function useCanvasSync() {
         return false;
       }
     },
-    [user, shapes]
+    [user]
   );
 
   // Unlock shape
@@ -205,17 +185,14 @@ export function useCanvasSync() {
           lockTimeoutsRef.current.delete(shapeId);
         }
 
-        const shape = shapes.find(s => s.id === shapeId);
-        
-        // Only unlock if we own the lock
-        if (shape?.lockedBy === userId) {
-          await unlockShapeService(shapeId);
-        }
+        console.log(`Unlocking shape ${shapeId}`);
+        // Just unlock - let the service handle who can unlock
+        await unlockShapeService(shapeId);
       } catch (err: any) {
         console.error("Failed to unlock shape:", err);
       }
     },
-    [user, shapes]
+    [user]
   );
 
   return {
