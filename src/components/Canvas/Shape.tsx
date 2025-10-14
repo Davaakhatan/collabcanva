@@ -16,6 +16,7 @@ export default function Shape({ shape, isSelected, onSelect, onChange, onLock }:
   const { user } = useAuth();
   const shapeRef = useRef<Konva.Rect>(null);
   const transformerRef = useRef<Konva.Transformer>(null);
+  const hasLockedRef = useRef(false);
   
   // Check if locked by someone else
   const userId = (user as any)?.uid || null;
@@ -29,20 +30,26 @@ export default function Shape({ shape, isSelected, onSelect, onChange, onLock }:
 
   // Lock shape immediately when selected
   useEffect(() => {
+    if (isSelected && !isLockedByOther && !isLockedByMe && !hasLockedRef.current) {
+      // Lock the shape immediately (only once)
+      console.log('Locking shape on select:', shape.id);
+      hasLockedRef.current = true;
+      onLock();
+    }
+    
     if (isSelected && !isLockedByOther) {
-      // Lock the shape immediately
-      if (!isLockedByMe) {
-        console.log('Locking shape on select:', shape.id);
-        onLock();
-      }
-      
       // Attach transformer to the shape
       if (transformerRef.current && shapeRef.current) {
         transformerRef.current.nodes([shapeRef.current]);
         transformerRef.current.getLayer()?.batchDraw();
       }
     }
-  }, [isSelected, isLockedByOther, isLockedByMe, shape.id, onLock]);
+    
+    // Reset lock ref when deselected
+    if (!isSelected) {
+      hasLockedRef.current = false;
+    }
+  }, [isSelected, isLockedByOther, isLockedByMe, shape.id]);
 
   const handleDragStart = async () => {
     // Shape is already locked when selected, no need to lock again

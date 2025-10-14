@@ -145,21 +145,37 @@ export function useCanvasSync() {
   const lockShape = useCallback(
     async (shapeId: string) => {
       const userId = (user as any)?.uid;
-      if (!userId) return false;
+      if (!userId) {
+        console.error('Cannot lock: no user ID');
+        return false;
+      }
 
       try {
-        console.log(`Attempting to lock shape ${shapeId}`);
-        
-        // Just try to lock - the UI already checked if it's safe
+        // Find the current shape to check lock status
+        const currentShape = shapes.find(s => s.id === shapeId);
+        if (currentShape) {
+          // If locked, check if stale (older than 10 seconds)
+          if (currentShape.isLocked && currentShape.lockedAt) {
+            const lockAge = Date.now() - currentShape.lockedAt;
+            if (lockAge > 10000) {
+              console.log(`Stale lock detected (${lockAge}ms old), force unlocking shape ${shapeId}`);
+              await unlockShapeService(shapeId);
+            } else if (currentShape.lockedBy !== userId) {
+              console.warn(`Shape ${shapeId} is locked by another user (lock age: ${lockAge}ms)`);
+              return false;
+            }
+          }
+        }
+
+        console.log(`Locking shape ${shapeId} for user ${userId}`);
         await lockShapeService(shapeId, userId);
         
-        // Auto-unlock after 5 seconds as safety fallback
-        // (Normal unlock happens immediately when drag/transform ends)
+        // Auto-unlock after 15 seconds as safety fallback
         const timeout = window.setTimeout(() => {
-          console.log(`Safety timeout: unlocking shape ${shapeId}`);
-          unlockShape(shapeId);
+          console.log(`Safety timeout (15s): force unlocking shape ${shapeId}`);
+          unlockShapeService(shapeId);
           lockTimeoutsRef.current.delete(shapeId);
-        }, 5000);
+        }, 15000);
         
         lockTimeoutsRef.current.set(shapeId, timeout);
         return true;
@@ -168,7 +184,7 @@ export function useCanvasSync() {
         return false;
       }
     },
-    [user]
+    [user, shapes]
   );
 
   // Unlock shape
@@ -185,8 +201,7 @@ export function useCanvasSync() {
           lockTimeoutsRef.current.delete(shapeId);
         }
 
-        console.log(`Unlocking shape ${shapeId}`);
-        // Just unlock - let the service handle who can unlock
+        console.log(`[useCanvasSync] Unlocking shape ${shapeId} by user ${userId}`);
         await unlockShapeService(shapeId);
       } catch (err: any) {
         console.error("Failed to unlock shape:", err);

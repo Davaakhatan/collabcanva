@@ -97,8 +97,12 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
   const selectShape = (id: string | null) => {
     // Unlock previously selected shape when deselecting
     if (selectedId && selectedId !== id) {
-      console.log('Deselecting and unlocking shape:', selectedId);
+      console.log(`[CanvasContext] Deselecting shape ${selectedId}, selecting ${id}, unlocking ${selectedId}`);
       unlockShapeSync(selectedId);
+    } else if (id) {
+      console.log(`[CanvasContext] Selecting shape ${id} (no previous selection to unlock)`);
+    } else {
+      console.log(`[CanvasContext] Deselecting all (clicking empty canvas)`);
     }
     setSelectedId(id);
   };
