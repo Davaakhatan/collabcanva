@@ -174,11 +174,12 @@ export function useCanvasSync() {
 
         await lockShapeService(shapeId, userId);
         
-        // Auto-unlock after 3 seconds
+        // Auto-unlock after 5 seconds as safety fallback
+        // (Normal unlock happens immediately when drag/transform ends)
         const timeout = window.setTimeout(() => {
           unlockShape(shapeId);
           lockTimeoutsRef.current.delete(shapeId);
-        }, 3000);
+        }, 5000);
         
         lockTimeoutsRef.current.set(shapeId, timeout);
         return true;

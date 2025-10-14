@@ -128,12 +128,12 @@ export default function Shape({ shape, isSelected, onSelect, onChange, onLock, o
         opacity={isLockedByOther ? 0.6 : 1}
       />
       
-      {/* Show lock indicator text */}
-      {shape.isLocked && (
+      {/* Show lock indicator text - only for fresh locks (not stale) */}
+      {shape.isLocked && !isLockStale && (
         <Text
           x={shape.x}
           y={shape.y - 20}
-          text={`🔒 ${isLockedByMe ? 'You' : 'Locked'}`}
+          text={`🔒 ${isLockedByMe ? 'Editing...' : 'Locked'}`}
           fontSize={12}
           fill={isLockedByMe ? '#33FF57' : '#FF3333'}
           listening={false}
