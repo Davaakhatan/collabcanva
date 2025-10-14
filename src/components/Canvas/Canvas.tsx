@@ -92,15 +92,19 @@ export default function Canvas({ onShowHelp }: CanvasProps) {
       const pointer = stage.getPointerPosition();
       if (!pointer) return;
 
-      // Update cursor position (throttled in hook)
-      updateCursor(pointer.x, pointer.y);
+      // Convert screen coordinates to canvas coordinates (world space)
+      const canvasX = (pointer.x - position.x) / scale;
+      const canvasY = (pointer.y - position.y) / scale;
+
+      // Update cursor position with canvas coordinates (throttled in hook)
+      updateCursor(canvasX, canvasY);
       
       // Mark as interacted
       if (!hasInteracted) {
         setHasInteracted(true);
       }
     },
-    [stageRef, updateCursor, hasInteracted]
+    [stageRef, updateCursor, hasInteracted, position, scale]
   );
 
   const handleAddFirstShape = () => {
@@ -215,15 +219,21 @@ export default function Canvas({ onShowHelp }: CanvasProps) {
       </Stage>
 
       {/* Render other users' cursors */}
-      {Object.entries(cursors).map(([userId, cursor]) => (
-        <Cursor
-          key={userId}
-          x={cursor.cursorX}
-          y={cursor.cursorY}
-          color={cursor.cursorColor}
-          name={cursor.displayName}
-        />
-      ))}
+      {Object.entries(cursors).map(([userId, cursor]) => {
+        // Transform canvas coordinates to screen coordinates
+        const screenX = (cursor.cursorX * scale) + position.x;
+        const screenY = (cursor.cursorY * scale) + position.y;
+        
+        return (
+          <Cursor
+            key={userId}
+            x={screenX}
+            y={screenY}
+            color={cursor.cursorColor}
+            name={cursor.displayName}
+          />
+        );
+      })}
 
       {/* Presence list */}
       <PresenceList />
