@@ -28,7 +28,18 @@ if (!firebaseConfig.apiKey || !firebaseConfig.projectId) {
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
-export const rtdb = getDatabase(app);
+
+// Initialize Realtime Database with error handling
+let rtdbInstance;
+try {
+  rtdbInstance = getDatabase(app);
+} catch (error) {
+  console.warn('Realtime Database initialization failed:', error);
+  console.warn('Multiplayer cursors and presence features will be disabled');
+  // Create a mock database for development
+  rtdbInstance = null;
+}
+export const rtdb = rtdbInstance;
 
 // Set auth persistence to LOCAL (survives page refreshes and browser restarts)
 setPersistence(auth, browserLocalPersistence).catch((error) => {

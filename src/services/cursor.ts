@@ -1,7 +1,10 @@
-import { ref, set, onValue, onDisconnect, off } from "firebase/database";
+import { ref, set, onValue, onDisconnect, off, type Database } from "firebase/database";
 import { rtdb } from "./firebase";
 
 const CANVAS_ID = "global-canvas-v1";
+
+// Check if Realtime Database is available
+const isRtdbAvailable = () => rtdb !== null;
 
 export interface CursorData {
   displayName: string;
@@ -23,7 +26,9 @@ export async function updateCursorPosition(
   displayName: string,
   cursorColor: string
 ): Promise<void> {
-  const cursorRef = ref(rtdb, `sessions/${CANVAS_ID}/${userId}`);
+  if (!isRtdbAvailable()) return;
+  
+  const cursorRef = ref(rtdb as Database, `sessions/${CANVAS_ID}/${userId}`);
   
   await set(cursorRef, {
     displayName,
@@ -42,7 +47,9 @@ export async function setUserOnline(
   displayName: string,
   cursorColor: string
 ): Promise<void> {
-  const userRef = ref(rtdb, `sessions/${CANVAS_ID}/${userId}`);
+  if (!isRtdbAvailable()) return;
+  
+  const userRef = ref(rtdb as Database, `sessions/${CANVAS_ID}/${userId}`);
   
   // Set initial presence
   await set(userRef, {
@@ -63,7 +70,12 @@ export async function setUserOnline(
 export function subscribeToCursors(
   callback: (cursors: CursorsMap) => void
 ): () => void {
-  const cursorsRef = ref(rtdb, `sessions/${CANVAS_ID}`);
+  if (!isRtdbAvailable()) {
+    // Return no-op unsubscribe if RTDB is not available
+    return () => {};
+  }
+  
+  const cursorsRef = ref(rtdb as Database, `sessions/${CANVAS_ID}`);
   
   const listener = onValue(cursorsRef, (snapshot) => {
     const data = snapshot.val();
@@ -78,7 +90,9 @@ export function subscribeToCursors(
  * Remove user's cursor (manual cleanup)
  */
 export async function removeUserCursor(userId: string): Promise<void> {
-  const userRef = ref(rtdb, `sessions/${CANVAS_ID}/${userId}`);
+  if (!isRtdbAvailable()) return;
+  
+  const userRef = ref(rtdb as Database, `sessions/${CANVAS_ID}/${userId}`);
   await set(userRef, null);
 }
 
