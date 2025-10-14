@@ -10,10 +10,9 @@ interface ShapeProps {
   onSelect: () => void;
   onChange: (updates: Partial<ShapeType>) => void;
   onLock: () => Promise<boolean>;
-  onUnlock: () => void;
 }
 
-export default function Shape({ shape, isSelected, onSelect, onChange, onLock, onUnlock }: ShapeProps) {
+export default function Shape({ shape, isSelected, onSelect, onChange, onLock }: ShapeProps) {
   const { user } = useAuth();
   const shapeRef = useRef<Konva.Rect>(null);
   const transformerRef = useRef<Konva.Transformer>(null);
@@ -28,23 +27,25 @@ export default function Shape({ shape, isSelected, onSelect, onChange, onLock, o
   const isLockedByOther = shape.isLocked && shape.lockedBy !== userId && !isLockStale;
   const isLockedByMe = shape.isLocked && shape.lockedBy === userId;
 
+  // Lock shape immediately when selected
   useEffect(() => {
-    if (isSelected && transformerRef.current && shapeRef.current && !isLockedByOther) {
+    if (isSelected && !isLockedByOther) {
+      // Lock the shape immediately
+      if (!isLockedByMe) {
+        console.log('Locking shape on select:', shape.id);
+        onLock();
+      }
+      
       // Attach transformer to the shape
-      transformerRef.current.nodes([shapeRef.current]);
-      transformerRef.current.getLayer()?.batchDraw();
-    }
-  }, [isSelected, isLockedByOther]);
-
-  const handleDragStart = async () => {
-    // Try to lock the shape when starting to drag
-    if (!isLockedByMe) {
-      const locked = await onLock();
-      // If we couldn't get the lock, the shape is being edited by someone else
-      if (!locked) {
-        console.warn('Shape is currently being edited by another user');
+      if (transformerRef.current && shapeRef.current) {
+        transformerRef.current.nodes([shapeRef.current]);
+        transformerRef.current.getLayer()?.batchDraw();
       }
     }
+  }, [isSelected, isLockedByOther, isLockedByMe, shape.id, onLock]);
+
+  const handleDragStart = async () => {
+    // Shape is already locked when selected, no need to lock again
   };
 
   const handleDragEnd = (e: Konva.KonvaEventObject<DragEvent>) => {
@@ -52,19 +53,11 @@ export default function Shape({ shape, isSelected, onSelect, onChange, onLock, o
       x: e.target.x(),
       y: e.target.y(),
     });
-    // Unlock after drag
-    onUnlock();
+    // Don't unlock here - will unlock when deselected
   };
 
   const handleTransformStart = async () => {
-    // Try to lock the shape when starting to transform
-    if (!isLockedByMe) {
-      const locked = await onLock();
-      // If we couldn't get the lock, the shape is being edited by someone else
-      if (!locked) {
-        console.warn('Shape is currently being edited by another user');
-      }
-    }
+    // Shape is already locked when selected, no need to lock again
   };
 
   const handleTransformEnd = () => {
@@ -87,8 +80,7 @@ export default function Shape({ shape, isSelected, onSelect, onChange, onLock, o
       rotation: rotation,
     });
     
-    // Unlock after transform
-    onUnlock();
+    // Don't unlock here - will unlock when deselected
   };
 
   // Determine stroke color based on lock state

@@ -28,7 +28,6 @@ export default function Canvas({ onShowHelp }: CanvasProps) {
     updateShape,
     deleteShape,
     lockShape,
-    unlockShape,
     addShape,
   } = useCanvas();
 
@@ -212,7 +211,6 @@ export default function Canvas({ onShowHelp }: CanvasProps) {
               onSelect={() => selectShape(shape.id)}
               onChange={(updates) => updateShape(shape.id, updates)}
               onLock={() => lockShape(shape.id)}
-              onUnlock={() => unlockShape(shape.id)}
             />
           ))}
         </Layer>

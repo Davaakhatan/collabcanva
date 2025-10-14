@@ -95,6 +95,11 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
   };
 
   const selectShape = (id: string | null) => {
+    // Unlock previously selected shape when deselecting
+    if (selectedId && selectedId !== id) {
+      console.log('Deselecting and unlocking shape:', selectedId);
+      unlockShapeSync(selectedId);
+    }
     setSelectedId(id);
   };
 
