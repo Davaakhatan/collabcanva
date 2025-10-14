@@ -2,7 +2,10 @@ import { useEffect, useCallback } from "react";
 import { Stage, Layer, Rect } from "react-konva";
 import type Konva from "konva";
 import { useCanvas } from "../../contexts/CanvasContext";
+import { useCursors } from "../../hooks/useCursors";
 import Shape from "./Shape";
+import Cursor from "../Collaboration/Cursor";
+import PresenceList from "../Collaboration/PresenceList";
 import { CANVAS_WIDTH, CANVAS_HEIGHT, MIN_ZOOM, MAX_ZOOM, ZOOM_SPEED } from "../../utils/constants";
 import { clamp } from "../../utils/helpers";
 
@@ -22,6 +25,8 @@ export default function Canvas() {
     lockShape,
     unlockShape,
   } = useCanvas();
+
+  const { cursors, updateCursor } = useCursors();
 
   // Handle zoom
   const handleWheel = useCallback(
@@ -66,6 +71,21 @@ export default function Canvas() {
       });
     },
     [setPosition]
+  );
+
+  // Handle mouse move for cursor tracking
+  const handleMouseMove = useCallback(
+    () => {
+      const stage = stageRef.current;
+      if (!stage) return;
+
+      const pointer = stage.getPointerPosition();
+      if (!pointer) return;
+
+      // Update cursor position (throttled in hook)
+      updateCursor(pointer.x, pointer.y);
+    },
+    [stageRef, updateCursor]
   );
 
   // Handle clicking on empty canvas
@@ -118,6 +138,7 @@ export default function Canvas() {
 
   return (
     <div className="relative w-full h-screen overflow-hidden bg-white">
+      {/* Konva Canvas */}
       <Stage
         ref={stageRef}
         width={window.innerWidth}
@@ -125,6 +146,7 @@ export default function Canvas() {
         draggable
         onWheel={handleWheel}
         onDragEnd={handleDragEnd}
+        onMouseMove={handleMouseMove}
         onClick={handleStageClick}
         onTap={handleStageClick}
       >
@@ -164,6 +186,20 @@ export default function Canvas() {
           ))}
         </Layer>
       </Stage>
+
+      {/* Render other users' cursors */}
+      {Object.entries(cursors).map(([userId, cursor]) => (
+        <Cursor
+          key={userId}
+          x={cursor.cursorX}
+          y={cursor.cursorY}
+          color={cursor.cursorColor}
+          name={cursor.displayName}
+        />
+      ))}
+
+      {/* Presence list */}
+      <PresenceList />
     </div>
   );
 }

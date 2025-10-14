@@ -1,7 +1,7 @@
 import { initializeApp } from "firebase/app";
-import { getAuth, type User } from "firebase/auth";
+import { getAuth, setPersistence, browserLocalPersistence, type User } from "firebase/auth";
 import { getFirestore, enableIndexedDbPersistence } from "firebase/firestore";
-// import { getDatabase } from "firebase/database"; // TODO: Add when we implement cursors
+import { getDatabase } from "firebase/database";
 
 // Re-export User type for convenience
 export type { User };
@@ -19,7 +19,12 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
-// export const rtdb = getDatabase(app); // TODO: Add when we implement cursors
+export const rtdb = getDatabase(app);
+
+// Set auth persistence to LOCAL (survives page refreshes and browser restarts)
+setPersistence(auth, browserLocalPersistence).catch((error) => {
+  console.error("Failed to set auth persistence:", error);
+});
 
 // Optional: offline cache for Firestore (safe to ignore errors for multi-tab)
 enableIndexedDbPersistence(db).catch(() => {});

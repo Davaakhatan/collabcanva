@@ -1,15 +1,12 @@
 {
   "rules": {
-    ".read": "auth != null",
-    ".write": "auth != null",
     "sessions": {
-      "$sessionId": {
+      "global-canvas-v1": {
         "$userId": {
-          ".read": "auth != null",
-          ".write": "auth != null"
+          ".read": true,
+          ".write": "$userId === auth.uid"
         }
       }
     }
   }
 }
-
