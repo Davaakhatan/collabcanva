@@ -8,7 +8,7 @@ function Home() {
   const { user, logout } = useAuth();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 flex items-center justify-center">
       {/* Hero Section */}
       <div className="container mx-auto px-6 py-12">
         <div className="max-w-4xl mx-auto text-center space-y-8">

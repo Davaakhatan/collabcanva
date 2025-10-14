@@ -31,18 +31,11 @@ export default function Shape({ shape, isSelected, onSelect, onChange, onLock, o
     }
   }, [isSelected, isLockedByOther]);
 
-  const handleDragStart = async (e: Konva.KonvaEventObject<DragEvent>) => {
+  const handleDragStart = async () => {
     // Lock the shape when starting to drag
     if (!isLockedByMe) {
       await onLock();
     }
-    
-    // Prevent shape from jumping - keep it at current position
-    const node = e.target;
-    node.setAttrs({
-      x: shape.x,
-      y: shape.y,
-    });
   };
 
   const handleDragEnd = (e: Konva.KonvaEventObject<DragEvent>) => {
