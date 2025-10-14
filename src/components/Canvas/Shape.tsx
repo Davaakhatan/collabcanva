@@ -20,7 +20,12 @@ export default function Shape({ shape, isSelected, onSelect, onChange, onLock, o
   
   // Check if locked by someone else
   const userId = (user as any)?.uid || null;
-  const isLockedByOther = shape.isLocked && shape.lockedBy !== userId;
+  
+  // Check if lock is stale (older than 10 seconds)
+  const isLockStale = shape.isLocked && shape.lockedAt && (Date.now() - shape.lockedAt) > 10000;
+  
+  // Consider locked by other only if locked, not by me, and not stale
+  const isLockedByOther = shape.isLocked && shape.lockedBy !== userId && !isLockStale;
   const isLockedByMe = shape.isLocked && shape.lockedBy === userId;
 
   useEffect(() => {
