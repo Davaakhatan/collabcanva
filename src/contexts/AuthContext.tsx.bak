@@ -6,10 +6,12 @@ import {
   GoogleAuthProvider,
   signOut,
   onAuthStateChanged,
-  updateProfile
+  updateProfile,
+  type User
 } from "firebase/auth";
 import { auth } from "../services/firebase";
 
+// Extended user interface with uid explicitly exposed
 export interface AuthUser {
   uid: string;
   email: string | null;
@@ -32,10 +34,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Listen to auth state changes
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       console.log('[AuthContext] Auth state changed:', firebaseUser);
       if (firebaseUser) {
+        // Extract only the properties we need and ensure uid is accessible
         const authUser: AuthUser = {
           uid: firebaseUser.uid,
           email: firebaseUser.email,
@@ -58,6 +62,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signup = async (email: string, password: string, displayName?: string) => {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     
+    // Update display name if provided
     if (displayName && userCredential.user) {
       await updateProfile(userCredential.user, { displayName });
     }
