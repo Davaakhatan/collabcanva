@@ -132,12 +132,13 @@ export default function Canvas({ onShowHelp }: CanvasProps) {
 
   // Update stage scale and position
   useEffect(() => {
-    if (stageRef.current) {
-      stageRef.current.scale({ x: scale, y: scale });
-      stageRef.current.position(position);
-      stageRef.current.batchDraw();
+    const stage = stageRef.current;
+    if (stage) {
+      stage.scale({ x: scale, y: scale });
+      stage.position(position);
+      stage.batchDraw();
     }
-  }, [scale, position, stageRef]);
+  }, [scale, position]);
 
   if (loading) {
     return (
@@ -163,6 +164,10 @@ export default function Canvas({ onShowHelp }: CanvasProps) {
         width={window.innerWidth}
         height={window.innerHeight}
         draggable
+        x={position.x}
+        y={position.y}
+        scaleX={scale}
+        scaleY={scale}
         onWheel={handleWheel}
         onDragEnd={handleDragEnd}
         onMouseMove={handleMouseMove}
