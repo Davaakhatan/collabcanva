@@ -60,6 +60,7 @@ export default function Shape({ shape, isSelected, onSelect, onChange, onLock, o
 
     const scaleX = node.scaleX();
     const scaleY = node.scaleY();
+    const rotation = node.rotation();
 
     // Reset scale and apply it to width/height
     node.scaleX(1);
@@ -70,6 +71,7 @@ export default function Shape({ shape, isSelected, onSelect, onChange, onLock, o
       y: node.y(),
       width: Math.max(5, node.width() * scaleX),
       height: Math.max(5, node.height() * scaleY),
+      rotation: rotation,
     });
     
     // Unlock after transform
@@ -130,6 +132,24 @@ export default function Shape({ shape, isSelected, onSelect, onChange, onLock, o
             }
             return newBox;
           }}
+          rotateEnabled={true}
+          enabledAnchors={[
+            'top-left',
+            'top-right',
+            'bottom-left',
+            'bottom-right',
+            'top-center',
+            'middle-left',
+            'middle-right',
+            'bottom-center',
+          ]}
+          rotationSnaps={[0, 45, 90, 135, 180, 225, 270, 315]}
+          borderStroke="#0066FF"
+          borderStrokeWidth={2}
+          anchorFill="#0066FF"
+          anchorStroke="#FFFFFF"
+          anchorSize={8}
+          anchorCornerRadius={4}
         />
       )}
     </>

@@ -11,6 +11,7 @@ export interface Shape {
   y: number;
   width: number;
   height: number;
+  rotation?: number; // Rotation in degrees
   fill: string;
   createdBy?: string;
   createdAt?: number;
@@ -74,6 +75,7 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
       y: position?.y ?? 100,
       width: DEFAULT_SHAPE_WIDTH,
       height: DEFAULT_SHAPE_HEIGHT,
+      rotation: 0,
       fill: DEFAULT_SHAPE_COLOR,
       createdAt: Date.now(),
     };
