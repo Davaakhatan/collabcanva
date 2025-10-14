@@ -47,6 +47,7 @@ interface CanvasContextType {
   setScale: (scale: number) => void;
   setPosition: (position: { x: number; y: number }) => void;
   resetView: () => void;
+  panToPosition: (canvasX: number, canvasY: number) => void;
 }
 
 const CanvasContext = createContext<CanvasContextType | null>(null);
@@ -129,6 +130,19 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
     setPositionState({ x: 0, y: 0 });
   };
 
+  // Pan to a specific canvas position (e.g., another user's cursor)
+  const panToPosition = (canvasX: number, canvasY: number) => {
+    // Get viewport center
+    const viewportCenterX = window.innerWidth / 2;
+    const viewportCenterY = window.innerHeight / 2;
+    
+    // Calculate new stage position to center the target point
+    const newX = viewportCenterX - canvasX * scale;
+    const newY = viewportCenterY - canvasY * scale;
+    
+    setPositionState({ x: newX, y: newY });
+  };
+
   return (
     <CanvasContext.Provider
       value={{
@@ -147,6 +161,7 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
         setScale,
         setPosition,
         resetView,
+        panToPosition,
       }}
     >
       {children}
