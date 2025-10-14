@@ -32,9 +32,13 @@ export default function Shape({ shape, isSelected, onSelect, onChange, onLock, o
   }, [isSelected, isLockedByOther]);
 
   const handleDragStart = async () => {
-    // Lock the shape when starting to drag
+    // Try to lock the shape when starting to drag
     if (!isLockedByMe) {
-      await onLock();
+      const locked = await onLock();
+      // If we couldn't get the lock, the shape is being edited by someone else
+      if (!locked) {
+        console.warn('Shape is currently being edited by another user');
+      }
     }
   };
 
@@ -48,9 +52,13 @@ export default function Shape({ shape, isSelected, onSelect, onChange, onLock, o
   };
 
   const handleTransformStart = async () => {
-    // Lock the shape when starting to transform
+    // Try to lock the shape when starting to transform
     if (!isLockedByMe) {
-      await onLock();
+      const locked = await onLock();
+      // If we couldn't get the lock, the shape is being edited by someone else
+      if (!locked) {
+        console.warn('Shape is currently being edited by another user');
+      }
     }
   };
 

@@ -19,6 +19,7 @@ export interface Shape {
   lastModifiedAt?: number;
   isLocked?: boolean;
   lockedBy?: string | null;
+  lockedAt?: number; // Timestamp when lock was acquired
 }
 
 interface CanvasContextType {

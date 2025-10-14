@@ -128,6 +128,7 @@ export async function lockShape(shapeId: string, userId: string): Promise<void> 
   await updateShape(shapeId, {
     isLocked: true,
     lockedBy: userId,
+    lockedAt: Date.now(),
   });
 }
 
@@ -138,6 +139,7 @@ export async function unlockShape(shapeId: string): Promise<void> {
   await updateShape(shapeId, {
     isLocked: false,
     lockedBy: null,
+    lockedAt: undefined,
   });
 }
 

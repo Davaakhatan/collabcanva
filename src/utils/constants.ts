@@ -38,6 +38,7 @@ export const CURSOR_COLORS = [
 export const CURSOR_UPDATE_THROTTLE = 50; // ms (20 FPS for cursors)
 export const SHAPE_UPDATE_DEBOUNCE = 100; // ms
 
-// Lock timeout
-export const SHAPE_LOCK_TIMEOUT = 5000; // ms (5 seconds)
+// Lock timeout - reduced for better UX
+export const SHAPE_LOCK_TIMEOUT = 3000; // ms (3 seconds)
+export const STALE_LOCK_THRESHOLD = 10000; // ms (10 seconds - locks older than this are considered stale)
 

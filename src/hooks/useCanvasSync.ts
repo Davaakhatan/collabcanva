@@ -156,18 +156,29 @@ export function useCanvasSync() {
       try {
         const shape = shapes.find(s => s.id === shapeId);
         
-        // Don't lock if already locked by another user
+        // Check if shape is locked
         if (shape?.isLocked && shape.lockedBy !== userId) {
-          return false;
+          // Check if the lock is stale (older than 10 seconds)
+          const now = Date.now();
+          const lockAge = now - (shape.lockedAt || now);
+          
+          if (lockAge > 10000) {
+            // Lock is stale - force unlock and proceed
+            console.log(`Breaking stale lock on shape ${shapeId} (${lockAge}ms old)`);
+            await unlockShapeService(shapeId);
+          } else {
+            // Lock is fresh - another user is actively editing
+            return false;
+          }
         }
 
         await lockShapeService(shapeId, userId);
         
-        // Auto-unlock after 5 seconds
+        // Auto-unlock after 3 seconds
         const timeout = window.setTimeout(() => {
           unlockShape(shapeId);
           lockTimeoutsRef.current.delete(shapeId);
-        }, 5000);
+        }, 3000);
         
         lockTimeoutsRef.current.set(shapeId, timeout);
         return true;
