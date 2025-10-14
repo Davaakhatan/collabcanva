@@ -6,15 +6,23 @@ import { getDatabase } from "firebase/database";
 // Re-export User type for convenience
 export type { User };
 
+// Firebase configuration from environment variables
 const firebaseConfig = {
-  apiKey: "AIzaSyDhkdE9gYwP3MfkFIKWY9GYwF0jdJEyA48",
-  authDomain: "collabcanva-d9e10.firebaseapp.com",
-  projectId: "collabcanva-d9e10",
-  storageBucket: "collabcanva-d9e10.firebasestorage.app",
-  messagingSenderId: "734003526041",
-  appId: "1:734003526041:web:bba9d6be9fdd2931f87b08",
-  measurementId: "G-T4FFDFR9WP"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
+
+// Validate that all required environment variables are present
+if (!firebaseConfig.apiKey || !firebaseConfig.projectId) {
+  throw new Error(
+    'Missing Firebase configuration. Please ensure all VITE_FIREBASE_* environment variables are set in your .env file.'
+  );
+}
 
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
