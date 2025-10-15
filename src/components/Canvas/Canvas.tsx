@@ -6,6 +6,7 @@ import { useCursors } from "../../hooks/useCursors";
 import { useAuth } from "../../contexts/AuthContext";
 import Shape from "./Shape";
 import Cursor from "../Collaboration/Cursor";
+import PresenceList from "../Collaboration/PresenceList";
 import EmptyState from "./EmptyState";
 import { CANVAS_WIDTH, CANVAS_HEIGHT, MIN_ZOOM, MAX_ZOOM, ZOOM_SPEED } from "../../utils/constants";
 import { clamp } from "../../utils/helpers";
@@ -29,6 +30,7 @@ export default function Canvas({ onShowHelp }: CanvasProps) {
     deleteShape,
     lockShape,
     addShape,
+    panToPosition,
   } = useCanvas();
 
   const { cursors, updateCursor } = useCursors();
@@ -120,6 +122,15 @@ export default function Canvas({ onShowHelp }: CanvasProps) {
     addShape('rectangle', { x: CANVAS_WIDTH / 2 - 50, y: CANVAS_HEIGHT / 2 - 50 });
     setHasInteracted(true);
   };
+
+  // Handle clicking on a user in the presence list to jump to their cursor
+  const handleUserClick = useCallback(
+    (userId: string, cursorX: number, cursorY: number) => {
+      console.log(`Panning to user ${userId} at canvas position:`, cursorX, cursorY);
+      panToPosition(cursorX, cursorY);
+    },
+    [panToPosition]
+  );
 
   // Handle box selection start
   const handleStageMouseDown = useCallback(
@@ -436,6 +447,9 @@ export default function Canvas({ onShowHelp }: CanvasProps) {
           />
         );
       })}
+
+      {/* Presence list */}
+      <PresenceList cursors={cursors} onUserClick={handleUserClick} />
 
       {/* Empty State */}
       {showEmptyState && (
