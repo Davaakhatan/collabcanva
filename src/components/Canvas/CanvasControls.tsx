@@ -10,11 +10,12 @@ interface CanvasControlsProps {
 }
 
 export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
-  const { scale, setScale, resetView, addShape, stageRef, shapes, selectedId, updateShape, bringToFront, sendToBack, bringForward, sendBackward, undo, redo, canUndo, canRedo } = useCanvas();
+  const { scale, setScale, resetView, addShape, stageRef, shapes, selectedId, updateShape, bringToFront, sendToBack, undo, redo, canUndo, canRedo } = useCanvas();
   const [fps, setFps] = useState(60);
   const [showPerf, setShowPerf] = useState(false);
   const [showShapeMenu, setShowShapeMenu] = useState(false);
   const [showColorPicker, setShowColorPicker] = useState(false);
+  const [toolbarPosition, setToolbarPosition] = useState<'bottom' | 'left'>('bottom'); // Toggle between bottom and left
 
   // Predefined color palette
   const colorPalette = [
@@ -95,92 +96,47 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
   // FPS health indicator
   const fpsColor = fps >= 55 ? 'text-green-600' : fps >= 40 ? 'text-yellow-600' : 'text-red-600';
 
+  // Dynamic positioning based on toolbar position
+  const positionClasses = toolbarPosition === 'bottom'
+    ? 'fixed bottom-6 left-1/2 -translate-x-1/2 flex-row'
+    : 'fixed left-6 top-20 flex-col max-h-[calc(100vh-120px)] overflow-y-auto w-16';
+
+  const dividerClasses = toolbarPosition === 'bottom'
+    ? 'w-px h-6 bg-gray-300 dark:bg-slate-600 mx-1'
+    : 'h-px w-12 bg-gray-300 dark:bg-slate-600 my-2';
+
   return (
     <>
-      {/* Shape Tools Panel (Left Side - Only when shape selected) */}
-      {selectedId && (
-        <div className="fixed bottom-6 left-6 bg-white/90 dark:bg-slate-800/90 backdrop-blur-lg rounded-2xl shadow-2xl border border-gray-200/50 dark:border-slate-600/50 p-3 flex items-center gap-2 z-50">
-          {/* Z-index controls */}
-          <button
-            onClick={() => bringToFront(selectedId)}
-            className="p-2 rounded-xl hover:bg-gradient-to-br hover:from-orange-100 hover:to-yellow-100 dark:hover:from-orange-900/30 dark:hover:to-yellow-900/30 hover:text-orange-700 dark:hover:text-orange-400 transition-all duration-200 text-gray-700 dark:text-gray-200"
-            title="Bring to Front (Cmd+])"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 11l5-5m0 0l5 5m-5-5v12" />
+      {/* Intuitive Position Toggle Button */}
+      <button
+        onClick={() => setToolbarPosition(toolbarPosition === 'bottom' ? 'left' : 'bottom')}
+        className="fixed top-20 left-6 px-3 py-2 bg-white/90 dark:bg-slate-800/90 backdrop-blur-lg rounded-xl shadow-lg border border-gray-200/50 dark:border-slate-600/50 hover:scale-105 transition-all duration-200 z-50 text-gray-700 dark:text-gray-200 flex items-center gap-2"
+        title={toolbarPosition === 'bottom' ? 'Move toolbar to left sidebar' : 'Move toolbar to bottom'}
+      >
+        {toolbarPosition === 'bottom' ? (
+          <>
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h8M4 18h16" />
             </svg>
-          </button>
-          <button
-            onClick={() => bringForward(selectedId)}
-            className="p-2 rounded-xl hover:bg-gradient-to-br hover:from-orange-100 hover:to-yellow-100 dark:hover:from-orange-900/30 dark:hover:to-yellow-900/30 hover:text-orange-700 dark:hover:text-orange-400 transition-all duration-200 text-gray-700 dark:text-gray-200"
-            title="Bring Forward"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+            <span className="text-xs font-medium">Sidebar</span>
+          </>
+        ) : (
+          <>
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
             </svg>
-          </button>
-          <button
-            onClick={() => sendBackward(selectedId)}
-            className="p-2 rounded-xl hover:bg-gradient-to-br hover:from-orange-100 hover:to-yellow-100 dark:hover:from-orange-900/30 dark:hover:to-yellow-900/30 hover:text-orange-700 dark:hover:text-orange-400 transition-all duration-200 text-gray-700 dark:text-gray-200"
-            title="Send Backward"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-            </svg>
-          </button>
-          <button
-            onClick={() => sendToBack(selectedId)}
-            className="p-2 rounded-xl hover:bg-gradient-to-br hover:from-orange-100 hover:to-yellow-100 dark:hover:from-orange-900/30 dark:hover:to-yellow-900/30 hover:text-orange-700 dark:hover:text-orange-400 transition-all duration-200 text-gray-700 dark:text-gray-200"
-            title="Send to Back (Cmd+[)"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 13l-5 5m0 0l-5-5m5 5V6" />
-            </svg>
-          </button>
-          
-          <div className="w-px h-6 bg-gray-300 dark:bg-slate-600 mx-1" />
-          
-          {/* Color Picker */}
-          <div className="relative">
-            <button
-              onClick={() => setShowColorPicker(!showColorPicker)}
-              className="p-2 rounded-xl hover:bg-gradient-to-br hover:from-pink-100 hover:to-rose-100 dark:hover:from-pink-900/30 dark:hover:to-rose-900/30 hover:text-pink-700 dark:hover:text-pink-400 transition-all duration-200 flex items-center gap-2 text-gray-700 dark:text-gray-200"
-              title="Change Color"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
-              </svg>
-            </button>
-            
-            {showColorPicker && (
-              <div className="absolute bottom-full mb-2 left-0 bg-white dark:bg-slate-800 rounded-xl shadow-2xl border border-gray-200 dark:border-slate-600 p-3 z-50 min-w-[200px]">
-                <div className="grid grid-cols-5 gap-2">
-                  {colorPalette.map((color) => (
-                    <button
-                      key={color}
-                      onClick={() => {
-                        updateShape(selectedId, { fill: color });
-                        setShowColorPicker(false);
-                      }}
-                      className="w-8 h-8 rounded-lg border-2 border-gray-300 dark:border-slate-600 hover:scale-110 transition-transform"
-                      style={{ backgroundColor: color }}
-                      title={color}
-                    />
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
+            <span className="text-xs font-medium">Bottom</span>
+          </>
+        )}
+      </button>
       
-      {/* Main Controls */}
-      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-white/90 dark:bg-slate-800/90 backdrop-blur-lg rounded-2xl shadow-2xl border border-gray-200/50 dark:border-slate-600/50 p-3 flex items-center gap-2 z-50">
+      {/* Unified Toolbar */}
+      <div className={`${positionClasses} bg-white/95 dark:bg-slate-800/95 backdrop-blur-lg rounded-2xl shadow-2xl border border-gray-200/50 dark:border-slate-600/50 p-4 flex ${toolbarPosition === 'left' ? 'gap-3' : 'gap-2'} z-50`}>
         {/* Zoom Out */}
         <button
           onClick={handleZoomOut}
           disabled={scale <= MIN_ZOOM}
-          className="p-2 hover:bg-gray-100 dark:hover:bg-slate-700 rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-gray-700 dark:text-gray-200"
+          className={`${toolbarPosition === 'left' ? 'w-full' : ''} p-2 hover:bg-gray-100 dark:hover:bg-slate-700 rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-gray-700 dark:text-gray-200 flex items-center justify-center`}
           title="Zoom Out"
         >
           <svg
@@ -226,7 +182,7 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
         </button>
 
         {/* Divider */}
-        <div className="w-px h-6 bg-gray-300 dark:bg-slate-600 mx-1" />
+        <div className={dividerClasses} />
 
         {/* Reset View */}
         <button
@@ -250,7 +206,7 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
         </button>
 
         {/* Divider */}
-        <div className="w-px h-6 bg-gray-300 dark:bg-slate-600 mx-1" />
+        <div className={dividerClasses} />
 
         {/* Undo/Redo */}
         <button
@@ -295,42 +251,111 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
         </button>
 
         {/* Divider */}
-        <div className="w-px h-6 bg-gray-300 dark:bg-slate-600 mx-1" />
+        <div className={dividerClasses} />
 
         {/* Add Shape Dropdown */}
         <div className="relative">
           <button
             onClick={() => setShowShapeMenu(!showShapeMenu)}
-            className="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:shadow-lg transition-all duration-200 font-semibold text-sm hover:scale-105 transform"
+            className={`bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:shadow-lg transition-all duration-200 font-semibold hover:scale-105 transform ${
+              toolbarPosition === 'bottom' 
+                ? 'px-6 py-2.5 text-sm' 
+                : 'p-3'
+            }`}
             title="Add Shape"
           >
-            <span className="flex items-center gap-2">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            {toolbarPosition === 'bottom' ? (
+              <span className="flex items-center gap-2">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                Add Shape
+                <svg className={`w-4 h-4 transition-transform ${showShapeMenu ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </span>
+            ) : (
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
               </svg>
-              Add Shape
-              <svg className={`w-4 h-4 transition-transform ${showShapeMenu ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
-            </span>
+            )}
           </button>
           
           {/* Dropdown Menu */}
           {showShapeMenu && (
-            <div className="absolute bottom-full mb-2 left-0 bg-white rounded-xl shadow-2xl border border-gray-200 py-2 min-w-[180px] z-50">
+            <div className={`absolute ${toolbarPosition === 'bottom' ? 'bottom-full mb-2' : 'left-full ml-2'} bg-white dark:bg-slate-800 rounded-xl shadow-2xl border border-gray-200 dark:border-slate-600 py-2 min-w-[180px] z-50`}>
               {shapeTypes.map((shape) => (
                 <button
                   key={shape.type}
                   onClick={() => handleAddShape(shape.type)}
-                  className="w-full px-4 py-2.5 text-left hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 transition-colors flex items-center gap-3 group"
+                  className="w-full px-4 py-2.5 text-left hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-900/30 dark:hover:to-purple-900/30 transition-colors flex items-center gap-3 group"
                 >
                   <span className="text-2xl group-hover:scale-110 transition-transform">{shape.icon}</span>
-                  <span className="font-medium text-gray-700 group-hover:text-blue-600">{shape.label}</span>
+                  <span className="font-medium text-gray-700 dark:text-gray-200 group-hover:text-blue-600 dark:group-hover:text-blue-400">{shape.label}</span>
                 </button>
               ))}
             </div>
           )}
         </div>
+
+        {/* Z-index controls (only show when shape is selected) */}
+        {selectedId && (
+          <>
+            <div className={dividerClasses} />
+            <button
+              onClick={() => bringToFront(selectedId)}
+              className="p-2 rounded-xl hover:bg-gradient-to-br hover:from-orange-100 hover:to-yellow-100 dark:hover:from-orange-900/30 dark:hover:to-yellow-900/30 hover:text-orange-700 dark:hover:text-orange-400 transition-all duration-200 text-gray-700 dark:text-gray-200"
+              title="Bring to Front"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 11l5-5m0 0l5 5m-5-5v12" />
+              </svg>
+            </button>
+            <button
+              onClick={() => sendToBack(selectedId)}
+              className="p-2 rounded-xl hover:bg-gradient-to-br hover:from-orange-100 hover:to-yellow-100 dark:hover:from-orange-900/30 dark:hover:to-yellow-900/30 hover:text-orange-700 dark:hover:text-orange-400 transition-all duration-200 text-gray-700 dark:text-gray-200"
+              title="Send to Back"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 13l-5 5m0 0l-5-5m5 5V6" />
+              </svg>
+            </button>
+            
+            {/* Color Picker */}
+            <div className="relative">
+              <button
+                onClick={() => setShowColorPicker(!showColorPicker)}
+                className="p-2 rounded-xl hover:bg-gradient-to-br hover:from-pink-100 hover:to-rose-100 dark:hover:from-pink-900/30 dark:hover:to-rose-900/30 hover:text-pink-700 dark:hover:text-pink-400 transition-all duration-200 text-gray-700 dark:text-gray-200"
+                title="Change Color"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+                </svg>
+              </button>
+              
+              {showColorPicker && (
+                <div className={`absolute ${toolbarPosition === 'bottom' ? 'bottom-full mb-2' : 'left-full ml-2'} bg-white dark:bg-slate-800 rounded-xl shadow-2xl border border-gray-200 dark:border-slate-600 p-3 z-50`}>
+                  <div className="grid grid-cols-5 gap-2">
+                    {colorPalette.map((color) => (
+                      <button
+                        key={color}
+                        onClick={() => {
+                          updateShape(selectedId, { fill: color });
+                          setShowColorPicker(false);
+                        }}
+                        className="w-8 h-8 rounded-lg border-2 border-gray-300 dark:border-slate-600 hover:scale-110 transition-transform"
+                        style={{ backgroundColor: color }}
+                        title={color}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </>
+        )}
+
+        <div className={dividerClasses} />
 
         {/* Performance Toggle */}
         <button
