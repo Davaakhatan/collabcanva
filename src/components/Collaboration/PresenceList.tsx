@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { usePresence } from "../../hooks/usePresence";
 import type { CursorsMap } from "../../services/cursor";
 
@@ -10,6 +10,9 @@ interface PresenceListProps {
 export default function PresenceList({ cursors, onUserClick }: PresenceListProps) {
   const { onlineUsers, onlineCount } = usePresence();
   const [isExpanded, setIsExpanded] = useState(true);
+  const [isDragging, setIsDragging] = useState(false);
+  const [position, setPosition] = useState({ x: 24, y: window.innerHeight - 300 });
+  const dragRef = useRef<{ startX: number; startY: number; initialX: number; initialY: number } | null>(null);
 
   if (onlineCount === 0) {
     return null;
@@ -23,19 +26,62 @@ export default function PresenceList({ cursors, onUserClick }: PresenceListProps
     }
   };
 
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if ((e.target as HTMLElement).closest('button:not(.drag-handle)')) {
+      return; // Don't drag when clicking other buttons
+    }
+    
+    setIsDragging(true);
+    dragRef.current = {
+      startX: e.clientX,
+      startY: e.clientY,
+      initialX: position.x,
+      initialY: position.y,
+    };
+    e.preventDefault();
+  };
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isDragging || !dragRef.current) return;
+
+      const deltaX = e.clientX - dragRef.current.startX;
+      const deltaY = e.clientY - dragRef.current.startY;
+
+      setPosition({
+        x: Math.max(0, Math.min(window.innerWidth - 300, dragRef.current.initialX + deltaX)),
+        y: Math.max(72, Math.min(window.innerHeight - 100, dragRef.current.initialY + deltaY)),
+      });
+    };
+
+    const handleMouseUp = () => {
+      setIsDragging(false);
+      dragRef.current = null;
+    };
+
+    if (isDragging) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      return () => {
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+      };
+    }
+  }, [isDragging]);
+
   return (
     <div 
-      className="fixed left-6 bg-white/90 dark:bg-slate-800/90 backdrop-blur-lg rounded-2xl shadow-xl border border-gray-200/50 dark:border-slate-600/50 z-30 max-w-xs overflow-hidden transition-all duration-300"
+      className="fixed bg-white/90 dark:bg-slate-800/90 backdrop-blur-lg rounded-2xl shadow-xl border border-gray-200/50 dark:border-slate-600/50 z-50 max-w-xs overflow-hidden transition-shadow duration-300"
       style={{
-        bottom: 'max(env(safe-area-inset-bottom, 0px), 24px)'
+        left: `${position.x}px`,
+        top: `${position.y}px`,
+        cursor: isDragging ? 'grabbing' : 'grab',
       }}
+      onMouseDown={handleMouseDown}
     >
       {/* Header */}
-      <button
-        onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full p-4 flex items-center justify-between hover:bg-gray-50/50 dark:hover:bg-slate-700/50 transition-colors"
-      >
-        <div className="flex items-center gap-3">
+      <div className="w-full p-4 flex items-center justify-between hover:bg-gray-50/50 dark:hover:bg-slate-700/50 transition-colors drag-handle">
+        <div className="flex items-center gap-3 flex-1">
           <div className="relative">
             <div className="w-3 h-3 bg-green-500 rounded-full"></div>
             <div className="absolute inset-0 w-3 h-3 bg-green-500 rounded-full animate-ping opacity-75"></div>
@@ -47,15 +93,23 @@ export default function PresenceList({ cursors, onUserClick }: PresenceListProps
             <p className="text-xs text-gray-500 dark:text-gray-400">{onlineCount} {onlineCount === 1 ? 'person' : 'people'}</p>
           </div>
         </div>
-        <svg
-          className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsExpanded(!isExpanded);
+          }}
+          className="p-1 hover:bg-gray-200/50 dark:hover:bg-slate-600/50 rounded"
         >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-        </svg>
-      </button>
+          <svg
+            className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+      </div>
 
       {/* User List */}
       {isExpanded && (

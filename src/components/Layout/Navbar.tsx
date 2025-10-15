@@ -1,13 +1,10 @@
 import { useAuth } from "../../contexts/AuthContext";
 import { useTheme } from "../../contexts/ThemeContext";
-import { useCursors } from "../../hooks/useCursors";
 import { getDisplayName } from "../../utils/helpers";
-import PresenceList from "../Collaboration/PresenceList";
 
 export default function Navbar() {
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
-  const { cursors } = useCursors();
 
   if (!user) return null;
 
@@ -59,11 +56,6 @@ export default function Navbar() {
               </svg>
             )}
           </button>
-          
-          {/* Presence List - Compact for Header */}
-          <div className="scale-75 origin-center -mx-4">
-            <PresenceList cursors={cursors} onUserClick={() => {}} />
-          </div>
           
           <div className="flex items-center gap-3 px-4 py-2 bg-gray-50 rounded-xl border border-gray-200">
             <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center text-white font-bold text-sm shadow-sm">
