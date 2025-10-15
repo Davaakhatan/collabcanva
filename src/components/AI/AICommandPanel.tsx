@@ -48,7 +48,7 @@ export default function AICommandPanel() {
   ];
 
   return (
-    <div className="fixed bottom-24 right-6 z-30">
+    <div className="fixed bottom-6 right-6 z-50">
       {/* Toggle Button */}
       {!isExpanded && (
         <button
@@ -74,9 +74,9 @@ export default function AICommandPanel() {
 
       {/* Expanded Panel */}
       {isExpanded && (
-        <div className="bg-white rounded-2xl shadow-2xl border border-gray-200 w-96 max-h-[600px] flex flex-col">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-slate-600 w-96 max-h-[600px] flex flex-col">
           {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-gradient-to-r from-purple-50 to-blue-50 rounded-t-2xl">
+          <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-slate-600 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/30 dark:to-blue-900/30 rounded-t-2xl">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 flex items-center justify-center">
                 <svg

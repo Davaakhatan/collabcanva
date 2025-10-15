@@ -1,5 +1,5 @@
-import { useEffect, useRef } from "react";
-import { Rect, Circle, Line, Text, Transformer } from "react-konva";
+import { useEffect, useRef, useState } from "react";
+import { Rect, Circle, Ellipse, Line, Text, Transformer } from "react-konva";
 import type Konva from "konva";
 import { useAuth } from "../../contexts/AuthContext";
 import type { Shape as ShapeType } from "../../contexts/CanvasContext";
@@ -18,6 +18,8 @@ export default function Shape({ shape, isSelected, onSelect, onChange, onLock }:
   const transformerRef = useRef<Konva.Transformer>(null);
   const hasLockedRef = useRef(false);
   const mouseDownPosRef = useRef<{ x: number; y: number } | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editText, setEditText] = useState(shape.text || '');
   
   // Check if locked by someone else
   const userId = (user as any)?.uid || null;
@@ -207,7 +209,7 @@ export default function Shape({ shape, isSelected, onSelect, onChange, onLock }:
       
       case 'ellipse':
         return (
-          <Circle
+          <Ellipse
             {...commonProps}
             x={shape.x + shape.width / 2}
             y={shape.y + shape.height / 2}
@@ -244,7 +246,7 @@ export default function Shape({ shape, isSelected, onSelect, onChange, onLock }:
             {...commonProps}
             x={shape.x}
             y={shape.y}
-            text={shape.text || 'Text'}
+            text={shape.text || 'Double-click to edit'}
             fontSize={shape.fontSize || 16}
             fontFamily={shape.fontFamily || 'Arial'}
             fill={shape.fill}
@@ -253,6 +255,12 @@ export default function Shape({ shape, isSelected, onSelect, onChange, onLock }:
             rotation={shape.rotation || 0}
             align="left"
             verticalAlign="top"
+            onDblClick={() => {
+              if (!isLockedByOther) {
+                setIsEditing(true);
+                setEditText(shape.text || '');
+              }
+            }}
           />
         );
       
@@ -311,6 +319,52 @@ export default function Shape({ shape, isSelected, onSelect, onChange, onLock }:
           anchorStrokeWidth={2}
           borderDash={[3, 3]}
         />
+      )}
+      
+      {/* Text Editing Overlay */}
+      {isEditing && shape.type === 'text' && (
+        <div
+          style={{
+            position: 'absolute',
+            top: `${shape.y}px`,
+            left: `${shape.x}px`,
+            width: `${shape.width}px`,
+            minHeight: `${shape.height}px`,
+            zIndex: 1000,
+          }}
+        >
+          <textarea
+            autoFocus
+            value={editText}
+            onChange={(e) => setEditText(e.target.value)}
+            onBlur={() => {
+              setIsEditing(false);
+              onChange({ text: editText });
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Escape') {
+                setIsEditing(false);
+                setEditText(shape.text || '');
+              } else if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                setIsEditing(false);
+                onChange({ text: editText });
+              }
+            }}
+            style={{
+              width: '100%',
+              minHeight: '100%',
+              fontSize: `${shape.fontSize || 16}px`,
+              fontFamily: shape.fontFamily || 'Arial',
+              color: shape.fill || '#000000',
+              background: 'rgba(255, 255, 255, 0.95)',
+              border: '2px solid #0066FF',
+              borderRadius: '4px',
+              padding: '4px',
+              resize: 'none',
+              outline: 'none',
+            }}
+          />
+        </div>
       )}
     </>
   );

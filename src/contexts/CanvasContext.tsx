@@ -120,6 +120,9 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
     if (type === 'circle') {
       defaultWidth = 100;
       defaultHeight = 100;
+    } else if (type === 'ellipse') {
+      defaultWidth = 150;
+      defaultHeight = 80;
     } else if (type === 'text') {
       defaultWidth = 200;
       defaultHeight = 40;

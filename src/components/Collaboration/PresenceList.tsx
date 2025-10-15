@@ -24,11 +24,11 @@ export default function PresenceList({ cursors, onUserClick }: PresenceListProps
   };
 
   return (
-    <div className="fixed top-20 right-6 bg-white/90 backdrop-blur-lg rounded-2xl shadow-xl border border-gray-200/50 z-40 max-w-xs overflow-hidden transition-all duration-300">
+    <div className="fixed bottom-24 left-6 bg-white/90 dark:bg-slate-800/90 backdrop-blur-lg rounded-2xl shadow-xl border border-gray-200/50 dark:border-slate-600/50 z-40 max-w-xs overflow-hidden transition-all duration-300">
       {/* Header */}
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full p-4 flex items-center justify-between hover:bg-gray-50/50 transition-colors"
+        className="w-full p-4 flex items-center justify-between hover:bg-gray-50/50 dark:hover:bg-slate-700/50 transition-colors"
       >
         <div className="flex items-center gap-3">
           <div className="relative">
@@ -36,10 +36,10 @@ export default function PresenceList({ cursors, onUserClick }: PresenceListProps
             <div className="absolute inset-0 w-3 h-3 bg-green-500 rounded-full animate-ping opacity-75"></div>
           </div>
           <div className="text-left">
-            <h3 className="text-sm font-bold text-gray-900">
+            <h3 className="text-sm font-bold text-gray-900 dark:text-gray-100">
               Online
             </h3>
-            <p className="text-xs text-gray-500">{onlineCount} {onlineCount === 1 ? 'person' : 'people'}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">{onlineCount} {onlineCount === 1 ? 'person' : 'people'}</p>
           </div>
         </div>
         <svg
@@ -62,7 +62,7 @@ export default function PresenceList({ cursors, onUserClick }: PresenceListProps
                 key={user.userId}
                 onClick={() => handleUserClick(user.userId)}
                 disabled={!hasCursor}
-                className="w-full flex items-center gap-3 p-2 rounded-xl hover:bg-blue-50 transition-all group disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-gray-50"
+                className="w-full flex items-center gap-3 p-2 rounded-xl hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-all group disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-gray-50 dark:disabled:hover:bg-slate-700"
                 title={hasCursor ? `Jump to ${user.displayName}'s cursor` : `${user.displayName} (no cursor yet)`}
               >
                 <div
@@ -72,7 +72,7 @@ export default function PresenceList({ cursors, onUserClick }: PresenceListProps
                   {user.displayName.charAt(0).toUpperCase()}
                 </div>
                 <div className="flex-1 min-w-0 text-left">
-                  <p className="text-sm font-semibold text-gray-900 truncate">
+                  <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">
                     {user.displayName}
                   </p>
                   <div className="flex items-center gap-1">
@@ -80,7 +80,7 @@ export default function PresenceList({ cursors, onUserClick }: PresenceListProps
                       className="w-2 h-2 rounded-full"
                       style={{ backgroundColor: user.color }}
                     />
-                    <span className="text-xs text-gray-500">
+                    <span className="text-xs text-gray-500 dark:text-gray-400">
                       {hasCursor ? 'Click to follow' : 'Active now'}
                     </span>
                   </div>
