@@ -70,11 +70,20 @@ export default function TextFormatting({ selectedShapeId }: TextFormattingProps)
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
               </svg>
             </button>
-            <span className="px-3 py-1.5 bg-gray-100 dark:bg-slate-700 rounded-lg text-sm font-semibold text-gray-900 dark:text-gray-100 min-w-[60px] text-center">
-              {fontSize}px
-            </span>
+            <input
+              type="number"
+              min="8"
+              max="200"
+              value={fontSize}
+              onChange={(e) => {
+                const value = parseInt(e.target.value) || 16;
+                const clampedValue = Math.max(8, Math.min(200, value));
+                updateShape(selectedShapeId, { fontSize: clampedValue });
+              }}
+              className="px-3 py-1.5 bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg text-sm font-semibold text-gray-900 dark:text-gray-100 w-[70px] text-center focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
             <button
-              onClick={() => updateShape(selectedShapeId, { fontSize: Math.min(96, fontSize + 2) })}
+              onClick={() => updateShape(selectedShapeId, { fontSize: Math.min(200, fontSize + 2) })}
               className="p-2 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg transition-colors border border-gray-200 dark:border-slate-600"
               title="Increase font size"
             >

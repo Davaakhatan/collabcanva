@@ -240,11 +240,12 @@ export default function Shape({ shape, isSelected, onSelect, onChange, onLock, o
         );
       
       case 'text':
-        // Build font style string (Konva combines weight, style, and family)
+        // Build font style string (Konva combines style, weight, and family)
         const fontWeight = shape.fontWeight || 'normal';
         const fontStyle = shape.fontStyle || 'normal';
         const fontFamily = shape.fontFamily || 'Arial';
-        const fontString = `${fontStyle} ${fontWeight} ${shape.fontSize || 16}px ${fontFamily}`;
+        // Format: "{style} {weight} {family}" (fontSize is separate prop)
+        const fontString = `${fontStyle} ${fontWeight} ${fontFamily}`;
         
         return (
           <Text
