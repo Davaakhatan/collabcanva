@@ -98,12 +98,12 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
   return (
     <>
       {/* Main Controls */}
-      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur-lg rounded-2xl shadow-2xl border border-gray-200/50 p-3 flex items-center gap-2 z-50">
+      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-white/90 dark:bg-slate-800/90 backdrop-blur-lg rounded-2xl shadow-2xl border border-gray-200/50 dark:border-slate-600/50 p-3 flex items-center gap-2 z-50">
         {/* Zoom Out */}
         <button
           onClick={handleZoomOut}
           disabled={scale <= MIN_ZOOM}
-          className="p-2 hover:bg-gray-100 rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="p-2 hover:bg-gray-100 dark:hover:bg-slate-700 rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-gray-700 dark:text-gray-200"
           title="Zoom Out"
         >
           <svg
@@ -122,7 +122,7 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
         </button>
 
         {/* Zoom Percentage */}
-        <span className="text-sm font-medium text-gray-700 min-w-[4rem] text-center">
+        <span className="text-sm font-medium text-gray-700 dark:text-gray-200 min-w-[4rem] text-center">
           {zoomPercentage}%
         </span>
 
@@ -130,7 +130,7 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
         <button
           onClick={handleZoomIn}
           disabled={scale >= MAX_ZOOM}
-          className="p-2 hover:bg-gray-100 rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="p-2 hover:bg-gray-100 dark:hover:bg-slate-700 rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-gray-700 dark:text-gray-200"
           title="Zoom In"
         >
           <svg
@@ -149,12 +149,12 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
         </button>
 
         {/* Divider */}
-        <div className="w-px h-6 bg-gray-300 mx-1" />
+        <div className="w-px h-6 bg-gray-300 dark:bg-slate-600 mx-1" />
 
         {/* Reset View */}
         <button
           onClick={resetView}
-          className="p-2 hover:bg-gray-100 rounded transition-colors"
+          className="p-2 hover:bg-gray-100 dark:hover:bg-slate-700 rounded transition-colors text-gray-700 dark:text-gray-200"
           title="Reset View"
         >
           <svg
@@ -173,13 +173,13 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
         </button>
 
         {/* Divider */}
-        <div className="w-px h-6 bg-gray-300 mx-1" />
+        <div className="w-px h-6 bg-gray-300 dark:bg-slate-600 mx-1" />
 
         {/* Undo/Redo */}
         <button
           onClick={undo}
           disabled={!canUndo}
-          className="p-2 hover:bg-gray-100 rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="p-2 hover:bg-gray-100 dark:hover:bg-slate-700 rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-gray-700 dark:text-gray-200"
           title="Undo (Cmd+Z)"
         >
           <svg
@@ -199,7 +199,7 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
         <button
           onClick={redo}
           disabled={!canRedo}
-          className="p-2 hover:bg-gray-100 rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="p-2 hover:bg-gray-100 dark:hover:bg-slate-700 rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-gray-700 dark:text-gray-200"
           title="Redo (Cmd+Shift+Z)"
         >
           <svg
@@ -218,7 +218,7 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
         </button>
 
         {/* Divider */}
-        <div className="w-px h-6 bg-gray-300 mx-1" />
+        <div className="w-px h-6 bg-gray-300 dark:bg-slate-600 mx-1" />
 
         {/* Add Shape Dropdown */}
         <div className="relative">
@@ -256,7 +256,7 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
         </div>
 
         {/* Divider */}
-        <div className="w-px h-6 bg-gray-300 mx-1" />
+        <div className="w-px h-6 bg-gray-300 dark:bg-slate-600 mx-1" />
 
         {/* Z-index controls (only show when shape is selected) */}
         {selectedId && (
@@ -297,7 +297,7 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 13l-5 5m0 0l-5-5m5 5V6" />
               </svg>
             </button>
-            <div className="w-px h-6 bg-gray-300 mx-1" />
+            <div className="w-px h-6 bg-gray-300 dark:bg-slate-600 mx-1" />
             
             {/* Color Picker */}
             <div className="relative">
@@ -335,7 +335,7 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
                 </div>
               )}
             </div>
-            <div className="w-px h-6 bg-gray-300 mx-1" />
+            <div className="w-px h-6 bg-gray-300 dark:bg-slate-600 mx-1" />
             
             {/* Alignment Tools */}
             <div className="flex items-center gap-1">
@@ -394,14 +394,14 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
                 </svg>
               </button>
             </div>
-            <div className="w-px h-6 bg-gray-300 mx-1" />
+            <div className="w-px h-6 bg-gray-300 dark:bg-slate-600 mx-1" />
           </>
         )}
 
         {/* Performance Toggle */}
         <button
           onClick={() => setShowPerf(!showPerf)}
-          className={`p-2 rounded-xl transition-all duration-200 ${showPerf ? 'bg-gradient-to-br from-blue-100 to-purple-100 text-blue-700 shadow-inner' : 'hover:bg-gray-100'}`}
+          className={`p-2 rounded-xl transition-all duration-200 ${showPerf ? 'bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900 dark:to-purple-900 text-blue-700 dark:text-blue-300 shadow-inner' : 'hover:bg-gray-100 dark:hover:bg-slate-700 text-gray-700 dark:text-gray-200'}`}
           title="Performance Info"
         >
           <svg
@@ -464,29 +464,29 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
 
       {/* Performance Panel */}
       {showPerf && (
-        <div className="fixed bottom-24 left-1/2 -translate-x-1/2 bg-white/95 backdrop-blur-lg rounded-2xl shadow-2xl border border-gray-200/50 p-5 z-50 min-w-[320px] animate-in fade-in slide-in-from-bottom-4 duration-200">
-          <h3 className="text-sm font-bold text-gray-900 mb-4 flex items-center gap-2">
+        <div className="fixed bottom-24 left-1/2 -translate-x-1/2 bg-white/95 dark:bg-slate-800/95 backdrop-blur-lg rounded-2xl shadow-2xl border border-gray-200/50 dark:border-slate-600/50 p-5 z-50 min-w-[320px] animate-in fade-in slide-in-from-bottom-4 duration-200">
+          <h3 className="text-sm font-bold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
             <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
             Performance Monitor
           </h3>
           
           <div className="space-y-2 mb-4">
             <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">FPS:</span>
+              <span className="text-sm text-gray-600 dark:text-gray-400">FPS:</span>
               <span className={`text-sm font-bold ${fpsColor}`}>{fps}</span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">Shapes:</span>
-              <span className="text-sm font-bold text-gray-900">{shapeCount}</span>
+              <span className="text-sm text-gray-600 dark:text-gray-400">Shapes:</span>
+              <span className="text-sm font-bold text-gray-900 dark:text-gray-100">{shapeCount}</span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">Target:</span>
-              <span className="text-sm text-gray-600">60 FPS with 500+ shapes</span>
+              <span className="text-sm text-gray-600 dark:text-gray-400">Target:</span>
+              <span className="text-sm text-gray-600 dark:text-gray-400">60 FPS with 500+ shapes</span>
             </div>
           </div>
 
-          <div className="border-t pt-3 space-y-2">
-            <p className="text-xs text-gray-500 mb-2">Stress Test:</p>
+          <div className="border-t dark:border-slate-600 pt-3 space-y-2">
+            <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Stress Test:</p>
             <div className="flex gap-2">
               <button
                 onClick={() => handleStressTest(50)}
