@@ -121,14 +121,14 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
     let defaultHeight = DEFAULT_SHAPE_HEIGHT;
     
     if (type === 'circle') {
-      defaultWidth = 100;
-      defaultHeight = 100;
-    } else if (type === 'ellipse') {
       defaultWidth = 150;
-      defaultHeight = 80;
-    } else if (type === 'text') {
+      defaultHeight = 150;
+    } else if (type === 'ellipse') {
       defaultWidth = 200;
-      defaultHeight = 40;
+      defaultHeight = 120;
+    } else if (type === 'text') {
+      defaultWidth = 300;
+      defaultHeight = 60;
     }
 
     const newShape: Shape = {

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { useCanvas } from "../../contexts/CanvasContext";
 import { MIN_ZOOM, MAX_ZOOM, ZOOM_SPEED, CANVAS_WIDTH, CANVAS_HEIGHT } from "../../utils/constants";
@@ -91,12 +91,32 @@ const ShapeMenu = ({ isOpen, onClose, onSelectShape, anchorRef, mode }: ShapeMen
   const menuRef = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState({ top: 0, left: 0 });
 
-  const shapeTypes = [
-    { type: 'rectangle' as const, icon: '⬜', label: 'Rectangle' },
-    { type: 'circle' as const, icon: '⚫', label: 'Circle' },
-    { type: 'triangle' as const, icon: '▲', label: 'Triangle' },
-    { type: 'ellipse' as const, icon: '⬯', label: 'Ellipse' },
-    { type: 'text' as const, icon: 'T', label: 'Text' },
+  const shapeTypes: Array<{ type: 'rectangle' | 'circle' | 'triangle' | 'ellipse' | 'text', label: string, svg: React.ReactElement }> = [
+    { 
+      type: 'rectangle' as const, 
+      label: 'Rectangle',
+      svg: <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><rect x="3" y="6" width="18" height="12" rx="2" /></svg>
+    },
+    { 
+      type: 'circle' as const, 
+      label: 'Circle',
+      svg: <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><circle cx="12" cy="12" r="9" /></svg>
+    },
+    { 
+      type: 'triangle' as const, 
+      label: 'Triangle',
+      svg: <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path d="M12 4 L20 20 L4 20 Z" /></svg>
+    },
+    { 
+      type: 'ellipse' as const, 
+      label: 'Ellipse',
+      svg: <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><ellipse cx="12" cy="12" rx="9" ry="6" /></svg>
+    },
+    { 
+      type: 'text' as const, 
+      label: 'Text',
+      svg: <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h7" /></svg>
+    },
   ];
 
   // Calculate position
@@ -185,8 +205,8 @@ const ShapeMenu = ({ isOpen, onClose, onSelectShape, anchorRef, mode }: ShapeMen
             tabIndex={0}
             className="w-full h-10 px-3 flex items-center gap-3 hover:bg-gray-50 dark:hover:bg-slate-700 focus-visible:bg-gray-50 dark:focus-visible:bg-slate-700 focus-visible:outline-none rounded-md mx-1 transition-colors"
           >
-            <div className="size-9 rounded-md bg-gray-100 dark:bg-slate-700 flex items-center justify-center shrink-0">
-              <span className="w-9 h-9 flex items-center justify-center text-xl">{shape.icon}</span>
+            <div className="size-9 rounded-md bg-gray-100 dark:bg-slate-700 flex items-center justify-center shrink-0 text-gray-700 dark:text-gray-300">
+              {shape.svg}
             </div>
             <span className="text-[15px] leading-none font-medium text-gray-700 dark:text-gray-200">{shape.label}</span>
           </button>

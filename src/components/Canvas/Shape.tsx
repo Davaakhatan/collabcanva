@@ -240,13 +240,14 @@ export default function Shape({ shape, isSelected, onSelect, onChange, onLock, o
         );
       
       case 'text':
-        // Konva uses CSS font shorthand: "style weight size family"
-        const fontWeight = shape.fontWeight || 'normal';
-        const fontStyle = shape.fontStyle || 'normal';
-        const fontFamily = shape.fontFamily || 'Arial';
-        const fontSize = shape.fontSize || 16;
-        // CSS font format: "[style] [variant] [weight] [size] [family]"
-        const fontString = `${fontStyle} ${fontWeight} ${fontSize}px ${fontFamily}`;
+        // Build CSS font string: "[style] [weight] [size] [family]"
+        const textFontStyle = shape.fontStyle || 'normal';
+        const textFontWeight = shape.fontWeight || 'normal';
+        const textFontSize = shape.fontSize || 16;
+        const textFontFamily = shape.fontFamily || 'Arial';
+        
+        // Konva expects font in CSS format without "px" for fontSize prop, but needs it in fontFamily
+        const fullFontString = `${textFontStyle} ${textFontWeight} ${textFontSize}px ${textFontFamily}`;
         
         return (
           <Text
@@ -254,8 +255,7 @@ export default function Shape({ shape, isSelected, onSelect, onChange, onLock, o
             x={shape.x}
             y={shape.y}
             text={shape.text || 'Double-click to edit'}
-            fontSize={fontSize}
-            fontFamily={fontString}
+            fontFamily={fullFontString}
             textDecoration={shape.textDecoration || ''}
             fill={shape.fill}
             width={shape.width}

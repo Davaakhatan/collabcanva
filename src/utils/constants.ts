@@ -16,8 +16,8 @@ export const GRID_SIZE = 50;
 export const GRID_COLOR = '#e0e0e0';
 
 // Default shape properties
-export const DEFAULT_SHAPE_WIDTH = 100;
-export const DEFAULT_SHAPE_HEIGHT = 100;
+export const DEFAULT_SHAPE_WIDTH = 150;
+export const DEFAULT_SHAPE_HEIGHT = 150;
 export const DEFAULT_SHAPE_COLOR = '#cccccc';
 
 // Cursor colors palette
