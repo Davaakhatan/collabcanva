@@ -198,7 +198,7 @@ const ShapeMenu = ({ isOpen, onClose, onSelectShape, anchorRef, mode }: ShapeMen
 };
 
 export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
-  const { scale, setScale, resetView, addShape, stageRef, shapes, selectedId, updateShape, bringToFront, sendToBack, undo, redo, canUndo, canRedo } = useCanvas();
+  const { scale, setScale, resetView, addShape, stageRef, shapes, selectedId, updateShape, undo, redo, canUndo, canRedo } = useCanvas();
   const [fps, setFps] = useState(60);
   const [showPerf, setShowPerf] = useState(false);
   const [showShapeMenu, setShowShapeMenu] = useState(false);
@@ -404,17 +404,6 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
             {selectedId && (
               <>
                 <div className="w-full h-px bg-gray-200/70 dark:bg-slate-600/70" />
-                <TButton onClick={() => bringToFront(selectedId)} title="Bring to Front" aria-label="Bring to Front">
-                  <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M7 11l5-5m0 0l5 5m-5-5v12" />
-                  </svg>
-                </TButton>
-                <TButton onClick={() => sendToBack(selectedId)} title="Send to Back" aria-label="Send to Back">
-                  <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M17 13l-5 5m0 0l-5-5m5 5V6" />
-                  </svg>
-                </TButton>
-
                 <TButton 
                   buttonRef={colorPickerButtonRef}
                   onClick={() => setShowColorPicker(prev => !prev)} 
@@ -545,17 +534,6 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
             {selectedId && (
               <>
                 <div className="w-px h-6 bg-gray-200/70 dark:bg-slate-600/70" />
-                <TButton onClick={() => bringToFront(selectedId)} title="Bring to Front" aria-label="Bring to Front">
-                  <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M7 11l5-5m0 0l5 5m-5-5v12" />
-                  </svg>
-                </TButton>
-                <TButton onClick={() => sendToBack(selectedId)} title="Send to Back" aria-label="Send to Back">
-                  <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M17 13l-5 5m0 0l-5-5m5 5V6" />
-                  </svg>
-                </TButton>
-
                 <TButton 
                   buttonRef={colorPickerButtonRef}
                   onClick={() => setShowColorPicker(prev => !prev)} 
