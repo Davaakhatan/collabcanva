@@ -38,35 +38,48 @@ export default function Shape({ shape, isSelected, onSelect, onChange, onLock }:
       onLock();
     }
     
-    if (isSelected && !isLockedByOther) {
-      // Attach transformer to the shape
-      if (transformerRef.current && shapeRef.current) {
-        transformerRef.current.nodes([shapeRef.current]);
-        transformerRef.current.getLayer()?.batchDraw();
-      }
-    }
-    
     // Reset lock ref when deselected
     if (!isSelected) {
       hasLockedRef.current = false;
     }
   }, [isSelected, isLockedByOther, isLockedByMe, shape.id]);
 
+  // Separate effect for transformer attachment to ensure it always updates
+  useEffect(() => {
+    if (isSelected && !isLockedByOther && transformerRef.current && shapeRef.current) {
+      // Attach transformer to the shape
+      console.log('Attaching transformer to shape:', shape.id);
+      transformerRef.current.nodes([shapeRef.current]);
+      transformerRef.current.forceUpdate();
+      transformerRef.current.getLayer()?.batchDraw();
+    }
+  }, [isSelected, isLockedByOther, shape.id, shape.x, shape.y, shape.width, shape.height, shape.rotation]);
+
   // Handle mouse/touch down to track starting position
   const handlePointerDown = (e: Konva.KonvaEventObject<MouseEvent | TouchEvent>) => {
-    const stage = e.target.getStage();
-    if (stage) {
-      const pointerPos = stage.getPointerPosition();
-      if (pointerPos) {
-        mouseDownPosRef.current = { x: pointerPos.x, y: pointerPos.y };
+    // Only use click detection if shape is NOT already selected
+    // If already selected, let normal drag behavior work
+    if (!isSelected) {
+      const stage = e.target.getStage();
+      if (stage) {
+        const pointerPos = stage.getPointerPosition();
+        if (pointerPos) {
+          mouseDownPosRef.current = { x: pointerPos.x, y: pointerPos.y };
+        }
       }
     }
   };
 
   // Handle mouse/touch up to detect clicks (even with slight movement)
   const handlePointerUp = (e: Konva.KonvaEventObject<MouseEvent | TouchEvent>) => {
+    // Only use click detection for non-selected shapes
+    if (isSelected || !mouseDownPosRef.current) {
+      mouseDownPosRef.current = null;
+      return;
+    }
+
     const stage = e.target.getStage();
-    if (!stage || !mouseDownPosRef.current) return;
+    if (!stage) return;
 
     const pointerPos = stage.getPointerPosition();
     if (!pointerPos) return;
@@ -188,6 +201,9 @@ export default function Shape({ shape, isSelected, onSelect, onChange, onLock }:
             return newBox;
           }}
           rotateEnabled={true}
+          resizeEnabled={true}
+          keepRatio={false}
+          ignoreStroke={true}
           enabledAnchors={[
             'top-left',
             'top-right',
@@ -203,8 +219,10 @@ export default function Shape({ shape, isSelected, onSelect, onChange, onLock }:
           borderStrokeWidth={2}
           anchorFill="#0066FF"
           anchorStroke="#FFFFFF"
-          anchorSize={8}
-          anchorCornerRadius={4}
+          anchorSize={10}
+          anchorCornerRadius={5}
+          anchorStrokeWidth={2}
+          borderDash={[3, 3]}
         />
       )}
     </>
