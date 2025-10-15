@@ -18,6 +18,8 @@ export function useHistory(
 
   // Save current state to history
   const pushState = useCallback(() => {
+    console.log('📝 Saving to history:', { shapeCount: currentShapes.length, selectedId });
+    
     setHistory((prev) => {
       // Get current index from the updater function to avoid stale closure
       return prev;
@@ -36,6 +38,8 @@ export function useHistory(
         
         newHistory.push(newState);
         
+        console.log('✅ History saved. New history length:', newHistory.length, 'New index:', prevIndex + 1);
+        
         // Limit history size
         if (newHistory.length > MAX_HISTORY) {
           newHistory.shift();
@@ -51,21 +55,29 @@ export function useHistory(
 
   // Undo
   const undo = useCallback(() => {
+    console.log('⏪ Undo called. Current index:', currentIndex, 'History length:', history.length);
     if (currentIndex > 0) {
       const newIndex = currentIndex - 1;
       const state = history[newIndex];
+      console.log('⏪ Undoing to index:', newIndex, 'Shape count:', state.shapes.length);
       setCurrentIndex(newIndex);
       onRestore(state.shapes, state.selectedId);
+    } else {
+      console.log('⏪ Cannot undo - already at oldest state');
     }
   }, [currentIndex, history, onRestore]);
 
   // Redo
   const redo = useCallback(() => {
+    console.log('⏩ Redo called. Current index:', currentIndex, 'History length:', history.length);
     if (currentIndex < history.length - 1) {
       const newIndex = currentIndex + 1;
       const state = history[newIndex];
+      console.log('⏩ Redoing to index:', newIndex, 'Shape count:', state.shapes.length);
       setCurrentIndex(newIndex);
       onRestore(state.shapes, state.selectedId);
+    } else {
+      console.log('⏩ Cannot redo - already at newest state');
     }
   }, [currentIndex, history, onRestore]);
 

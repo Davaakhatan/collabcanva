@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useState, lazy, Suspense } from "react";
 import Navbar from "../Layout/Navbar";
 import Canvas from "./Canvas";
 import CanvasControls from "./CanvasControls";
-import HelpOverlay from "./HelpOverlay";
-import AICommandPanel from "../AI/AICommandPanel";
 import { CanvasProvider } from "../../contexts/CanvasContext";
+
+// Lazy load heavy components that aren't needed immediately
+const HelpOverlay = lazy(() => import("./HelpOverlay"));
+const AICommandPanel = lazy(() => import("../AI/AICommandPanel"));
 
 export default function CanvasPage() {
   const [showHelp, setShowHelp] = useState(false);
@@ -18,9 +20,15 @@ export default function CanvasPage() {
         <div className="pt-16">
           <Canvas onShowHelp={handleShowHelp} />
           <CanvasControls onShowHelp={handleShowHelp} />
-          <AICommandPanel />
+          <Suspense fallback={<div />}>
+            <AICommandPanel />
+          </Suspense>
         </div>
-        {showHelp && <HelpOverlay onClose={() => setShowHelp(false)} />}
+        {showHelp && (
+          <Suspense fallback={<div />}>
+            <HelpOverlay onClose={() => setShowHelp(false)} />
+          </Suspense>
+        )}
       </div>
     </CanvasProvider>
   );

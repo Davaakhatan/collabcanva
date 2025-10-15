@@ -206,6 +206,34 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
   const [toolbarPosition, setToolbarPosition] = useState<'bottom' | 'left'>('bottom');
   
   const addShapeButtonRef = useRef<HTMLButtonElement>(null);
+  
+  // Movement functions
+  const moveShape = (direction: 'up' | 'down' | 'left' | 'right') => {
+    if (!selectedId) return;
+    const shape = shapes.find(s => s.id === selectedId);
+    if (!shape) return;
+    
+    const moveDistance = 10; // Move 10px at a time
+    let newX = shape.x;
+    let newY = shape.y;
+    
+    switch (direction) {
+      case 'up':
+        newY -= moveDistance;
+        break;
+      case 'down':
+        newY += moveDistance;
+        break;
+      case 'left':
+        newX -= moveDistance;
+        break;
+      case 'right':
+        newX += moveDistance;
+        break;
+    }
+    
+    updateShape(selectedId, { x: newX, y: newY });
+  };
   const colorPickerButtonRef = useRef<HTMLButtonElement>(null);
 
   const colorPalette = [
@@ -330,6 +358,35 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
             </TButton>
 
             <div className="w-full h-px bg-gray-200/70 dark:bg-slate-600/70" />
+            
+            {/* Movement Controls */}
+            {selectedId && (
+              <>
+                <TButton onClick={() => moveShape('up')} title="Move Up" aria-label="Move Up">
+                  <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 15l7-7 7 7" />
+                  </svg>
+                </TButton>
+                <TButton onClick={() => moveShape('down')} title="Move Down" aria-label="Move Down">
+                  <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </TButton>
+                <TButton onClick={() => moveShape('left')} title="Move Left" aria-label="Move Left">
+                  <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                  </svg>
+                </TButton>
+                <TButton onClick={() => moveShape('right')} title="Move Right" aria-label="Move Right">
+                  <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                  </svg>
+                </TButton>
+                <div className="w-full h-px bg-gray-200/70 dark:bg-slate-600/70" />
+              </>
+            )}
+
+            <div className="w-full h-px bg-gray-200/70 dark:bg-slate-600/70" />
 
             {/* Primary Add Button */}
             <TButton 
@@ -443,6 +500,33 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M21 10H11a8 8 0 00-8 8v2m18-10l-6 6m6-6l-6-6" />
               </svg>
             </TButton>
+
+            {/* Movement Controls */}
+            {selectedId && (
+              <>
+                <div className="w-px h-6 bg-gray-200/70 dark:bg-slate-600/70" />
+                <TButton onClick={() => moveShape('up')} title="Move Up" aria-label="Move Up">
+                  <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 15l7-7 7 7" />
+                  </svg>
+                </TButton>
+                <TButton onClick={() => moveShape('down')} title="Move Down" aria-label="Move Down">
+                  <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </TButton>
+                <TButton onClick={() => moveShape('left')} title="Move Left" aria-label="Move Left">
+                  <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                  </svg>
+                </TButton>
+                <TButton onClick={() => moveShape('right')} title="Move Right" aria-label="Move Right">
+                  <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                  </svg>
+                </TButton>
+              </>
+            )}
 
             <div className="w-px h-6 bg-gray-200/70 dark:bg-slate-600/70" />
 
