@@ -17,6 +17,7 @@ export default function Shape({ shape, isSelected, onSelect, onChange, onLock }:
   const shapeRef = useRef<Konva.Rect>(null);
   const transformerRef = useRef<Konva.Transformer>(null);
   const hasLockedRef = useRef(false);
+  const mouseDownPosRef = useRef<{ x: number; y: number } | null>(null);
   
   // Check if locked by someone else
   const userId = (user as any)?.uid || null;
@@ -51,8 +52,43 @@ export default function Shape({ shape, isSelected, onSelect, onChange, onLock }:
     }
   }, [isSelected, isLockedByOther, isLockedByMe, shape.id]);
 
+  // Handle mouse/touch down to track starting position
+  const handlePointerDown = (e: Konva.KonvaEventObject<MouseEvent | TouchEvent>) => {
+    const stage = e.target.getStage();
+    if (stage) {
+      const pointerPos = stage.getPointerPosition();
+      if (pointerPos) {
+        mouseDownPosRef.current = { x: pointerPos.x, y: pointerPos.y };
+      }
+    }
+  };
+
+  // Handle mouse/touch up to detect clicks (even with slight movement)
+  const handlePointerUp = (e: Konva.KonvaEventObject<MouseEvent | TouchEvent>) => {
+    const stage = e.target.getStage();
+    if (!stage || !mouseDownPosRef.current) return;
+
+    const pointerPos = stage.getPointerPosition();
+    if (!pointerPos) return;
+
+    // Calculate distance moved
+    const dx = pointerPos.x - mouseDownPosRef.current.x;
+    const dy = pointerPos.y - mouseDownPosRef.current.y;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+
+    // If moved less than 5 pixels, treat as a click/selection
+    if (distance < 5) {
+      console.log('Shape clicked (with tolerance):', shape.id);
+      onSelect();
+    }
+
+    mouseDownPosRef.current = null;
+  };
+
   const handleDragStart = async () => {
     // Shape is already locked when selected, no need to lock again
+    // Clear mousedown position since we're now dragging
+    mouseDownPosRef.current = null;
   };
 
   const handleDragEnd = (e: Konva.KonvaEventObject<DragEvent>) => {
@@ -116,8 +152,10 @@ export default function Shape({ shape, isSelected, onSelect, onChange, onLock }:
         fill={shape.fill}
         rotation={shape.rotation || 0}
         draggable={!isLockedByOther}
-        onClick={onSelect}
-        onTap={onSelect}
+        onMouseDown={handlePointerDown}
+        onMouseUp={handlePointerUp}
+        onTouchStart={handlePointerDown}
+        onTouchEnd={handlePointerUp}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
         onTransformStart={handleTransformStart}
