@@ -24,7 +24,12 @@ export default function PresenceList({ cursors, onUserClick }: PresenceListProps
   };
 
   return (
-    <div className="fixed bottom-24 left-6 bg-white/90 dark:bg-slate-800/90 backdrop-blur-lg rounded-2xl shadow-xl border border-gray-200/50 dark:border-slate-600/50 z-40 max-w-xs overflow-hidden transition-all duration-300">
+    <div 
+      className="fixed left-6 bg-white/90 dark:bg-slate-800/90 backdrop-blur-lg rounded-2xl shadow-xl border border-gray-200/50 dark:border-slate-600/50 z-30 max-w-xs overflow-hidden transition-all duration-300"
+      style={{
+        bottom: 'max(env(safe-area-inset-bottom, 0px), 24px)'
+      }}
+    >
       {/* Header */}
       <button
         onClick={() => setIsExpanded(!isExpanded)}
