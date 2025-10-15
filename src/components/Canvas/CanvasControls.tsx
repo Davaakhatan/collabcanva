@@ -98,12 +98,16 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
 
   // Dynamic positioning based on toolbar position
   const positionClasses = toolbarPosition === 'bottom'
-    ? 'fixed bottom-6 left-1/2 -translate-x-1/2 flex-row'
-    : 'fixed left-6 top-20 flex-col max-h-[calc(100vh-120px)] overflow-y-auto w-16';
+    ? 'fixed bottom-6 left-1/2 -translate-x-1/2 flex-row items-center'
+    : 'fixed left-6 top-1/2 -translate-y-1/2 flex-col items-center max-h-[calc(100vh-180px)] overflow-y-auto';
 
   const dividerClasses = toolbarPosition === 'bottom'
-    ? 'w-px h-6 bg-gray-300 dark:bg-slate-600 mx-1'
-    : 'h-px w-12 bg-gray-300 dark:bg-slate-600 my-2';
+    ? 'w-px h-5 bg-gray-200 dark:bg-slate-600 mx-2'
+    : 'h-px w-full bg-gray-200 dark:bg-slate-600 my-3';
+    
+  const buttonBaseClasses = "p-2.5 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-150 text-gray-700 dark:text-gray-200 flex items-center justify-center group relative";
+  
+  const iconSize = "w-5 h-5";
 
   return (
     <>
@@ -131,53 +135,35 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
       </button>
       
       {/* Unified Toolbar */}
-      <div className={`${positionClasses} bg-white/95 dark:bg-slate-800/95 backdrop-blur-lg rounded-2xl shadow-2xl border border-gray-200/50 dark:border-slate-600/50 p-4 flex ${toolbarPosition === 'left' ? 'gap-3' : 'gap-2'} z-50`}>
+      <div className={`${positionClasses} bg-white/95 dark:bg-slate-800/95 backdrop-blur-lg rounded-2xl shadow-2xl border border-gray-200/50 dark:border-slate-600/50 ${toolbarPosition === 'bottom' ? 'px-4 py-3 gap-1' : 'px-3 py-4 gap-0 w-[60px] toolbar-scrollable'} flex z-50 transition-all duration-300`}>
         {/* Zoom Out */}
         <button
           onClick={handleZoomOut}
           disabled={scale <= MIN_ZOOM}
-          className={`${toolbarPosition === 'left' ? 'w-full' : ''} p-2 hover:bg-gray-100 dark:hover:bg-slate-700 rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-gray-700 dark:text-gray-200 flex items-center justify-center`}
+          className={buttonBaseClasses}
           title="Zoom Out"
         >
-          <svg
-            className="w-5 h-5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM13 10H7"
-            />
+          <svg className={iconSize} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM13 10H7" />
           </svg>
         </button>
 
         {/* Zoom Percentage */}
-        <span className="text-sm font-medium text-gray-700 dark:text-gray-200 min-w-[4rem] text-center">
-          {zoomPercentage}%
-        </span>
+        <div className={`${toolbarPosition === 'bottom' ? 'px-2' : 'py-2 w-full'} flex items-center justify-center`}>
+          <span className="text-sm font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap">
+            {zoomPercentage}%
+          </span>
+        </div>
 
         {/* Zoom In */}
         <button
           onClick={handleZoomIn}
           disabled={scale >= MAX_ZOOM}
-          className="p-2 hover:bg-gray-100 dark:hover:bg-slate-700 rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-gray-700 dark:text-gray-200"
+          className={buttonBaseClasses}
           title="Zoom In"
         >
-          <svg
-            className="w-5 h-5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"
-            />
+          <svg className={iconSize} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
           </svg>
         </button>
 
@@ -187,21 +173,11 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
         {/* Reset View */}
         <button
           onClick={resetView}
-          className="p-2 hover:bg-gray-100 dark:hover:bg-slate-700 rounded transition-colors text-gray-700 dark:text-gray-200"
+          className={buttonBaseClasses}
           title="Reset View"
         >
-          <svg
-            className="w-5 h-5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"
-            />
+          <svg className={iconSize} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
           </svg>
         </button>
 
@@ -212,41 +188,21 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
         <button
           onClick={undo}
           disabled={!canUndo}
-          className="p-2 hover:bg-gray-100 dark:hover:bg-slate-700 rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-gray-700 dark:text-gray-200"
+          className={buttonBaseClasses}
           title="Undo (Cmd+Z)"
         >
-          <svg
-            className="w-5 h-5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"
-            />
+          <svg className={iconSize} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
           </svg>
         </button>
         <button
           onClick={redo}
           disabled={!canRedo}
-          className="p-2 hover:bg-gray-100 dark:hover:bg-slate-700 rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-gray-700 dark:text-gray-200"
+          className={buttonBaseClasses}
           title="Redo (Cmd+Shift+Z)"
         >
-          <svg
-            className="w-5 h-5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M21 10H11a8 8 0 00-8 8v2m18-10l-6 6m6-6l-6-6"
-            />
+          <svg className={iconSize} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 10H11a8 8 0 00-8 8v2m18-10l-6 6m6-6l-6-6" />
           </svg>
         </button>
 
@@ -257,10 +213,10 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
         <div className="relative">
           <button
             onClick={() => setShowShapeMenu(!showShapeMenu)}
-            className={`p-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:shadow-lg transition-all duration-200 hover:scale-105 transform flex items-center justify-center ${toolbarPosition === 'left' ? 'w-full' : ''}`}
+            className="p-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 hover:shadow-md transition-all duration-150 flex items-center justify-center"
             title="Add Shape"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className={iconSize} fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
           </button>
@@ -288,19 +244,19 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
             <div className={dividerClasses} />
             <button
               onClick={() => bringToFront(selectedId)}
-              className="p-2 rounded-xl hover:bg-gradient-to-br hover:from-orange-100 hover:to-yellow-100 dark:hover:from-orange-900/30 dark:hover:to-yellow-900/30 hover:text-orange-700 dark:hover:text-orange-400 transition-all duration-200 text-gray-700 dark:text-gray-200"
+              className={buttonBaseClasses}
               title="Bring to Front"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className={iconSize} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 11l5-5m0 0l5 5m-5-5v12" />
               </svg>
             </button>
             <button
               onClick={() => sendToBack(selectedId)}
-              className="p-2 rounded-xl hover:bg-gradient-to-br hover:from-orange-100 hover:to-yellow-100 dark:hover:from-orange-900/30 dark:hover:to-yellow-900/30 hover:text-orange-700 dark:hover:text-orange-400 transition-all duration-200 text-gray-700 dark:text-gray-200"
+              className={buttonBaseClasses}
               title="Send to Back"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className={iconSize} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 13l-5 5m0 0l-5-5m5 5V6" />
               </svg>
             </button>
@@ -309,10 +265,10 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
             <div className="relative">
               <button
                 onClick={() => setShowColorPicker(!showColorPicker)}
-                className="p-2 rounded-xl hover:bg-gradient-to-br hover:from-pink-100 hover:to-rose-100 dark:hover:from-pink-900/30 dark:hover:to-rose-900/30 hover:text-pink-700 dark:hover:text-pink-400 transition-all duration-200 text-gray-700 dark:text-gray-200"
+                className={buttonBaseClasses}
                 title="Change Color"
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className={iconSize} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
                 </svg>
               </button>
@@ -344,63 +300,33 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
         {/* Performance Toggle */}
         <button
           onClick={() => setShowPerf(!showPerf)}
-          className={`p-2 rounded-xl transition-all duration-200 ${showPerf ? 'bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900 dark:to-purple-900 text-blue-700 dark:text-blue-300 shadow-inner' : 'hover:bg-gray-100 dark:hover:bg-slate-700 text-gray-700 dark:text-gray-200'}`}
+          className={`${buttonBaseClasses} ${showPerf ? 'bg-blue-100 dark:bg-blue-900/40' : ''}`}
           title="Performance Info"
         >
-          <svg
-            className="w-5 h-5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-            />
+          <svg className={iconSize} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
           </svg>
         </button>
 
         {/* Export PNG Button */}
         <button
           onClick={handleExportPNG}
-          className="p-2 rounded-xl hover:bg-gradient-to-br hover:from-green-100 hover:to-teal-100 hover:text-green-700 transition-all duration-200"
+          className={buttonBaseClasses}
           title="Export as PNG (High Quality)"
         >
-          <svg
-            className="w-5 h-5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-            />
+          <svg className={iconSize} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
           </svg>
         </button>
 
         {/* Help Button */}
         <button
           onClick={onShowHelp}
-          className="p-2 rounded-xl hover:bg-gradient-to-br hover:from-blue-100 hover:to-purple-100 hover:text-blue-700 transition-all duration-200"
+          className={buttonBaseClasses}
           title="Show Help (Keyboard Shortcuts)"
         >
-          <svg
-            className="w-5 h-5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
+          <svg className={iconSize} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         </button>
       </div>

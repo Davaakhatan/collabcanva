@@ -204,3 +204,34 @@ button:focus-visible {
 .dark .help-overlay-content::-webkit-scrollbar-thumb:hover {
   background: #64748b;
 }
+
+/* Hide scrollbar for toolbar but keep scroll functionality */
+.toolbar-scrollable {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.2) transparent;
+}
+
+.toolbar-scrollable::-webkit-scrollbar {
+  width: 3px;
+}
+
+.toolbar-scrollable::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.toolbar-scrollable::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.2);
+  border-radius: 10px;
+}
+
+.toolbar-scrollable::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.4);
+}
+
+.dark .toolbar-scrollable::-webkit-scrollbar-thumb {
+  background: rgba(71, 85, 105, 0.3);
+}
+
+.dark .toolbar-scrollable::-webkit-scrollbar-thumb:hover {
+  background: rgba(71, 85, 105, 0.5);
+}
