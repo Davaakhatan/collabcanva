@@ -31,7 +31,6 @@ export default function Canvas({ onShowHelp }: CanvasProps) {
     clearSelection,
     deleteSelectedShapes,
     updateShape,
-    lockShape,
     addShape,
     panToPosition,
   } = useCanvas();
@@ -475,7 +474,6 @@ export default function Canvas({ onShowHelp }: CanvasProps) {
                   selectShape(shape.id, addToSelection);
                 }}
                 onChange={(updates) => updateShape(shape.id, updates)}
-                onLock={() => lockShape(shape.id)}
                 onStartEditText={handleStartEditText}
               />
             ))}

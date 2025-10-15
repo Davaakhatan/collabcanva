@@ -9,11 +9,10 @@ interface ShapeProps {
   isSelected: boolean;
   onSelect: (e?: Konva.KonvaEventObject<MouseEvent | TouchEvent>) => void;
   onChange: (updates: Partial<ShapeType>) => void;
-  onLock: () => Promise<boolean>;
   onStartEditText?: (shapeId: string) => void;
 }
 
-export default function Shape({ shape, isSelected, onSelect, onChange, onLock, onStartEditText }: ShapeProps) {
+export default function Shape({ shape, isSelected, onSelect, onChange, onStartEditText }: ShapeProps) {
   const { user } = useAuth();
   const shapeRef = useRef<any>(null); // Can be Rect, Circle, Line, or Text
   const transformerRef = useRef<Konva.Transformer>(null);
@@ -28,22 +27,15 @@ export default function Shape({ shape, isSelected, onSelect, onChange, onLock, o
   
   // Consider locked by other only if locked, not by me, and not stale
   const isLockedByOther = shape.isLocked && shape.lockedBy !== userId && !isLockStale;
-  const isLockedByMe = shape.isLocked && shape.lockedBy === userId;
 
-  // Lock shape immediately when selected
+  // Lock is now handled in selectShape/selectShapes functions
+  // This effect just resets the lock ref when deselected
   useEffect(() => {
-    if (isSelected && !isLockedByOther && !isLockedByMe && !hasLockedRef.current) {
-      // Lock the shape immediately (only once)
-      console.log('Locking shape on select:', shape.id);
-      hasLockedRef.current = true;
-      onLock();
-    }
-    
     // Reset lock ref when deselected
     if (!isSelected) {
       hasLockedRef.current = false;
     }
-  }, [isSelected, isLockedByOther, isLockedByMe, shape.id]);
+  }, [isSelected]);
 
   // Separate effect for transformer attachment to ensure it always updates
   useEffect(() => {
