@@ -284,7 +284,7 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
           }}
         >
           <div 
-            className="flex flex-col gap-2 rounded-2xl bg-white/90 dark:bg-slate-800/90 backdrop-blur-md border border-gray-200/60 dark:border-slate-600/50 p-2 overflow-x-hidden overflow-y-auto w-[64px] overscroll-contain max-h-full"
+            className="vertical-toolbar-container flex flex-col gap-2 rounded-2xl bg-white/90 dark:bg-slate-800/90 backdrop-blur-md border border-gray-200/60 dark:border-slate-600/50 p-2 overflow-x-hidden overflow-y-auto w-[64px] overscroll-contain max-h-full"
             style={{
               boxShadow: '0 18px 50px rgba(0,0,0,.12)'
             }}

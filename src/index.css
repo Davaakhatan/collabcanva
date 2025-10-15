@@ -210,3 +210,13 @@ button:focus-visible {
 .dark .help-overlay-content::-webkit-scrollbar-thumb:hover {
   background: #64748b;
 }
+
+/* Hide scrollbar on vertical toolbar */
+.vertical-toolbar-container::-webkit-scrollbar {
+  display: none;
+}
+
+.vertical-toolbar-container {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
