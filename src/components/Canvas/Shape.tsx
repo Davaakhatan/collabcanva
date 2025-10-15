@@ -139,20 +139,20 @@ export default function Shape({ shape, isSelected, onSelect, onChange, onLock }:
     // Don't unlock here - will unlock when deselected
   };
 
-  // Determine stroke color based on lock state
+  // Determine stroke color based on selection and lock state
   let strokeColor = undefined;
   let strokeWidth = 0;
   
   if (isSelected) {
+    // Blue border when selected by me (I'm actively using it)
     strokeColor = '#0066FF';
     strokeWidth = 2;
   } else if (isLockedByOther) {
-    strokeColor = '#FF3333'; // Red for locked by others
-    strokeWidth = 2;
-  } else if (isLockedByMe) {
-    strokeColor = '#33FF57'; // Green for locked by me
+    // Red border when locked by someone else (they're using it)
+    strokeColor = '#FF3333';
     strokeWidth = 2;
   }
+  // No border when not selected and not locked = anyone can use it
 
   return (
     <>
@@ -178,14 +178,14 @@ export default function Shape({ shape, isSelected, onSelect, onChange, onLock }:
         opacity={isLockedByOther ? 0.6 : 1}
       />
       
-      {/* Show lock indicator text - only for fresh locks (not stale) */}
-      {shape.isLocked && !isLockStale && (
+      {/* Show lock indicator text - only when locked by someone else */}
+      {isLockedByOther && (
         <Text
           x={shape.x}
           y={shape.y - 20}
-          text={`🔒 ${isLockedByMe ? 'Editing...' : 'Locked'}`}
+          text="🔒 In use by another user"
           fontSize={12}
-          fill={isLockedByMe ? '#33FF57' : '#FF3333'}
+          fill="#FF3333"
           listening={false}
         />
       )}
