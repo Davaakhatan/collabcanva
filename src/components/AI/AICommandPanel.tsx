@@ -13,28 +13,35 @@ export default function AICommandPanel() {
     e.preventDefault();
     if (!command.trim() || isLoading) return;
 
+    console.log('🎨 User submitted AI command:', command);
     setIsLoading(true);
     setLastResult(null);
 
     try {
       const result = await executeAICommand(command);
+      console.log('📊 AI result received:', result);
       setLastResult(result);
       
       // Execute the commands on the canvas
       if (result.commands.length > 0) {
+        console.log('🎯 Executing', result.commands.length, 'shape commands on canvas');
         executeShapeCommands(result.commands, addShape);
+        console.log('✅ Shape commands executed successfully');
+      } else {
+        console.warn('⚠️ No commands to execute from AI response');
       }
       
       // Clear command input on success
       setCommand('');
     } catch (error) {
-      console.error('AI command failed:', error);
+      console.error('❌ AI command failed:', error);
       setLastResult({
         commands: [],
         explanation: 'Failed to execute command. Please try again.',
       });
     } finally {
       setIsLoading(false);
+      console.log('🏁 AI command process finished');
     }
   };
 

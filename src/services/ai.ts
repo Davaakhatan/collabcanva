@@ -159,8 +159,12 @@ IMPORTANT:
 `;
 
 export async function executeAICommand(userCommand: string): Promise<AICommandResult> {
+  const startTime = Date.now();
+  console.log('🤖 AI Command Started:', userCommand);
+  
   // Check if OpenAI client is available
   if (!openai) {
+    console.error('❌ OpenAI client not initialized!');
     return {
       commands: [],
       explanation: '❌ AI features are currently unavailable. Please ensure the OpenAI API key is configured in your environment.',
@@ -168,6 +172,7 @@ export async function executeAICommand(userCommand: string): Promise<AICommandRe
   }
 
   try {
+    console.log('📡 Sending request to OpenAI...');
     const response = await openai.chat.completions.create({
       model: 'gpt-4o-mini',
       messages: [
@@ -183,6 +188,8 @@ export async function executeAICommand(userCommand: string): Promise<AICommandRe
       throw new Error('No response from AI');
     }
 
+    console.log('📦 Raw AI response:', content);
+
     // Parse JSON response
     const result = JSON.parse(content) as AICommandResult;
     
@@ -191,9 +198,16 @@ export async function executeAICommand(userCommand: string): Promise<AICommandRe
       throw new Error('Invalid AI response structure');
     }
 
+    const duration = Date.now() - startTime;
+    console.log(`✅ AI Command Success! (${duration}ms)`, {
+      commandCount: result.commands.length,
+      explanation: result.explanation
+    });
+
     return result;
   } catch (error) {
-    console.error('AI command error:', error);
+    const duration = Date.now() - startTime;
+    console.error(`❌ AI command error (${duration}ms):`, error);
     
     // Return error as a user-friendly message
     return {
