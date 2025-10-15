@@ -89,6 +89,90 @@ export default function HelpOverlay({ onClose }: HelpOverlayProps) {
                 </kbd>
                 <span className="text-gray-700 flex-1">Delete selected shape</span>
               </div>
+              <div className="flex items-start gap-3">
+                <kbd className="px-3 py-1 bg-white border border-gray-300 rounded-lg text-sm font-mono shadow-sm min-w-[80px] text-center">
+                  Backspace
+                </kbd>
+                <span className="text-gray-700 flex-1">Delete selected shape (alternative)</span>
+              </div>
+              <div className="flex items-start gap-3">
+                <kbd className="px-3 py-1 bg-white border border-gray-300 rounded-lg text-sm font-mono shadow-sm min-w-[80px] text-center">
+                  Esc
+                </kbd>
+                <span className="text-gray-700 flex-1">Deselect shape</span>
+              </div>
+            </div>
+          </section>
+
+          {/* Keyboard Shortcuts */}
+          <section>
+            <h3 className="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
+              ⌨️ Keyboard Shortcuts
+            </h3>
+            <div className="space-y-3 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-4">
+              <div className="flex items-start gap-3">
+                <kbd className="px-3 py-1 bg-white border border-gray-300 rounded-lg text-sm font-mono shadow-sm min-w-[120px] text-center">
+                  Cmd/Ctrl + Z
+                </kbd>
+                <span className="text-gray-700 flex-1">Undo last action</span>
+              </div>
+              <div className="flex items-start gap-3">
+                <kbd className="px-3 py-1 bg-white border border-gray-300 rounded-lg text-sm font-mono shadow-sm min-w-[120px] text-center">
+                  Cmd/Ctrl + Shift + Z
+                </kbd>
+                <span className="text-gray-700 flex-1">Redo action</span>
+              </div>
+              <div className="flex items-start gap-3">
+                <kbd className="px-3 py-1 bg-white border border-gray-300 rounded-lg text-sm font-mono shadow-sm min-w-[120px] text-center">
+                  Cmd/Ctrl + D
+                </kbd>
+                <span className="text-gray-700 flex-1">Duplicate selected shape</span>
+              </div>
+              <div className="flex items-start gap-3">
+                <kbd className="px-3 py-1 bg-white border border-gray-300 rounded-lg text-sm font-mono shadow-sm min-w-[120px] text-center">
+                  Cmd/Ctrl + A
+                </kbd>
+                <span className="text-gray-700 flex-1">Select all shapes</span>
+              </div>
+              <div className="flex items-start gap-3">
+                <kbd className="px-3 py-1 bg-white border border-gray-300 rounded-lg text-sm font-mono shadow-sm min-w-[120px] text-center">
+                  Arrow Keys
+                </kbd>
+                <span className="text-gray-700 flex-1">Move selected shape by 1px</span>
+              </div>
+              <div className="flex items-start gap-3">
+                <kbd className="px-3 py-1 bg-white border border-gray-300 rounded-lg text-sm font-mono shadow-sm min-w-[120px] text-center">
+                  Shift + Arrows
+                </kbd>
+                <span className="text-gray-700 flex-1">Move selected shape by 10px</span>
+              </div>
+              <div className="flex items-start gap-3">
+                <kbd className="px-3 py-1 bg-white border border-gray-300 rounded-lg text-sm font-mono shadow-sm min-w-[120px] text-center">
+                  ?
+                </kbd>
+                <span className="text-gray-700 flex-1">Show this help menu</span>
+              </div>
+            </div>
+          </section>
+
+          {/* AI Assistant */}
+          <section>
+            <h3 className="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
+              🤖 AI Assistant
+            </h3>
+            <div className="space-y-3 bg-gradient-to-r from-purple-50 to-blue-50 rounded-xl p-4">
+              <p className="text-gray-700">
+                <strong className="text-gray-900">Natural language commands:</strong> Tell the AI what to create in plain English!
+              </p>
+              <div className="mt-2 space-y-1 text-sm text-gray-600">
+                <p>• "Create a red circle at 500, 300"</p>
+                <p>• "Make a 3x3 grid of blue squares"</p>
+                <p>• "Create a login form"</p>
+                <p>• "Add 5 colorful shapes in a row"</p>
+              </div>
+              <p className="text-gray-700 mt-2">
+                <strong className="text-gray-900">Collaborative AI:</strong> All team members can use the AI - changes sync instantly!
+              </p>
             </div>
           </section>
 
