@@ -78,6 +78,13 @@ export default function Shape({ shape, isSelected, onSelect, onChange, onLock }:
       return;
     }
 
+    // PREVENT selection if locked by another user
+    if (isLockedByOther) {
+      console.warn('Shape is locked by another user, cannot select');
+      mouseDownPosRef.current = null;
+      return;
+    }
+
     const stage = e.target.getStage();
     if (!stage) return;
 

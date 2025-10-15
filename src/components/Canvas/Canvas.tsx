@@ -1,8 +1,9 @@
-import { useEffect, useCallback, useState } from "react";
+import { useEffect, useCallback, useState, useRef } from "react";
 import { Stage, Layer, Rect } from "react-konva";
 import type Konva from "konva";
 import { useCanvas } from "../../contexts/CanvasContext";
 import { useCursors } from "../../hooks/useCursors";
+import { useAuth } from "../../contexts/AuthContext";
 import Shape from "./Shape";
 import Cursor from "../Collaboration/Cursor";
 import PresenceList from "../Collaboration/PresenceList";
@@ -33,7 +34,17 @@ export default function Canvas({ onShowHelp }: CanvasProps) {
   } = useCanvas();
 
   const { cursors, updateCursor } = useCursors();
+  const { user } = useAuth();
   const [hasInteracted, setHasInteracted] = useState(false);
+  
+  // Box selection state
+  const [selectionBox, setSelectionBox] = useState<{
+    x1: number;
+    y1: number;
+    x2: number;
+    y2: number;
+  } | null>(null);
+  const selectionStartRef = useRef<{ x: number; y: number } | null>(null);
 
   // Handle zoom
   const handleWheel = useCallback(
@@ -121,7 +132,99 @@ export default function Canvas({ onShowHelp }: CanvasProps) {
     [panToPosition]
   );
 
-  // Handle clicking on empty canvas
+  // Handle box selection start
+  const handleStageMouseDown = useCallback(
+    (e: Konva.KonvaEventObject<MouseEvent>) => {
+      // Only start box selection if clicking on stage (not on a shape)
+      if (e.target !== e.target.getStage()) return;
+      
+      const stage = stageRef.current;
+      if (!stage) return;
+      
+      const pointerPos = stage.getPointerPosition();
+      if (!pointerPos) return;
+      
+      // Convert screen coordinates to canvas coordinates
+      const canvasX = (pointerPos.x - position.x) / scale;
+      const canvasY = (pointerPos.y - position.y) / scale;
+      
+      selectionStartRef.current = { x: canvasX, y: canvasY };
+      setSelectionBox({ x1: canvasX, y1: canvasY, x2: canvasX, y2: canvasY });
+    },
+    [position, scale, stageRef]
+  );
+
+  // Handle box selection update
+  const handleStageMouseMove = useCallback(
+    () => {
+      if (!selectionStartRef.current) return;
+      
+      const stage = stageRef.current;
+      if (!stage) return;
+      
+      const pointerPos = stage.getPointerPosition();
+      if (!pointerPos) return;
+      
+      // Convert screen coordinates to canvas coordinates
+      const canvasX = (pointerPos.x - position.x) / scale;
+      const canvasY = (pointerPos.y - position.y) / scale;
+      
+      setSelectionBox({
+        x1: selectionStartRef.current.x,
+        y1: selectionStartRef.current.y,
+        x2: canvasX,
+        y2: canvasY,
+      });
+    },
+    [position, scale, stageRef]
+  );
+
+  // Handle box selection end
+  const handleStageMouseUp = useCallback(
+    () => {
+      if (!selectionBox || !selectionStartRef.current) {
+        selectionStartRef.current = null;
+        setSelectionBox(null);
+        return;
+      }
+      
+      // Calculate selection box bounds
+      const x1 = Math.min(selectionBox.x1, selectionBox.x2);
+      const y1 = Math.min(selectionBox.y1, selectionBox.y2);
+      const x2 = Math.max(selectionBox.x1, selectionBox.x2);
+      const y2 = Math.max(selectionBox.y1, selectionBox.y2);
+      
+      // If box is too small (< 5px), treat as a click to deselect
+      if (Math.abs(x2 - x1) < 5 && Math.abs(y2 - y1) < 5) {
+        selectShape(null);
+      } else {
+        // Find shapes that intersect with selection box
+        const selectedShapes = shapes.filter((shape) => {
+          const shapeX1 = shape.x;
+          const shapeY1 = shape.y;
+          const shapeX2 = shape.x + shape.width;
+          const shapeY2 = shape.y + shape.height;
+          
+          // Check if rectangles intersect
+          return !(x2 < shapeX1 || x1 > shapeX2 || y2 < shapeY1 || y1 > shapeY2);
+        });
+        
+        // Select the first shape in the box (for now, only single selection supported)
+        if (selectedShapes.length > 0) {
+          selectShape(selectedShapes[0].id);
+        } else {
+          selectShape(null);
+        }
+      }
+      
+      // Clear selection box
+      selectionStartRef.current = null;
+      setSelectionBox(null);
+    },
+    [selectionBox, shapes, selectShape]
+  );
+
+  // Handle clicking on empty canvas (keep for compatibility)
   const handleStageClick = useCallback(
     (e: Konva.KonvaEventObject<MouseEvent>) => {
       // Deselect when clicking on empty area
@@ -138,13 +241,21 @@ export default function Canvas({ onShowHelp }: CanvasProps) {
       if ((e.key === 'Delete' || e.key === 'Backspace') && selectedId) {
         // Prevent default backspace navigation
         e.preventDefault();
+        
+        // Check if shape is locked by another user
+        const shape = shapes.find(s => s.id === selectedId);
+        if (shape && shape.isLocked && shape.lockedBy !== (user as any)?.uid) {
+          console.warn('Cannot delete: shape is locked by another user');
+          return;
+        }
+        
         deleteShape(selectedId);
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedId, deleteShape]);
+  }, [selectedId, shapes, deleteShape]);
 
   // Update stage scale and position
   useEffect(() => {
@@ -186,7 +297,12 @@ export default function Canvas({ onShowHelp }: CanvasProps) {
         scaleY={scale}
         onWheel={handleWheel}
         onDragEnd={handleDragEnd}
-        onMouseMove={handleMouseMove}
+        onMouseDown={handleStageMouseDown}
+        onMouseMove={() => {
+          handleMouseMove();
+          handleStageMouseMove();
+        }}
+        onMouseUp={handleStageMouseUp}
         onClick={handleStageClick}
         onTap={handleStageClick}
       >
@@ -223,6 +339,21 @@ export default function Canvas({ onShowHelp }: CanvasProps) {
               onLock={() => lockShape(shape.id)}
             />
           ))}
+
+          {/* Render selection box */}
+          {selectionBox && (
+            <Rect
+              x={Math.min(selectionBox.x1, selectionBox.x2)}
+              y={Math.min(selectionBox.y1, selectionBox.y2)}
+              width={Math.abs(selectionBox.x2 - selectionBox.x1)}
+              height={Math.abs(selectionBox.y2 - selectionBox.y1)}
+              fill="rgba(0, 102, 255, 0.1)"
+              stroke="#0066FF"
+              strokeWidth={2}
+              dash={[5, 5]}
+              listening={false}
+            />
+          )}
         </Layer>
       </Stage>
 
