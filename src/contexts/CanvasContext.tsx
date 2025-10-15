@@ -47,8 +47,8 @@ interface CanvasContextType {
   updateShape: (id: string, updates: Partial<Shape>) => void;
   deleteShape: (id: string) => void;
   deleteSelectedShapes: () => void;
-  selectShape: (id: string | null, addToSelection?: boolean) => void;
-  selectShapes: (ids: string[]) => void;
+  selectShape: (id: string | null, addToSelection?: boolean) => Promise<void>;
+  selectShapes: (ids: string[]) => Promise<void>;
   clearSelection: () => void;
   
   // Locking operations
@@ -183,7 +183,7 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
     setTimeout(() => pushState(), 0);
   };
 
-  const selectShape = (id: string | null, addToSelection = false) => {
+  const selectShape = async (id: string | null, addToSelection = false) => {
     if (!id) {
       // Clear selection
       selectedIds.forEach(sid => unlockShapeSync(sid));
@@ -198,9 +198,11 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
         unlockShapeSync(id);
         setSelectedIds(selectedIds.filter(sid => sid !== id));
       } else {
-        // Add to selection
-        lockShapeSync(id);
-        setSelectedIds([...selectedIds, id]);
+        // Add to selection - await lock acquisition
+        const locked = await lockShapeSync(id);
+        if (locked) {
+          setSelectedIds([...selectedIds, id]);
+        }
       }
     } else {
       // Normal click: replace selection
@@ -208,21 +210,27 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
         if (sid !== id) unlockShapeSync(sid);
       });
       
-      setSelectedIds([id]);
-      lockShapeSync(id);
+      // Await lock acquisition before updating selection
+      const locked = await lockShapeSync(id);
+      if (locked) {
+        setSelectedIds([id]);
+      }
     }
   };
 
-  const selectShapes = (ids: string[]) => {
+  const selectShapes = async (ids: string[]) => {
     // Unlock previously selected shapes
     selectedIds.forEach(sid => {
       if (!ids.includes(sid)) unlockShapeSync(sid);
     });
     
-    // Lock newly selected shapes
-    ids.forEach(id => lockShapeSync(id));
+    // Lock newly selected shapes - await all locks
+    const lockPromises = ids.map(id => lockShapeSync(id));
+    const lockResults = await Promise.all(lockPromises);
     
-    setSelectedIds(ids);
+    // Only add shapes that were successfully locked
+    const lockedIds = ids.filter((_, index) => lockResults[index]);
+    setSelectedIds(lockedIds);
   };
 
   const clearSelection = () => {
