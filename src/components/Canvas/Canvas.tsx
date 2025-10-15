@@ -270,8 +270,12 @@ export default function Canvas({ onShowHelp }: CanvasProps) {
   // Handle keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Ignore keyboard shortcuts if user is typing in an input or textarea
+      const activeElement = document.activeElement;
+      const isTyping = activeElement?.tagName === 'INPUT' || activeElement?.tagName === 'TEXTAREA';
+      
       // Delete/Backspace
-      if ((e.key === 'Delete' || e.key === 'Backspace') && selectedId) {
+      if ((e.key === 'Delete' || e.key === 'Backspace') && selectedId && !isTyping) {
         // Prevent default backspace navigation
         e.preventDefault();
         
@@ -314,7 +318,7 @@ export default function Canvas({ onShowHelp }: CanvasProps) {
       }
       
       // Arrow keys for moving selected shape
-      if (selectedId && ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+      if (selectedId && ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key) && !isTyping) {
         e.preventDefault();
         const shape = shapes.find(s => s.id === selectedId);
         if (shape) {

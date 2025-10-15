@@ -75,10 +75,19 @@ export default function TextFormatting({ selectedShapeId }: TextFormattingProps)
               min="8"
               max="200"
               value={fontSize}
+              onFocus={(e) => e.target.select()}
               onChange={(e) => {
-                const value = parseInt(e.target.value) || 16;
-                const clampedValue = Math.max(8, Math.min(200, value));
-                updateShape(selectedShapeId, { fontSize: clampedValue });
+                const value = parseInt(e.target.value);
+                if (!isNaN(value)) {
+                  const clampedValue = Math.max(8, Math.min(200, value));
+                  updateShape(selectedShapeId, { fontSize: clampedValue });
+                }
+              }}
+              onBlur={(e) => {
+                // If empty or invalid, reset to current fontSize
+                if (e.target.value === '' || isNaN(parseInt(e.target.value))) {
+                  e.target.value = fontSize.toString();
+                }
               }}
               className="px-3 py-1.5 bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg text-sm font-semibold text-gray-900 dark:text-gray-100 w-[70px] text-center focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
