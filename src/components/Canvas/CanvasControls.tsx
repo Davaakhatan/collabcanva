@@ -30,7 +30,7 @@ const TButton = ({ onClick, disabled, title, active, children, className = '', '
     title={title}
     aria-label={ariaLabel || title}
     className={`
-      size-14 rounded-xl border flex items-center justify-center shrink-0
+      size-12 rounded-xl border flex items-center justify-center shrink-0
       transition-all duration-150
       focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40
       disabled:opacity-40 disabled:cursor-not-allowed
@@ -185,8 +185,8 @@ const ShapeMenu = ({ isOpen, onClose, onSelectShape, anchorRef, mode }: ShapeMen
             tabIndex={0}
             className="w-full h-10 px-3 flex items-center gap-3 hover:bg-gray-50 dark:hover:bg-slate-700 focus-visible:bg-gray-50 dark:focus-visible:bg-slate-700 focus-visible:outline-none rounded-md mx-1 transition-colors"
           >
-            <div className="size-10 rounded-md bg-gray-100 dark:bg-slate-700 flex items-center justify-center shrink-0">
-              <span className="w-10 h-10 flex items-center justify-center text-2xl">{shape.icon}</span>
+            <div className="size-9 rounded-md bg-gray-100 dark:bg-slate-700 flex items-center justify-center shrink-0">
+              <span className="w-9 h-9 flex items-center justify-center text-xl">{shape.icon}</span>
             </div>
             <span className="text-[15px] leading-none font-medium text-gray-700 dark:text-gray-200">{shape.label}</span>
           </button>
@@ -284,7 +284,7 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
           }}
         >
           <div 
-            className="flex flex-col gap-2 rounded-2xl bg-white/90 dark:bg-slate-800/90 backdrop-blur-md border border-gray-200/60 dark:border-slate-600/50 p-2 overflow-x-hidden overflow-visible w-[72px] overscroll-contain"
+            className="flex flex-col gap-2 rounded-2xl bg-white/90 dark:bg-slate-800/90 backdrop-blur-md border border-gray-200/60 dark:border-slate-600/50 p-2 overflow-x-hidden overflow-y-auto w-[64px] overscroll-contain max-h-full"
             style={{
               boxShadow: '0 18px 50px rgba(0,0,0,.12)'
             }}
@@ -292,17 +292,17 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
             {/* Zoom Group */}
             <div className="flex flex-col items-center gap-2">
               <TButton onClick={handleZoomOut} disabled={scale <= MIN_ZOOM} title="Zoom Out" aria-label="Zoom Out">
-                <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
+                <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM13 10H7" />
                 </svg>
               </TButton>
               
-              <div className="px-3 py-2 text-base font-semibold text-gray-700 dark:text-gray-300 rounded-md border border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-center min-w-[4ch]">
+              <div className="px-2.5 py-1.5 text-sm font-semibold text-gray-700 dark:text-gray-300 rounded-md border border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-center min-w-[3.5ch]">
                 {zoomPercentage}%
               </div>
               
               <TButton onClick={handleZoomIn} disabled={scale >= MAX_ZOOM} title="Zoom In" aria-label="Zoom In">
-                <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
+                <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
                 </svg>
               </TButton>
@@ -311,7 +311,7 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
             <div className="w-full h-px bg-gray-200/70 dark:bg-slate-600/70" />
 
             <TButton onClick={resetView} title="Fit to Screen" aria-label="Fit to Screen">
-              <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
+              <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
               </svg>
             </TButton>
@@ -319,12 +319,12 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
             <div className="w-full h-px bg-gray-200/70 dark:bg-slate-600/70" />
 
             <TButton onClick={undo} disabled={!canUndo} title="Undo (Cmd+Z)" aria-label="Undo">
-              <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
+              <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
               </svg>
             </TButton>
             <TButton onClick={redo} disabled={!canRedo} title="Redo (Cmd+Shift+Z)" aria-label="Redo">
-              <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
+              <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M21 10H11a8 8 0 00-8 8v2m18-10l-6 6m6-6l-6-6" />
               </svg>
             </TButton>
@@ -339,7 +339,7 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
               title="Add Shape"
               aria-label="Add Shape"
             >
-              <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
+              <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
               </svg>
             </TButton>
@@ -348,12 +348,12 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
               <>
                 <div className="w-full h-px bg-gray-200/70 dark:bg-slate-600/70" />
                 <TButton onClick={() => bringToFront(selectedId)} title="Bring to Front" aria-label="Bring to Front">
-                  <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
+                  <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M7 11l5-5m0 0l5 5m-5-5v12" />
                   </svg>
                 </TButton>
                 <TButton onClick={() => sendToBack(selectedId)} title="Send to Back" aria-label="Send to Back">
-                  <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
+                  <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M17 13l-5 5m0 0l-5-5m5 5V6" />
                   </svg>
                 </TButton>
@@ -364,7 +364,7 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
                   title="Change Color" 
                   aria-label="Change Color"
                 >
-                  <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
+                  <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
                   </svg>
                 </TButton>
@@ -379,7 +379,7 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
               title="Performance Info"
               aria-label="Performance Info"
             >
-              <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
+              <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
               </svg>
             </TButton>
@@ -387,7 +387,7 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
             <div className="w-full h-px bg-gray-200/70 dark:bg-slate-600/70" />
 
             <TButton onClick={handleExportPNG} title="Export as PNG" aria-label="Export as PNG">
-              <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
+              <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
             </TButton>
@@ -395,7 +395,7 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
             <div className="w-full h-px bg-gray-200/70 dark:bg-slate-600/70" />
 
             <TButton onClick={onShowHelp} title="Help & Shortcuts" aria-label="Help & Shortcuts">
-              <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
+              <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </TButton>
@@ -408,17 +408,17 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40">
           <div className="flex items-center gap-2 rounded-2xl bg-white/90 dark:bg-slate-800/90 backdrop-blur-md border border-gray-200/60 dark:border-slate-600/50 px-3 py-2 shadow-lg">
             <TButton onClick={handleZoomOut} disabled={scale <= MIN_ZOOM} title="Zoom Out" aria-label="Zoom Out">
-              <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
+              <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM13 10H7" />
               </svg>
             </TButton>
             
-            <div className="px-3 py-2 text-base font-semibold text-gray-700 dark:text-gray-300 min-w-[4rem] text-center rounded-md border border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-800">
+            <div className="px-2.5 py-1.5 text-sm font-semibold text-gray-700 dark:text-gray-300 min-w-[3.5rem] text-center rounded-md border border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-800">
               {zoomPercentage}%
             </div>
             
             <TButton onClick={handleZoomIn} disabled={scale >= MAX_ZOOM} title="Zoom In" aria-label="Zoom In">
-              <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
+              <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
               </svg>
             </TButton>
@@ -426,7 +426,7 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
             <div className="w-px h-6 bg-gray-200/70 dark:bg-slate-600/70" />
 
             <TButton onClick={resetView} title="Fit to Screen" aria-label="Fit to Screen">
-              <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
+              <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
               </svg>
             </TButton>
@@ -434,12 +434,12 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
             <div className="w-px h-6 bg-gray-200/70 dark:bg-slate-600/70" />
 
             <TButton onClick={undo} disabled={!canUndo} title="Undo (Cmd+Z)" aria-label="Undo">
-              <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
+              <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
               </svg>
             </TButton>
             <TButton onClick={redo} disabled={!canRedo} title="Redo (Cmd+Shift+Z)" aria-label="Redo">
-              <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
+              <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M21 10H11a8 8 0 00-8 8v2m18-10l-6 6m6-6l-6-6" />
               </svg>
             </TButton>
@@ -453,7 +453,7 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
               title="Add Shape"
               aria-label="Add Shape"
             >
-              <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
+              <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
               </svg>
             </TButton>
@@ -462,12 +462,12 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
               <>
                 <div className="w-px h-6 bg-gray-200/70 dark:bg-slate-600/70" />
                 <TButton onClick={() => bringToFront(selectedId)} title="Bring to Front" aria-label="Bring to Front">
-                  <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
+                  <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M7 11l5-5m0 0l5 5m-5-5v12" />
                   </svg>
                 </TButton>
                 <TButton onClick={() => sendToBack(selectedId)} title="Send to Back" aria-label="Send to Back">
-                  <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
+                  <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M17 13l-5 5m0 0l-5-5m5 5V6" />
                   </svg>
                 </TButton>
@@ -478,7 +478,7 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
                   title="Change Color" 
                   aria-label="Change Color"
                 >
-                  <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
+                  <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
                   </svg>
                 </TButton>
@@ -493,19 +493,19 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
               title="Performance Info"
               aria-label="Performance Info"
             >
-              <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
+              <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
               </svg>
             </TButton>
 
             <TButton onClick={handleExportPNG} title="Export as PNG" aria-label="Export as PNG">
-              <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
+              <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
             </TButton>
 
             <TButton onClick={onShowHelp} title="Help & Shortcuts" aria-label="Help & Shortcuts">
-              <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
+              <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </TButton>
