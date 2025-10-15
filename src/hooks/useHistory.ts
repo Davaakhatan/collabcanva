@@ -19,28 +19,35 @@ export function useHistory(
   // Save current state to history
   const pushState = useCallback(() => {
     setHistory((prev) => {
-      // Remove any redo history if we're not at the end
-      const newHistory = prev.slice(0, currentIndex + 1);
-      
-      // Add new state
-      const newState: HistoryState = {
-        shapes: JSON.parse(JSON.stringify(currentShapes)),
-        selectedId,
-      };
-      
-      newHistory.push(newState);
-      
-      // Limit history size
-      if (newHistory.length > MAX_HISTORY) {
-        newHistory.shift();
-        return newHistory;
-      }
-      
-      return newHistory;
+      // Get current index from the updater function to avoid stale closure
+      return prev;
     });
     
-    setCurrentIndex((prev) => Math.min(prev + 1, MAX_HISTORY - 1));
-  }, [currentShapes, selectedId, currentIndex]);
+    setCurrentIndex((prevIndex) => {
+      setHistory((prev) => {
+        // Remove any redo history if we're not at the end
+        const newHistory = prev.slice(0, prevIndex + 1);
+        
+        // Add new state
+        const newState: HistoryState = {
+          shapes: JSON.parse(JSON.stringify(currentShapes)),
+          selectedId,
+        };
+        
+        newHistory.push(newState);
+        
+        // Limit history size
+        if (newHistory.length > MAX_HISTORY) {
+          newHistory.shift();
+          return newHistory;
+        }
+        
+        return newHistory;
+      });
+      
+      return Math.min(prevIndex + 1, MAX_HISTORY - 1);
+    });
+  }, [currentShapes, selectedId]);
 
   // Undo
   const undo = useCallback(() => {

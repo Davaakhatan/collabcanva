@@ -286,6 +286,12 @@ export default function Canvas({ onShowHelp }: CanvasProps) {
         e.preventDefault();
         const shape = shapes.find(s => s.id === selectedId);
         if (shape) {
+          // Check if shape is locked by another user
+          if (shape.isLocked && shape.lockedBy !== (user as any)?.uid) {
+            console.warn('Cannot move: shape is locked by another user');
+            return;
+          }
+          
           const moveDistance = e.shiftKey ? 10 : 1; // Shift = 10px, normal = 1px
           let newX = shape.x;
           let newY = shape.y;
