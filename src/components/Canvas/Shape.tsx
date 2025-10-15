@@ -113,9 +113,22 @@ export default function Shape({ shape, isSelected, onSelect, onChange, onLock, o
   };
 
   const handleDragEnd = (e: Konva.KonvaEventObject<DragEvent>) => {
+    let newX = e.target.x();
+    let newY = e.target.y();
+    
+    // For shapes that render from center (circle, ellipse, triangle),
+    // we need to convert the center position back to top-left corner
+    if (shape.type === 'circle' || shape.type === 'ellipse') {
+      newX = newX - shape.width / 2;
+      newY = newY - shape.height / 2;
+    } else if (shape.type === 'triangle') {
+      newX = newX - shape.width / 2;
+      newY = newY - shape.height / 2;
+    }
+    
     onChange({
-      x: e.target.x(),
-      y: e.target.y(),
+      x: newX,
+      y: newY,
     });
     // Don't unlock here - will unlock when deselected
   };
@@ -136,11 +149,27 @@ export default function Shape({ shape, isSelected, onSelect, onChange, onLock, o
     node.scaleX(1);
     node.scaleY(1);
 
+    const newWidth = Math.max(5, node.width() * scaleX);
+    const newHeight = Math.max(5, node.height() * scaleY);
+    
+    let newX = node.x();
+    let newY = node.y();
+    
+    // For shapes that render from center (circle, ellipse, triangle),
+    // we need to convert the center position back to top-left corner
+    if (shape.type === 'circle' || shape.type === 'ellipse') {
+      newX = newX - newWidth / 2;
+      newY = newY - newHeight / 2;
+    } else if (shape.type === 'triangle') {
+      newX = newX - newWidth / 2;
+      newY = newY - newHeight / 2;
+    }
+
     onChange({
-      x: node.x(),
-      y: node.y(),
-      width: Math.max(5, node.width() * scaleX),
-      height: Math.max(5, node.height() * scaleY),
+      x: newX,
+      y: newY,
+      width: newWidth,
+      height: newHeight,
       rotation: rotation,
     });
     
@@ -220,10 +249,11 @@ export default function Shape({ shape, isSelected, onSelect, onChange, onLock, o
         );
       
       case 'triangle':
+        // Use relative coordinates (0-based), centered at origin
         const trianglePoints = [
-          shape.x + shape.width / 2, shape.y, // Top point
-          shape.x, shape.y + shape.height, // Bottom left
-          shape.x + shape.width, shape.y + shape.height, // Bottom right
+          shape.width / 2, 0, // Top point (center top)
+          0, shape.height, // Bottom left
+          shape.width, shape.height, // Bottom right
         ];
         return (
           <Line
