@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect } from "react";
 import { usePresence } from "../../hooks/usePresence";
 import type { CursorsMap } from "../../services/cursor";
 
@@ -29,23 +29,20 @@ export default function PresenceList({ cursors, onUserClick }: PresenceListProps
     }
   };
 
-  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+  const handleMouseDown = (e: React.MouseEvent) => {
     if ((e.target as HTMLElement).closest('button:not(.drag-handle)')) {
       return; // Don't drag when clicking other buttons
     }
     
+    dragRef.current = {
+      startX: e.clientX,
+      startY: e.clientY,
+      initialX: position.x,
+      initialY: position.y,
+    };
     setIsDragging(true);
-    setPosition((currentPos) => {
-      dragRef.current = {
-        startX: e.clientX,
-        startY: e.clientY,
-        initialX: currentPos.x,
-        initialY: currentPos.y,
-      };
-      return currentPos;
-    });
     e.preventDefault();
-  }, []);
+  };
 
   useEffect(() => {
     if (!isDragging) {
