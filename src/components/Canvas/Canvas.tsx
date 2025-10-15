@@ -37,6 +37,11 @@ export default function Canvas({ onShowHelp }: CanvasProps) {
   const { user } = useAuth();
   const [hasInteracted, setHasInteracted] = useState(false);
   
+  // Text editing state
+  const [editingTextId, setEditingTextId] = useState<string | null>(null);
+  const [editText, setEditText] = useState('');
+  const [textareaPosition, setTextareaPosition] = useState({ x: 0, y: 0, width: 0, height: 0 });
+  
   // Box selection state
   const [selectionBox, setSelectionBox] = useState<{
     x1: number;
@@ -45,6 +50,32 @@ export default function Canvas({ onShowHelp }: CanvasProps) {
     y2: number;
   } | null>(null);
   const selectionStartRef = useRef<{ x: number; y: number } | null>(null);
+
+  // Handle text editing start
+  const handleStartEditText = useCallback((shapeId: string) => {
+    const shape = shapes.find(s => s.id === shapeId);
+    if (!shape || shape.type !== 'text' || !stageRef.current) return;
+    
+    // Calculate screen position from canvas position
+    const stage = stageRef.current;
+    const scaleVal = stage.scaleX();
+    const stageBox = stage.container().getBoundingClientRect();
+    
+    const screenX = stageBox.left + shape.x * scaleVal + stage.x();
+    const screenY = stageBox.top + shape.y * scaleVal + stage.y();
+    const screenWidth = shape.width * scaleVal;
+    const screenHeight = shape.height * scaleVal;
+    
+    setTextareaPosition({
+      x: screenX,
+      y: screenY,
+      width: Math.max(200, screenWidth),
+      height: Math.max(50, screenHeight)
+    });
+    
+    setEditText(shape.text || '');
+    setEditingTextId(shapeId);
+  }, [shapes, stageRef]);
 
   // Handle zoom
   const handleWheel = useCallback(
@@ -417,7 +448,7 @@ export default function Canvas({ onShowHelp }: CanvasProps) {
                 onSelect={() => selectShape(shape.id)}
                 onChange={(updates) => updateShape(shape.id, updates)}
                 onLock={() => lockShape(shape.id)}
-                stageRef={stageRef}
+                onStartEditText={handleStartEditText}
               />
             ))}
 
@@ -464,6 +495,56 @@ export default function Canvas({ onShowHelp }: CanvasProps) {
           onAddShape={handleAddFirstShape}
           onShowHelp={() => onShowHelp?.()}
         />
+      )}
+
+      {/* Text Editing Overlay */}
+      {editingTextId && (
+        <div
+          style={{
+            position: 'fixed',
+            top: `${textareaPosition.y}px`,
+            left: `${textareaPosition.x}px`,
+            width: `${textareaPosition.width}px`,
+            minHeight: `${textareaPosition.height}px`,
+            zIndex: 10000,
+          }}
+        >
+          <textarea
+            autoFocus
+            value={editText}
+            onChange={(e) => setEditText(e.target.value)}
+            onBlur={() => {
+              if (editingTextId) {
+                updateShape(editingTextId, { text: editText });
+                setEditingTextId(null);
+              }
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Escape') {
+                setEditingTextId(null);
+              } else if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                if (editingTextId) {
+                  updateShape(editingTextId, { text: editText });
+                  setEditingTextId(null);
+                }
+              }
+            }}
+            style={{
+              width: '100%',
+              minHeight: '100%',
+              fontSize: `${((shapes.find(s => s.id === editingTextId)?.fontSize || 16) * scale)}px`,
+              fontFamily: shapes.find(s => s.id === editingTextId)?.fontFamily || 'Arial',
+              color: shapes.find(s => s.id === editingTextId)?.fill || '#000000',
+              background: 'rgba(255, 255, 255, 0.98)',
+              border: '3px solid #0066FF',
+              borderRadius: '6px',
+              padding: '8px',
+              resize: 'none',
+              outline: 'none',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+            }}
+          />
+        </div>
       )}
     </div>
   );
