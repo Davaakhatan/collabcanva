@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { Rect, Transformer, Text } from "react-konva";
+import { Rect, Circle, Line, Text, Transformer } from "react-konva";
 import type Konva from "konva";
 import { useAuth } from "../../contexts/AuthContext";
 import type { Shape as ShapeType } from "../../contexts/CanvasContext";
@@ -14,7 +14,7 @@ interface ShapeProps {
 
 export default function Shape({ shape, isSelected, onSelect, onChange, onLock }: ShapeProps) {
   const { user } = useAuth();
-  const shapeRef = useRef<Konva.Rect>(null);
+  const shapeRef = useRef<any>(null); // Can be Rect, Circle, Line, or Text
   const transformerRef = useRef<Konva.Transformer>(null);
   const hasLockedRef = useRef(false);
   const mouseDownPosRef = useRef<{ x: number; y: number } | null>(null);
@@ -161,29 +161,109 @@ export default function Shape({ shape, isSelected, onSelect, onChange, onLock }:
   }
   // No border when not selected and not locked = anyone can use it
 
+  // Common props for all shapes
+  const commonProps = {
+    ref: shapeRef,
+    draggable: !isLockedByOther,
+    onMouseDown: handlePointerDown,
+    onMouseUp: handlePointerUp,
+    onTouchStart: handlePointerDown,
+    onTouchEnd: handlePointerUp,
+    onDragStart: handleDragStart,
+    onDragEnd: handleDragEnd,
+    onTransformStart: handleTransformStart,
+    onTransformEnd: handleTransformEnd,
+    stroke: strokeColor,
+    strokeWidth: strokeWidth,
+    opacity: isLockedByOther ? 0.6 : 1,
+  };
+
+  // Render shape based on type
+  const renderShape = () => {
+    switch (shape.type) {
+      case 'rectangle':
+        return (
+          <Rect
+            {...commonProps}
+            x={shape.x}
+            y={shape.y}
+            width={shape.width}
+            height={shape.height}
+            fill={shape.fill}
+            rotation={shape.rotation || 0}
+          />
+        );
+      
+      case 'circle':
+        return (
+          <Circle
+            {...commonProps}
+            x={shape.x + shape.width / 2}
+            y={shape.y + shape.height / 2}
+            radius={shape.width / 2}
+            fill={shape.fill}
+          />
+        );
+      
+      case 'ellipse':
+        return (
+          <Circle
+            {...commonProps}
+            x={shape.x + shape.width / 2}
+            y={shape.y + shape.height / 2}
+            radiusX={shape.width / 2}
+            radiusY={shape.height / 2}
+            fill={shape.fill}
+            rotation={shape.rotation || 0}
+          />
+        );
+      
+      case 'triangle':
+        const trianglePoints = [
+          shape.x + shape.width / 2, shape.y, // Top point
+          shape.x, shape.y + shape.height, // Bottom left
+          shape.x + shape.width, shape.y + shape.height, // Bottom right
+        ];
+        return (
+          <Line
+            {...commonProps}
+            points={trianglePoints}
+            closed
+            fill={shape.fill}
+            rotation={shape.rotation || 0}
+            offsetX={shape.width / 2}
+            offsetY={shape.height / 2}
+            x={shape.x + shape.width / 2}
+            y={shape.y + shape.height / 2}
+          />
+        );
+      
+      case 'text':
+        return (
+          <Text
+            {...commonProps}
+            x={shape.x}
+            y={shape.y}
+            text={shape.text || 'Text'}
+            fontSize={shape.fontSize || 16}
+            fontFamily={shape.fontFamily || 'Arial'}
+            fill={shape.fill}
+            width={shape.width}
+            height={shape.height}
+            rotation={shape.rotation || 0}
+            align="left"
+            verticalAlign="top"
+          />
+        );
+      
+      default:
+        return null;
+    }
+  };
+
   return (
     <>
-      <Rect
-        ref={shapeRef}
-        x={shape.x}
-        y={shape.y}
-        width={shape.width}
-        height={shape.height}
-        fill={shape.fill}
-        rotation={shape.rotation || 0}
-        draggable={!isLockedByOther}
-        onMouseDown={handlePointerDown}
-        onMouseUp={handlePointerUp}
-        onTouchStart={handlePointerDown}
-        onTouchEnd={handlePointerUp}
-        onDragStart={handleDragStart}
-        onDragEnd={handleDragEnd}
-        onTransformStart={handleTransformStart}
-        onTransformEnd={handleTransformEnd}
-        stroke={strokeColor}
-        strokeWidth={strokeWidth}
-        opacity={isLockedByOther ? 0.6 : 1}
-      />
+      {renderShape()}
       
       {/* Show lock indicator text - only when locked by someone else */}
       {isLockedByOther && (

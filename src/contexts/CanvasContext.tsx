@@ -6,13 +6,17 @@ import { useCanvasSync } from "../hooks/useCanvasSync";
 
 export interface Shape {
   id: string;
-  type: 'rectangle';
+  type: 'rectangle' | 'circle' | 'triangle' | 'text' | 'ellipse';
   x: number;
   y: number;
   width: number;
   height: number;
   rotation?: number; // Rotation in degrees
   fill: string;
+  // Text-specific properties
+  text?: string;
+  fontSize?: number;
+  fontFamily?: string;
   createdBy?: string;
   createdAt?: number;
   lastModifiedBy?: string;
@@ -34,7 +38,7 @@ interface CanvasContextType {
   position: { x: number; y: number };
   
   // Shape operations
-  addShape: (type: 'rectangle', position?: { x: number; y: number }) => void;
+  addShape: (type: 'rectangle' | 'circle' | 'triangle' | 'text' | 'ellipse', overrides?: Partial<Shape>) => void;
   updateShape: (id: string, updates: Partial<Shape>) => void;
   deleteShape: (id: string) => void;
   selectShape: (id: string | null) => void;
@@ -69,17 +73,40 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
     unlockShape: unlockShapeSync,
   } = useCanvasSync();
 
-  const addShape = (type: 'rectangle', position?: { x: number; y: number }) => {
+  const addShape = (
+    type: 'rectangle' | 'circle' | 'triangle' | 'text' | 'ellipse',
+    overrides?: Partial<Shape>
+  ) => {
+    // Default dimensions based on shape type
+    let defaultWidth = DEFAULT_SHAPE_WIDTH;
+    let defaultHeight = DEFAULT_SHAPE_HEIGHT;
+    
+    if (type === 'circle') {
+      defaultWidth = 100;
+      defaultHeight = 100;
+    } else if (type === 'text') {
+      defaultWidth = 200;
+      defaultHeight = 40;
+    }
+
     const newShape: Shape = {
       id: generateId(),
       type,
-      x: position?.x ?? 100,
-      y: position?.y ?? 100,
-      width: DEFAULT_SHAPE_WIDTH,
-      height: DEFAULT_SHAPE_HEIGHT,
+      x: 100,
+      y: 100,
+      width: defaultWidth,
+      height: defaultHeight,
       rotation: 0,
       fill: DEFAULT_SHAPE_COLOR,
       createdAt: Date.now(),
+      // Text-specific defaults
+      ...(type === 'text' && {
+        text: 'Double-click to edit',
+        fontSize: 16,
+        fontFamily: 'Arial',
+      }),
+      // Apply any overrides
+      ...overrides,
     };
     addShapeSync(newShape);
   };

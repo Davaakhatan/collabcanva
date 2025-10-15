@@ -12,6 +12,7 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
   const { scale, setScale, resetView, addShape, stageRef, shapes } = useCanvas();
   const [fps, setFps] = useState(60);
   const [showPerf, setShowPerf] = useState(false);
+  const [showShapeMenu, setShowShapeMenu] = useState(false);
 
   const handleZoomIn = () => {
     const newScale = clamp(scale * (1 + ZOOM_SPEED), MIN_ZOOM, MAX_ZOOM);
@@ -32,8 +33,8 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
     return () => monitor.stop();
   }, []);
 
-  const handleAddShape = () => {
-    console.log('Add shape button clicked');
+  const handleAddShape = (type: 'rectangle' | 'circle' | 'triangle' | 'text' | 'ellipse') => {
+    console.log('Add shape button clicked:', type);
     try {
       // Get center of current viewport
       const stage = stageRef.current;
@@ -41,18 +42,27 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
         const centerX = (window.innerWidth / 2 - stage.x()) / scale;
         const centerY = (window.innerHeight / 2 - stage.y()) / scale;
         console.log('Adding shape at:', { x: centerX - 50, y: centerY - 50 });
-        addShape('rectangle', { x: centerX - 50, y: centerY - 50 });
+        addShape(type, { x: centerX - 50, y: centerY - 50 });
       } else {
         // Fallback to default position
         console.log('Adding shape at default position');
-        addShape('rectangle');
+        addShape(type);
       }
       console.log('Shape add triggered successfully');
+      setShowShapeMenu(false);
     } catch (error) {
       console.error('Error adding shape:', error);
       alert('Failed to add shape: ' + (error as Error).message);
     }
   };
+
+  const shapeTypes = [
+    { type: 'rectangle' as const, icon: '⬜', label: 'Rectangle' },
+    { type: 'circle' as const, icon: '⚫', label: 'Circle' },
+    { type: 'triangle' as const, icon: '▲', label: 'Triangle' },
+    { type: 'ellipse' as const, icon: '⬭', label: 'Ellipse' },
+    { type: 'text' as const, icon: 'T', label: 'Text' },
+  ];
 
   const handleStressTest = (count: number) => {
     console.log(`Stress test: Adding ${count} shapes`);
@@ -148,19 +158,40 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
         {/* Divider */}
         <div className="w-px h-6 bg-gray-300 mx-1" />
 
-        {/* Add Shape */}
-        <button
-          onClick={handleAddShape}
-          className="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:shadow-lg transition-all duration-200 font-semibold text-sm hover:scale-105 transform"
-          title="Add Rectangle"
-        >
-          <span className="flex items-center gap-2">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-            Add Shape
-          </span>
-        </button>
+        {/* Add Shape Dropdown */}
+        <div className="relative">
+          <button
+            onClick={() => setShowShapeMenu(!showShapeMenu)}
+            className="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:shadow-lg transition-all duration-200 font-semibold text-sm hover:scale-105 transform"
+            title="Add Shape"
+          >
+            <span className="flex items-center gap-2">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              Add Shape
+              <svg className={`w-4 h-4 transition-transform ${showShapeMenu ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </span>
+          </button>
+          
+          {/* Dropdown Menu */}
+          {showShapeMenu && (
+            <div className="absolute bottom-full mb-2 left-0 bg-white rounded-xl shadow-2xl border border-gray-200 py-2 min-w-[180px] z-50">
+              {shapeTypes.map((shape) => (
+                <button
+                  key={shape.type}
+                  onClick={() => handleAddShape(shape.type)}
+                  className="w-full px-4 py-2.5 text-left hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 transition-colors flex items-center gap-3 group"
+                >
+                  <span className="text-2xl group-hover:scale-110 transition-transform">{shape.icon}</span>
+                  <span className="font-medium text-gray-700 group-hover:text-blue-600">{shape.label}</span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
 
         {/* Divider */}
         <div className="w-px h-6 bg-gray-300 mx-1" />
