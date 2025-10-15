@@ -235,9 +235,10 @@ export default function Canvas({ onShowHelp }: CanvasProps) {
     [selectShape]
   );
 
-  // Handle delete key
+  // Handle keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Delete/Backspace
       if ((e.key === 'Delete' || e.key === 'Backspace') && selectedId) {
         // Prevent default backspace navigation
         e.preventDefault();
@@ -251,11 +252,82 @@ export default function Canvas({ onShowHelp }: CanvasProps) {
         
         deleteShape(selectedId);
       }
+      
+      // Duplicate (Cmd/Ctrl + D)
+      if ((e.metaKey || e.ctrlKey) && e.key === 'd' && selectedId) {
+        e.preventDefault();
+        const shape = shapes.find(s => s.id === selectedId);
+        if (shape) {
+          addShape(shape.type, {
+            x: shape.x + 20,
+            y: shape.y + 20,
+            width: shape.width,
+            height: shape.height,
+            fill: shape.fill,
+            rotation: shape.rotation,
+            text: shape.text,
+            fontSize: shape.fontSize,
+            fontFamily: shape.fontFamily,
+          });
+        }
+      }
+      
+      // Select All (Cmd/Ctrl + A)
+      if ((e.metaKey || e.ctrlKey) && e.key === 'a') {
+        e.preventDefault();
+        // For now, just select the first shape (single selection only)
+        if (shapes.length > 0) {
+          selectShape(shapes[0].id);
+        }
+      }
+      
+      // Arrow keys for moving selected shape
+      if (selectedId && ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+        e.preventDefault();
+        const shape = shapes.find(s => s.id === selectedId);
+        if (shape) {
+          const moveDistance = e.shiftKey ? 10 : 1; // Shift = 10px, normal = 1px
+          let newX = shape.x;
+          let newY = shape.y;
+          
+          switch (e.key) {
+            case 'ArrowUp':
+              newY -= moveDistance;
+              break;
+            case 'ArrowDown':
+              newY += moveDistance;
+              break;
+            case 'ArrowLeft':
+              newX -= moveDistance;
+              break;
+            case 'ArrowRight':
+              newX += moveDistance;
+              break;
+          }
+          
+          updateShape(selectedId, { x: newX, y: newY });
+        }
+      }
+      
+      // Z-index shortcuts
+      if (selectedId && (e.metaKey || e.ctrlKey)) {
+        if (e.key === ']' && !e.shiftKey) {
+          e.preventDefault();
+          // Bring to front
+          const maxZ = Math.max(...shapes.map(s => s.zIndex || 0), 0);
+          updateShape(selectedId, { zIndex: maxZ + 1 });
+        } else if (e.key === '[' && !e.shiftKey) {
+          e.preventDefault();
+          // Send to back
+          const minZ = Math.min(...shapes.map(s => s.zIndex || 0), 0);
+          updateShape(selectedId, { zIndex: minZ - 1 });
+        }
+      }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedId, shapes, deleteShape]);
+  }, [selectedId, shapes, deleteShape, addShape, selectShape, updateShape]);
 
   // Update stage scale and position
   useEffect(() => {

@@ -1,10 +1,23 @@
 import OpenAI from 'openai';
 
-// Initialize OpenAI client
-const openai = new OpenAI({
-  apiKey: import.meta.env.VITE_OPENAI_API_KEY,
-  dangerouslyAllowBrowser: true, // Note: In production, use a backend proxy
-});
+// Initialize OpenAI client with error handling
+let openai: OpenAI | null = null;
+
+try {
+  const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
+  if (apiKey && apiKey !== 'undefined') {
+    openai = new OpenAI({
+      apiKey,
+      dangerouslyAllowBrowser: true, // Note: In production, use a backend proxy
+    });
+    console.log('✅ OpenAI client initialized successfully');
+  } else {
+    console.warn('⚠️ OpenAI API key not found. AI features will be disabled.');
+  }
+} catch (error) {
+  console.error('❌ Failed to initialize OpenAI client:', error);
+  openai = null;
+}
 
 // Shape types supported
 export type ShapeCommand = {
@@ -146,6 +159,14 @@ IMPORTANT:
 `;
 
 export async function executeAICommand(userCommand: string): Promise<AICommandResult> {
+  // Check if OpenAI client is available
+  if (!openai) {
+    return {
+      commands: [],
+      explanation: '❌ AI features are currently unavailable. Please ensure the OpenAI API key is configured in your environment.',
+    };
+  }
+
   try {
     const response = await openai.chat.completions.create({
       model: 'gpt-4o-mini',

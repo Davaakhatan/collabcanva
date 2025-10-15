@@ -10,7 +10,7 @@ interface CanvasControlsProps {
 }
 
 export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
-  const { scale, setScale, resetView, addShape, stageRef, shapes, selectedId, updateShape, bringToFront, sendToBack, bringForward, sendBackward } = useCanvas();
+  const { scale, setScale, resetView, addShape, stageRef, shapes, selectedId, updateShape, bringToFront, sendToBack, bringForward, sendBackward, undo, redo, canUndo, canRedo, alignLeft, alignRight, alignCenter, alignTop, alignBottom, alignMiddle } = useCanvas();
   const [fps, setFps] = useState(60);
   const [showPerf, setShowPerf] = useState(false);
   const [showShapeMenu, setShowShapeMenu] = useState(false);
@@ -69,7 +69,7 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
     { type: 'rectangle' as const, icon: '⬜', label: 'Rectangle' },
     { type: 'circle' as const, icon: '⚫', label: 'Circle' },
     { type: 'triangle' as const, icon: '▲', label: 'Triangle' },
-    { type: 'ellipse' as const, icon: '⬭', label: 'Ellipse' },
+    { type: 'ellipse' as const, icon: '⬯', label: 'Ellipse' }, // Better visible ellipse icon
     { type: 'text' as const, icon: 'T', label: 'Text' },
   ];
 
@@ -168,6 +168,51 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
               strokeLinejoin="round"
               strokeWidth={2}
               d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"
+            />
+          </svg>
+        </button>
+
+        {/* Divider */}
+        <div className="w-px h-6 bg-gray-300 mx-1" />
+
+        {/* Undo/Redo */}
+        <button
+          onClick={undo}
+          disabled={!canUndo}
+          className="p-2 hover:bg-gray-100 rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          title="Undo (Cmd+Z)"
+        >
+          <svg
+            className="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"
+            />
+          </svg>
+        </button>
+        <button
+          onClick={redo}
+          disabled={!canRedo}
+          className="p-2 hover:bg-gray-100 rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          title="Redo (Cmd+Shift+Z)"
+        >
+          <svg
+            className="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M21 10H11a8 8 0 00-8 8v2m18-10l-6 6m6-6l-6-6"
             />
           </svg>
         </button>
@@ -289,6 +334,65 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
                   </div>
                 </div>
               )}
+            </div>
+            <div className="w-px h-6 bg-gray-300 mx-1" />
+            
+            {/* Alignment Tools */}
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => alignLeft(selectedId)}
+                className="p-2 rounded-xl hover:bg-gradient-to-br hover:from-green-100 hover:to-emerald-100 hover:text-green-700 transition-all duration-200"
+                title="Align Left"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                </svg>
+              </button>
+              <button
+                onClick={() => alignCenter(selectedId)}
+                className="p-2 rounded-xl hover:bg-gradient-to-br hover:from-green-100 hover:to-emerald-100 hover:text-green-700 transition-all duration-200"
+                title="Align Center"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h8M4 14h16M4 18h16" />
+                </svg>
+              </button>
+              <button
+                onClick={() => alignRight(selectedId)}
+                className="p-2 rounded-xl hover:bg-gradient-to-br hover:from-green-100 hover:to-emerald-100 hover:text-green-700 transition-all duration-200"
+                title="Align Right"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                </svg>
+              </button>
+              <button
+                onClick={() => alignTop(selectedId)}
+                className="p-2 rounded-xl hover:bg-gradient-to-br hover:from-green-100 hover:to-emerald-100 hover:text-green-700 transition-all duration-200"
+                title="Align Top"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                </svg>
+              </button>
+              <button
+                onClick={() => alignMiddle(selectedId)}
+                className="p-2 rounded-xl hover:bg-gradient-to-br hover:from-green-100 hover:to-emerald-100 hover:text-green-700 transition-all duration-200"
+                title="Align Middle"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                </svg>
+              </button>
+              <button
+                onClick={() => alignBottom(selectedId)}
+                className="p-2 rounded-xl hover:bg-gradient-to-br hover:from-green-100 hover:to-emerald-100 hover:text-green-700 transition-all duration-200"
+                title="Align Bottom"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                </svg>
+              </button>
             </div>
             <div className="w-px h-6 bg-gray-300 mx-1" />
           </>

@@ -139,7 +139,7 @@ export async function unlockShape(shapeId: string): Promise<void> {
   await updateShape(shapeId, {
     isLocked: false,
     lockedBy: null,
-    lockedAt: undefined,
+    lockedAt: null, // Use null instead of undefined for Firebase compatibility
   });
 }
 
