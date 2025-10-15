@@ -328,17 +328,19 @@ export default function Canvas({ onShowHelp }: CanvasProps) {
             listening={false}
           />
 
-          {/* Render shapes */}
-          {shapes.map((shape) => (
-            <Shape
-              key={shape.id}
-              shape={shape}
-              isSelected={shape.id === selectedId}
-              onSelect={() => selectShape(shape.id)}
-              onChange={(updates) => updateShape(shape.id, updates)}
-              onLock={() => lockShape(shape.id)}
-            />
-          ))}
+          {/* Render shapes (sorted by z-index) */}
+          {[...shapes]
+            .sort((a, b) => (a.zIndex || 0) - (b.zIndex || 0))
+            .map((shape) => (
+              <Shape
+                key={shape.id}
+                shape={shape}
+                isSelected={shape.id === selectedId}
+                onSelect={() => selectShape(shape.id)}
+                onChange={(updates) => updateShape(shape.id, updates)}
+                onLock={() => lockShape(shape.id)}
+              />
+            ))}
 
           {/* Render selection box */}
           {selectionBox && (

@@ -10,10 +10,18 @@ interface CanvasControlsProps {
 }
 
 export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
-  const { scale, setScale, resetView, addShape, stageRef, shapes } = useCanvas();
+  const { scale, setScale, resetView, addShape, stageRef, shapes, selectedId, updateShape, bringToFront, sendToBack, bringForward, sendBackward } = useCanvas();
   const [fps, setFps] = useState(60);
   const [showPerf, setShowPerf] = useState(false);
   const [showShapeMenu, setShowShapeMenu] = useState(false);
+  const [showColorPicker, setShowColorPicker] = useState(false);
+
+  // Predefined color palette
+  const colorPalette = [
+    '#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8',
+    '#F7DC6F', '#BB8FCE', '#85C1E2', '#F8B739', '#52B788',
+    '#EF476F', '#06FFA5', '#118AB2', '#FFD166', '#A78BFA',
+  ];
 
   const handleZoomIn = () => {
     const newScale = clamp(scale * (1 + ZOOM_SPEED), MIN_ZOOM, MAX_ZOOM);
@@ -204,6 +212,87 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
 
         {/* Divider */}
         <div className="w-px h-6 bg-gray-300 mx-1" />
+
+        {/* Z-index controls (only show when shape is selected) */}
+        {selectedId && (
+          <>
+            <button
+              onClick={() => bringToFront(selectedId)}
+              className="p-2 rounded-xl hover:bg-gradient-to-br hover:from-orange-100 hover:to-yellow-100 hover:text-orange-700 transition-all duration-200"
+              title="Bring to Front (Cmd+])"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 11l5-5m0 0l5 5m-5-5v12" />
+              </svg>
+            </button>
+            <button
+              onClick={() => bringForward(selectedId)}
+              className="p-2 rounded-xl hover:bg-gradient-to-br hover:from-orange-100 hover:to-yellow-100 hover:text-orange-700 transition-all duration-200"
+              title="Bring Forward"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+              </svg>
+            </button>
+            <button
+              onClick={() => sendBackward(selectedId)}
+              className="p-2 rounded-xl hover:bg-gradient-to-br hover:from-orange-100 hover:to-yellow-100 hover:text-orange-700 transition-all duration-200"
+              title="Send Backward"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            <button
+              onClick={() => sendToBack(selectedId)}
+              className="p-2 rounded-xl hover:bg-gradient-to-br hover:from-orange-100 hover:to-yellow-100 hover:text-orange-700 transition-all duration-200"
+              title="Send to Back (Cmd+[)"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 13l-5 5m0 0l-5-5m5 5V6" />
+              </svg>
+            </button>
+            <div className="w-px h-6 bg-gray-300 mx-1" />
+            
+            {/* Color Picker */}
+            <div className="relative">
+              <button
+                onClick={() => setShowColorPicker(!showColorPicker)}
+                className="p-2 rounded-xl hover:bg-gradient-to-br hover:from-pink-100 hover:to-rose-100 hover:text-pink-700 transition-all duration-200 flex items-center gap-2"
+                title="Change Color"
+              >
+                <div 
+                  className="w-5 h-5 rounded border-2 border-white shadow-sm"
+                  style={{ backgroundColor: shapes.find(s => s.id === selectedId)?.fill || '#000' }}
+                />
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+                </svg>
+              </button>
+              
+              {showColorPicker && (
+                <div className="absolute bottom-full mb-2 left-0 bg-white rounded-xl shadow-2xl border border-gray-200 p-3 z-50">
+                  <p className="text-xs font-semibold text-gray-600 mb-2">Pick a Color</p>
+                  <div className="grid grid-cols-5 gap-2">
+                    {colorPalette.map((color) => (
+                      <button
+                        key={color}
+                        onClick={() => {
+                          updateShape(selectedId, { fill: color });
+                          setShowColorPicker(false);
+                        }}
+                        className="w-8 h-8 rounded-lg border-2 border-gray-200 hover:border-gray-400 hover:scale-110 transition-all duration-200 shadow-sm"
+                        style={{ backgroundColor: color }}
+                        title={color}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+            <div className="w-px h-6 bg-gray-300 mx-1" />
+          </>
+        )}
 
         {/* Performance Toggle */}
         <button

@@ -13,6 +13,7 @@ export interface Shape {
   height: number;
   rotation?: number; // Rotation in degrees
   fill: string;
+  zIndex?: number; // Layer order (higher = on top)
   // Text-specific properties
   text?: string;
   fontSize?: number;
@@ -46,6 +47,12 @@ interface CanvasContextType {
   // Locking operations
   lockShape: (id: string) => Promise<boolean>;
   unlockShape: (id: string) => void;
+  
+  // Z-index operations
+  bringToFront: (id: string) => void;
+  sendToBack: (id: string) => void;
+  bringForward: (id: string) => void;
+  sendBackward: (id: string) => void;
   
   // Canvas operations
   setScale: (scale: number) => void;
@@ -158,6 +165,31 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
   };
 
   // Pan to a specific canvas position (e.g., another user's cursor)
+  // Z-index management
+  const bringToFront = (id: string) => {
+    const maxZ = Math.max(...shapes.map(s => s.zIndex || 0), 0);
+    updateShape(id, { zIndex: maxZ + 1 });
+  };
+
+  const sendToBack = (id: string) => {
+    const minZ = Math.min(...shapes.map(s => s.zIndex || 0), 0);
+    updateShape(id, { zIndex: minZ - 1 });
+  };
+
+  const bringForward = (id: string) => {
+    const shape = shapes.find(s => s.id === id);
+    if (!shape) return;
+    const currentZ = shape.zIndex || 0;
+    updateShape(id, { zIndex: currentZ + 1 });
+  };
+
+  const sendBackward = (id: string) => {
+    const shape = shapes.find(s => s.id === id);
+    if (!shape) return;
+    const currentZ = shape.zIndex || 0;
+    updateShape(id, { zIndex: currentZ - 1 });
+  };
+
   const panToPosition = (canvasX: number, canvasY: number) => {
     // Get viewport center
     const viewportCenterX = window.innerWidth / 2;
@@ -185,6 +217,10 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
         selectShape,
         lockShape,
         unlockShape,
+        bringToFront,
+        sendToBack,
+        bringForward,
+        sendBackward,
         setScale,
         setPosition,
         resetView,
