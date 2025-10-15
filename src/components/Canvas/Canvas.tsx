@@ -417,6 +417,7 @@ export default function Canvas({ onShowHelp }: CanvasProps) {
                 onSelect={() => selectShape(shape.id)}
                 onChange={(updates) => updateShape(shape.id, updates)}
                 onLock={() => lockShape(shape.id)}
+                stageRef={stageRef}
               />
             ))}
 

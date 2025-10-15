@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { Rect, Circle, Ellipse, Line, Text, Transformer } from "react-konva";
 import type Konva from "konva";
 import { useAuth } from "../../contexts/AuthContext";
@@ -10,9 +11,10 @@ interface ShapeProps {
   onSelect: () => void;
   onChange: (updates: Partial<ShapeType>) => void;
   onLock: () => Promise<boolean>;
+  stageRef: React.MutableRefObject<Konva.Stage | null>;
 }
 
-export default function Shape({ shape, isSelected, onSelect, onChange, onLock }: ShapeProps) {
+export default function Shape({ shape, isSelected, onSelect, onChange, onLock, stageRef }: ShapeProps) {
   const { user } = useAuth();
   const shapeRef = useRef<any>(null); // Can be Rect, Circle, Line, or Text
   const transformerRef = useRef<Konva.Transformer>(null);
@@ -20,6 +22,7 @@ export default function Shape({ shape, isSelected, onSelect, onChange, onLock }:
   const mouseDownPosRef = useRef<{ x: number; y: number } | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(shape.text || '');
+  const [textareaPosition, setTextareaPosition] = useState({ x: 0, y: 0, width: 0, height: 0 });
   
   // Check if locked by someone else
   const userId = (user as any)?.uid || null;
@@ -256,7 +259,24 @@ export default function Shape({ shape, isSelected, onSelect, onChange, onLock }:
             align="left"
             verticalAlign="top"
             onDblClick={() => {
-              if (!isLockedByOther) {
+              if (!isLockedByOther && stageRef.current) {
+                // Calculate screen position from canvas position
+                const stage = stageRef.current;
+                const scale = stage.scaleX();
+                const stageBox = stage.container().getBoundingClientRect();
+                
+                const screenX = stageBox.left + shape.x * scale + stage.x();
+                const screenY = stageBox.top + shape.y * scale + stage.y();
+                const screenWidth = shape.width * scale;
+                const screenHeight = shape.height * scale;
+                
+                setTextareaPosition({
+                  x: screenX,
+                  y: screenY,
+                  width: Math.max(200, screenWidth),
+                  height: Math.max(50, screenHeight)
+                });
+                
                 setIsEditing(true);
                 setEditText(shape.text || '');
               }
@@ -322,15 +342,15 @@ export default function Shape({ shape, isSelected, onSelect, onChange, onLock }:
       )}
       
       {/* Text Editing Overlay */}
-      {isEditing && shape.type === 'text' && (
+      {isEditing && shape.type === 'text' && createPortal(
         <div
           style={{
-            position: 'absolute',
-            top: `${shape.y}px`,
-            left: `${shape.x}px`,
-            width: `${shape.width}px`,
-            minHeight: `${shape.height}px`,
-            zIndex: 1000,
+            position: 'fixed',
+            top: `${textareaPosition.y}px`,
+            left: `${textareaPosition.x}px`,
+            width: `${textareaPosition.width}px`,
+            minHeight: `${textareaPosition.height}px`,
+            zIndex: 10000,
           }}
         >
           <textarea
@@ -353,18 +373,20 @@ export default function Shape({ shape, isSelected, onSelect, onChange, onLock }:
             style={{
               width: '100%',
               minHeight: '100%',
-              fontSize: `${shape.fontSize || 16}px`,
+              fontSize: `${(shape.fontSize || 16) * (stageRef.current?.scaleX() || 1)}px`,
               fontFamily: shape.fontFamily || 'Arial',
               color: shape.fill || '#000000',
-              background: 'rgba(255, 255, 255, 0.95)',
-              border: '2px solid #0066FF',
-              borderRadius: '4px',
-              padding: '4px',
+              background: 'rgba(255, 255, 255, 0.98)',
+              border: '3px solid #0066FF',
+              borderRadius: '6px',
+              padding: '8px',
               resize: 'none',
               outline: 'none',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
             }}
           />
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );
