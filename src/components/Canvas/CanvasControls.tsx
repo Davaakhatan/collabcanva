@@ -98,12 +98,12 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
 
   // Dynamic positioning based on toolbar position
   const positionClasses = toolbarPosition === 'bottom'
-    ? 'fixed bottom-6 left-1/2 -translate-x-1/2 flex-row items-center'
-    : 'fixed left-6 top-1/2 -translate-y-1/2 flex-col items-center max-h-[calc(100vh-180px)] overflow-y-auto';
+    ? 'fixed bottom-6 left-1/2 -translate-x-1/2 flex-row items-center gap-1'
+    : 'fixed left-6 top-1/2 -translate-y-1/2 flex-col items-center space-y-2 max-h-[calc(100vh-180px)] overflow-y-auto';
 
   const dividerClasses = toolbarPosition === 'bottom'
     ? 'w-px h-5 bg-gray-200 dark:bg-slate-600 mx-2'
-    : 'h-px w-full bg-gray-200 dark:bg-slate-600 my-3';
+    : 'h-px w-full bg-gray-200 dark:bg-slate-600';
     
   const buttonBaseClasses = "p-2.5 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-150 text-gray-700 dark:text-gray-200 flex items-center justify-center group relative";
   
@@ -114,7 +114,7 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
       {/* Intuitive Position Toggle Button */}
       <button
         onClick={() => setToolbarPosition(toolbarPosition === 'bottom' ? 'left' : 'bottom')}
-        className="fixed top-20 left-6 px-3 py-2 bg-white/90 dark:bg-slate-800/90 backdrop-blur-lg rounded-xl shadow-lg border border-gray-200/50 dark:border-slate-600/50 hover:scale-105 transition-all duration-200 z-50 text-gray-700 dark:text-gray-200 flex items-center gap-2"
+        className="fixed top-20 left-6 px-3 py-2 bg-white/95 dark:bg-slate-800/95 backdrop-blur-lg rounded-2xl shadow-2xl border border-gray-200/50 dark:border-slate-600/50 hover:scale-105 transition-all duration-300 z-50 text-gray-700 dark:text-gray-200 flex items-center gap-2"
         title={toolbarPosition === 'bottom' ? 'Move toolbar to left sidebar' : 'Move toolbar to bottom'}
       >
         {toolbarPosition === 'bottom' ? (
@@ -135,7 +135,7 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
       </button>
       
       {/* Unified Toolbar */}
-      <div className={`${positionClasses} bg-white/95 dark:bg-slate-800/95 backdrop-blur-lg rounded-2xl shadow-2xl border border-gray-200/50 dark:border-slate-600/50 ${toolbarPosition === 'bottom' ? 'px-4 py-3 gap-1' : 'px-3 py-4 gap-0 w-[60px] toolbar-scrollable'} flex z-50 transition-all duration-300`}>
+      <div className={`${positionClasses} bg-white/95 dark:bg-slate-800/95 backdrop-blur-lg rounded-2xl shadow-2xl border border-gray-200/50 dark:border-slate-600/50 ${toolbarPosition === 'bottom' ? 'px-4 py-3' : 'px-3 py-4 w-[60px] relative toolbar-scrollable'} flex z-50 transition-all duration-300 ${toolbarPosition === 'left' ? 'before:absolute before:bottom-0 before:left-0 before:right-0 before:h-8 before:bg-gradient-to-t before:from-white/95 dark:before:from-slate-800/95 before:to-transparent before:pointer-events-none before:rounded-b-2xl before:z-10' : ''}`}>
         {/* Zoom Out */}
         <button
           onClick={handleZoomOut}
@@ -148,8 +148,8 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
           </svg>
         </button>
 
-        {/* Zoom Percentage */}
-        <div className={`${toolbarPosition === 'bottom' ? 'px-2' : 'py-2 w-full'} flex items-center justify-center`}>
+        {/* Zoom Percentage - Centered */}
+        <div className={`${toolbarPosition === 'bottom' ? 'px-2' : 'w-full py-0'} flex items-center justify-center`}>
           <span className="text-sm font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap">
             {zoomPercentage}%
           </span>
@@ -213,7 +213,7 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
         <div className="relative">
           <button
             onClick={() => setShowShapeMenu(!showShapeMenu)}
-            className="p-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 hover:shadow-md transition-all duration-150 flex items-center justify-center"
+            className="p-2.5 bg-gradient-to-r from-blue-400 to-purple-400 text-white rounded-lg hover:from-blue-500 hover:to-purple-500 hover:shadow-md transition-all duration-150 flex items-center justify-center"
             title="Add Shape"
           >
             <svg className={iconSize} fill="none" stroke="currentColor" viewBox="0 0 24 24">
