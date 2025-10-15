@@ -792,10 +792,12 @@ collabcanvas/
 - [x] PR #11: Shape styling (30-color picker, text formatting) ✅
 - [x] PR #12: Resize and rotate functionality ✅ - **8 anchors + rotation handle**
 - [x] PR #13: AI agent integration ✅ - **8+ command types with OpenAI gpt-4o-mini**
-- [x] PR #14: Box selection (single-select only) ⚠️
+- [x] PR #14: Full multi-select and box selection ✅
   - Box selection UI implemented (marquee drawing)
-  - Finds all shapes in selection box
-  - But only selects first shape (multi-select NOT implemented)
+  - Finds and selects ALL shapes in selection box
+  - Cmd/Ctrl+Click to toggle shapes in selection
+  - Delete, move, align, z-index work on all selected shapes
+  - Visual feedback for multiple selections
 - [x] PR #15: Undo/redo system ✅ - **Full history with Cmd+Z/Cmd+Shift+Z**
 - [x] **BONUS**: Z-index management (bring to front/back, layer controls)
 - [x] **BONUS**: Alignment tools (align left/right/center, distribute)

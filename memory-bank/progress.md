@@ -51,8 +51,9 @@
 - [x] ALL shapes move properly (coordinate conversion fixed!)
 - [x] Resize with 8 anchors
 - [x] Rotate with handle
-- [x] Box selection UI (marquee visual, selects first shape only)
-- [ ] Multi-select (NOT implemented - only single selection)
+- [x] Box selection (marquee select - all shapes in box)
+- [x] Multi-select (Cmd/Ctrl+Click to toggle, works with all operations)
+- [x] Multi-delete, multi-move, multi-align, multi-z-index
 - [x] Delete (keyboard + UI)
 - [x] Empty state for new canvas
 
