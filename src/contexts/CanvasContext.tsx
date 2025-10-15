@@ -19,6 +19,9 @@ export interface Shape {
   text?: string;
   fontSize?: number;
   fontFamily?: string;
+  fontStyle?: 'normal' | 'italic';
+  fontWeight?: 'normal' | 'bold';
+  textDecoration?: 'none' | 'underline';
   createdBy?: string;
   createdAt?: number;
   lastModifiedBy?: string;
@@ -143,6 +146,9 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
         text: 'Double-click to edit',
         fontSize: 16,
         fontFamily: 'Arial',
+        fontStyle: 'normal',
+        fontWeight: 'normal',
+        textDecoration: 'none',
       }),
       // Apply any overrides
       ...overrides,

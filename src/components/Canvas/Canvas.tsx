@@ -8,6 +8,7 @@ import Shape from "./Shape";
 import Cursor from "../Collaboration/Cursor";
 import PresenceList from "../Collaboration/PresenceList";
 import EmptyState from "./EmptyState";
+import TextFormatting from "./TextFormatting";
 import { CANVAS_WIDTH, CANVAS_HEIGHT, MIN_ZOOM, MAX_ZOOM, ZOOM_SPEED } from "../../utils/constants";
 import { clamp } from "../../utils/helpers";
 
@@ -534,6 +535,9 @@ export default function Canvas({ onShowHelp }: CanvasProps) {
               minHeight: '100%',
               fontSize: `${((shapes.find(s => s.id === editingTextId)?.fontSize || 16) * scale)}px`,
               fontFamily: shapes.find(s => s.id === editingTextId)?.fontFamily || 'Arial',
+              fontStyle: shapes.find(s => s.id === editingTextId)?.fontStyle || 'normal',
+              fontWeight: shapes.find(s => s.id === editingTextId)?.fontWeight || 'normal',
+              textDecoration: shapes.find(s => s.id === editingTextId)?.textDecoration || 'none',
               color: shapes.find(s => s.id === editingTextId)?.fill || '#000000',
               background: 'rgba(255, 255, 255, 0.98)',
               border: '3px solid #0066FF',
@@ -545,6 +549,11 @@ export default function Canvas({ onShowHelp }: CanvasProps) {
             }}
           />
         </div>
+      )}
+
+      {/* Text Formatting Toolbar */}
+      {selectedId && shapes.find(s => s.id === selectedId)?.type === 'text' && !editingTextId && (
+        <TextFormatting selectedShapeId={selectedId} />
       )}
     </div>
   );
