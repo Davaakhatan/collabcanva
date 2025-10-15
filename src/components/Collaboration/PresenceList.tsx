@@ -25,7 +25,7 @@ export default function PresenceList({ cursors, onUserClick }: PresenceListProps
 
   return (
     <div 
-      className="fixed left-6 bg-white/90 dark:bg-slate-800/90 backdrop-blur-lg rounded-2xl shadow-xl border border-gray-200/50 dark:border-slate-600/50 z-30 max-w-xs overflow-hidden transition-all duration-300"
+      className="fixed left-6 bg-white/90 dark:bg-slate-800/90 backdrop-blur-lg rounded-xl shadow-lg border border-gray-200/50 dark:border-slate-600/50 z-30 max-w-[200px] overflow-hidden transition-all duration-300"
       style={{
         bottom: 'max(env(safe-area-inset-bottom, 0px), 24px)'
       }}
@@ -33,22 +33,22 @@ export default function PresenceList({ cursors, onUserClick }: PresenceListProps
       {/* Header */}
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full p-4 flex items-center justify-between hover:bg-gray-50/50 dark:hover:bg-slate-700/50 transition-colors"
+        className="w-full px-3 py-2.5 flex items-center justify-between hover:bg-gray-50/50 dark:hover:bg-slate-700/50 transition-colors"
       >
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           <div className="relative">
-            <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-            <div className="absolute inset-0 w-3 h-3 bg-green-500 rounded-full animate-ping opacity-75"></div>
+            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+            <div className="absolute inset-0 w-2 h-2 bg-green-500 rounded-full animate-ping opacity-75"></div>
           </div>
           <div className="text-left">
-            <h3 className="text-sm font-bold text-gray-900 dark:text-gray-100">
+            <h3 className="text-xs font-bold text-gray-900 dark:text-gray-100">
               Online
             </h3>
-            <p className="text-xs text-gray-500 dark:text-gray-400">{onlineCount} {onlineCount === 1 ? 'person' : 'people'}</p>
+            <p className="text-[10px] text-gray-500 dark:text-gray-400">{onlineCount} {onlineCount === 1 ? 'person' : 'people'}</p>
           </div>
         </div>
         <svg
-          className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
+          className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -59,7 +59,7 @@ export default function PresenceList({ cursors, onUserClick }: PresenceListProps
 
       {/* User List */}
       {isExpanded && (
-        <div className="px-3 pb-3 space-y-2 max-h-80 overflow-y-auto">
+        <div className="px-2 pb-2 space-y-1 max-h-64 overflow-y-auto">
           {onlineUsers.map((user) => {
             const hasCursor = cursors[user.userId];
             return (
@@ -67,32 +67,32 @@ export default function PresenceList({ cursors, onUserClick }: PresenceListProps
                 key={user.userId}
                 onClick={() => handleUserClick(user.userId)}
                 disabled={!hasCursor}
-                className="w-full flex items-center gap-3 p-2 rounded-xl hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-all group disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-gray-50 dark:disabled:hover:bg-slate-700"
+                className="w-full flex items-center gap-2 p-1.5 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-all group disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-gray-50 dark:disabled:hover:bg-slate-700"
                 title={hasCursor ? `Jump to ${user.displayName}'s cursor` : `${user.displayName} (no cursor yet)`}
               >
                 <div
-                  className="w-10 h-10 rounded-xl flex items-center justify-center text-white text-sm font-bold shadow-md group-hover:scale-110 transition-transform"
+                  className="w-7 h-7 rounded-lg flex items-center justify-center text-white text-xs font-bold shadow-sm group-hover:scale-110 transition-transform shrink-0"
                   style={{ backgroundColor: user.color }}
                 >
                   {user.displayName.charAt(0).toUpperCase()}
                 </div>
                 <div className="flex-1 min-w-0 text-left">
-                  <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">
+                  <p className="text-xs font-semibold text-gray-900 dark:text-gray-100 truncate">
                     {user.displayName}
                   </p>
                   <div className="flex items-center gap-1">
                     <div
-                      className="w-2 h-2 rounded-full"
+                      className="w-1.5 h-1.5 rounded-full"
                       style={{ backgroundColor: user.color }}
                     />
-                    <span className="text-xs text-gray-500 dark:text-gray-400">
-                      {hasCursor ? 'Click to follow' : 'Active now'}
+                    <span className="text-[10px] text-gray-500 dark:text-gray-400">
+                      {hasCursor ? 'Follow' : 'Active'}
                     </span>
                   </div>
                 </div>
                 {hasCursor && (
                   <svg 
-                    className="w-4 h-4 text-blue-500 opacity-0 group-hover:opacity-100 transition-opacity" 
+                    className="w-3 h-3 text-blue-500 opacity-0 group-hover:opacity-100 transition-opacity shrink-0" 
                     fill="none" 
                     stroke="currentColor" 
                     viewBox="0 0 24 24"
