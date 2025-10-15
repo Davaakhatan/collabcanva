@@ -237,9 +237,18 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
   const colorPickerButtonRef = useRef<HTMLButtonElement>(null);
 
   const colorPalette = [
-    '#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8',
-    '#F7DC6F', '#BB8FCE', '#85C1E2', '#F8B739', '#52B788',
-    '#EF476F', '#06FFA5', '#118AB2', '#FFD166', '#A78BFA',
+    // Reds
+    '#FF6B6B', '#EF476F', '#E63946', '#DC2F02', '#D00000',
+    // Oranges & Yellows
+    '#FFA07A', '#FF8500', '#FFB703', '#FFD166', '#F7DC6F',
+    // Greens
+    '#52B788', '#06FFA5', '#98D8C8', '#4ECDC4', '#06D6A0',
+    // Blues
+    '#45B7D1', '#118AB2', '#85C1E2', '#0077B6', '#023E8A',
+    // Purples & Pinks
+    '#BB8FCE', '#A78BFA', '#9D4EDD', '#C77DFF', '#E0AAFF',
+    // Neutrals
+    '#000000', '#495057', '#6C757D', '#ADB5BD', '#FFFFFF',
   ];
 
   const handleZoomIn = () => {

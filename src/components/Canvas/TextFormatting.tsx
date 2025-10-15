@@ -29,8 +29,23 @@ export default function TextFormatting({ selectedShapeId }: TextFormattingProps)
     'Arial Black',
   ];
 
+  const colorPalette = [
+    // Reds
+    '#FF6B6B', '#EF476F', '#E63946', '#DC2F02', '#D00000',
+    // Oranges & Yellows
+    '#FFA07A', '#FF8500', '#FFB703', '#FFD166', '#F7DC6F',
+    // Greens
+    '#52B788', '#06FFA5', '#98D8C8', '#4ECDC4', '#06D6A0',
+    // Blues
+    '#45B7D1', '#118AB2', '#85C1E2', '#0077B6', '#023E8A',
+    // Purples & Pinks
+    '#BB8FCE', '#A78BFA', '#9D4EDD', '#C77DFF', '#E0AAFF',
+    // Neutrals
+    '#000000', '#495057', '#6C757D', '#ADB5BD', '#FFFFFF',
+  ];
+
   return (
-    <div className="fixed top-24 right-6 bg-white/95 dark:bg-slate-800/95 backdrop-blur-lg rounded-2xl shadow-2xl border border-gray-200/50 dark:border-slate-600/50 p-4 z-50 min-w-[280px]">
+    <div className="fixed top-24 right-6 bg-white/95 dark:bg-slate-800/95 backdrop-blur-lg rounded-2xl shadow-2xl border border-gray-200/50 dark:border-slate-600/50 p-4 z-50 w-[320px] max-h-[calc(100vh-120px)] overflow-y-auto">
       {/* Header */}
       <div className="flex items-center gap-2 mb-4 pb-3 border-b border-gray-200 dark:border-slate-600">
         <svg className="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -138,6 +153,29 @@ export default function TextFormatting({ selectedShapeId }: TextFormattingProps)
             >
               U
             </button>
+          </div>
+        </div>
+
+        {/* Text Color */}
+        <div>
+          <label className="text-xs font-semibold text-gray-600 dark:text-gray-400 block mb-2">
+            Text Color
+          </label>
+          <div className="grid grid-cols-5 gap-2 max-h-[200px] overflow-y-auto p-1">
+            {colorPalette.map((color) => (
+              <button
+                key={color}
+                onClick={() => updateShape(selectedShapeId, { fill: color })}
+                className={`w-10 h-10 rounded-lg border-2 hover:scale-110 transition-all ${
+                  shape.fill === color
+                    ? 'border-blue-600 ring-2 ring-blue-300 dark:ring-blue-500'
+                    : 'border-gray-300 dark:border-slate-600'
+                }`}
+                style={{ backgroundColor: color }}
+                title={color}
+                aria-label={`Color ${color}`}
+              />
+            ))}
           </div>
         </div>
 
