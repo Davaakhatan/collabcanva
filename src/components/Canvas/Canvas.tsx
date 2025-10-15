@@ -19,7 +19,7 @@ interface CanvasProps {
 export default function Canvas({ onShowHelp }: CanvasProps) {
   const {
     shapes,
-    selectedId,
+    selectedIds,
     stageRef,
     loading,
     scale,
@@ -27,8 +27,10 @@ export default function Canvas({ onShowHelp }: CanvasProps) {
     setScale,
     setPosition,
     selectShape,
+    selectShapes,
+    clearSelection,
+    deleteSelectedShapes,
     updateShape,
-    deleteShape,
     lockShape,
     addShape,
     panToPosition,
@@ -228,10 +230,10 @@ export default function Canvas({ onShowHelp }: CanvasProps) {
       
       // If box is too small (< 5px), treat as a click to deselect
       if (Math.abs(x2 - x1) < 5 && Math.abs(y2 - y1) < 5) {
-        selectShape(null);
+        clearSelection();
       } else {
         // Find shapes that intersect with selection box
-        const selectedShapes = shapes.filter((shape) => {
+        const shapesInBox = shapes.filter((shape) => {
           const shapeX1 = shape.x;
           const shapeY1 = shape.y;
           const shapeX2 = shape.x + shape.width;
@@ -241,11 +243,11 @@ export default function Canvas({ onShowHelp }: CanvasProps) {
           return !(x2 < shapeX1 || x1 > shapeX2 || y2 < shapeY1 || y1 > shapeY2);
         });
         
-        // Select the first shape in the box (for now, only single selection supported)
-        if (selectedShapes.length > 0) {
-          selectShape(selectedShapes[0].id);
+        // Select ALL shapes in the box (multi-select!)
+        if (shapesInBox.length > 0) {
+          selectShapes(shapesInBox.map(s => s.id));
         } else {
-          selectShape(null);
+          clearSelection();
         }
       }
       
@@ -274,25 +276,29 @@ export default function Canvas({ onShowHelp }: CanvasProps) {
       const activeElement = document.activeElement;
       const isTyping = activeElement?.tagName === 'INPUT' || activeElement?.tagName === 'TEXTAREA';
       
-      // Delete/Backspace
-      if ((e.key === 'Delete' || e.key === 'Backspace') && selectedId && !isTyping) {
+      // Delete/Backspace - delete all selected shapes
+      if ((e.key === 'Delete' || e.key === 'Backspace') && selectedIds.length > 0 && !isTyping) {
         // Prevent default backspace navigation
         e.preventDefault();
         
-        // Check if shape is locked by another user
-        const shape = shapes.find(s => s.id === selectedId);
-        if (shape && shape.isLocked && shape.lockedBy !== (user as any)?.uid) {
-          console.warn('Cannot delete: shape is locked by another user');
+        // Check if any shape is locked by another user
+        const lockedByOthers = selectedIds.some(id => {
+          const shape = shapes.find(s => s.id === id);
+          return shape && shape.isLocked && shape.lockedBy !== (user as any)?.uid;
+        });
+        
+        if (lockedByOthers) {
+          console.warn('Cannot delete: one or more shapes are locked by other users');
           return;
         }
         
-        deleteShape(selectedId);
+        deleteSelectedShapes();
       }
       
-      // Duplicate (Cmd/Ctrl + D)
-      if ((e.metaKey || e.ctrlKey) && e.key === 'd' && selectedId) {
+      // Duplicate (Cmd/Ctrl + D) - duplicate first selected shape
+      if ((e.metaKey || e.ctrlKey) && e.key === 'd' && selectedIds.length > 0) {
         e.preventDefault();
-        const shape = shapes.find(s => s.id === selectedId);
+        const shape = shapes.find(s => s.id === selectedIds[0]);
         if (shape) {
           addShape(shape.type, {
             x: shape.x + 20,
@@ -311,65 +317,78 @@ export default function Canvas({ onShowHelp }: CanvasProps) {
       // Select All (Cmd/Ctrl + A)
       if ((e.metaKey || e.ctrlKey) && e.key === 'a') {
         e.preventDefault();
-        // For now, just select the first shape (single selection only)
+        // Select all shapes
         if (shapes.length > 0) {
-          selectShape(shapes[0].id);
+          selectShapes(shapes.map(s => s.id));
         }
       }
       
-      // Arrow keys for moving selected shape
-      if (selectedId && ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key) && !isTyping) {
+      // Arrow keys for moving selected shapes
+      if (selectedIds.length > 0 && ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key) && !isTyping) {
         e.preventDefault();
-        const shape = shapes.find(s => s.id === selectedId);
-        if (shape) {
-          // Check if shape is locked by another user
-          if (shape.isLocked && shape.lockedBy !== (user as any)?.uid) {
-            console.warn('Cannot move: shape is locked by another user');
-            return;
-          }
-          
-          const moveDistance = e.shiftKey ? 10 : 1; // Shift = 10px, normal = 1px
-          let newX = shape.x;
-          let newY = shape.y;
-          
-          switch (e.key) {
-            case 'ArrowUp':
-              newY -= moveDistance;
-              break;
-            case 'ArrowDown':
-              newY += moveDistance;
-              break;
-            case 'ArrowLeft':
-              newX -= moveDistance;
-              break;
-            case 'ArrowRight':
-              newX += moveDistance;
-              break;
-          }
-          
-          updateShape(selectedId, { x: newX, y: newY });
+        
+        // Check if any shape is locked by another user
+        const lockedByOthers = selectedIds.some(id => {
+          const shape = shapes.find(s => s.id === id);
+          return shape && shape.isLocked && shape.lockedBy !== (user as any)?.uid;
+        });
+        
+        if (lockedByOthers) {
+          console.warn('Cannot move: one or more shapes are locked by other users');
+          return;
         }
+        
+        const moveDistance = e.shiftKey ? 10 : 1; // Shift = 10px, normal = 1px
+        
+        selectedIds.forEach(id => {
+          const shape = shapes.find(s => s.id === id);
+          if (shape) {
+            let newX = shape.x;
+            let newY = shape.y;
+            
+            switch (e.key) {
+              case 'ArrowUp':
+                newY -= moveDistance;
+                break;
+              case 'ArrowDown':
+                newY += moveDistance;
+                break;
+              case 'ArrowLeft':
+                newX -= moveDistance;
+                break;
+              case 'ArrowRight':
+                newX += moveDistance;
+                break;
+            }
+            
+            updateShape(id, { x: newX, y: newY });
+          }
+        });
       }
       
-      // Z-index shortcuts
-      if (selectedId && (e.metaKey || e.ctrlKey)) {
+      // Z-index shortcuts - apply to all selected shapes
+      if (selectedIds.length > 0 && (e.metaKey || e.ctrlKey)) {
         if (e.key === ']' && !e.shiftKey) {
           e.preventDefault();
           // Bring to front
           const maxZ = Math.max(...shapes.map(s => s.zIndex || 0), 0);
-          updateShape(selectedId, { zIndex: maxZ + 1 });
+          selectedIds.forEach((id, index) => {
+            updateShape(id, { zIndex: maxZ + 1 + index });
+          });
         } else if (e.key === '[' && !e.shiftKey) {
           e.preventDefault();
           // Send to back
           const minZ = Math.min(...shapes.map(s => s.zIndex || 0), 0);
-          updateShape(selectedId, { zIndex: minZ - 1 });
+          selectedIds.forEach((id, index) => {
+            updateShape(id, { zIndex: minZ - 1 - (selectedIds.length - 1 - index) });
+          });
         }
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedId, shapes, deleteShape, addShape, selectShape, updateShape]);
+  }, [selectedIds, shapes, deleteSelectedShapes, addShape, selectShapes, updateShape, user]);
 
   // Update stage scale and position
   useEffect(() => {
@@ -449,8 +468,12 @@ export default function Canvas({ onShowHelp }: CanvasProps) {
               <Shape
                 key={shape.id}
                 shape={shape}
-                isSelected={shape.id === selectedId}
-                onSelect={() => selectShape(shape.id)}
+                isSelected={selectedIds.includes(shape.id)}
+                onSelect={(e?: any) => {
+                  // Check for Cmd/Ctrl key for multi-select
+                  const addToSelection = e?.evt?.metaKey || e?.evt?.ctrlKey || false;
+                  selectShape(shape.id, addToSelection);
+                }}
                 onChange={(updates) => updateShape(shape.id, updates)}
                 onLock={() => lockShape(shape.id)}
                 onStartEditText={handleStartEditText}
@@ -556,8 +579,8 @@ export default function Canvas({ onShowHelp }: CanvasProps) {
       )}
 
       {/* Text Formatting Toolbar */}
-      {selectedId && shapes.find(s => s.id === selectedId)?.type === 'text' && !editingTextId && (
-        <TextFormatting selectedShapeId={selectedId} />
+      {selectedIds.length === 1 && shapes.find(s => s.id === selectedIds[0])?.type === 'text' && !editingTextId && (
+        <TextFormatting selectedShapeId={selectedIds[0]} />
       )}
     </div>
   );

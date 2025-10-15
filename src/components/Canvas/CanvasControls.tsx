@@ -238,7 +238,7 @@ const ShapeMenu = ({ isOpen, onClose, onSelectShape, anchorRef, mode }: ShapeMen
 };
 
 export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
-  const { scale, setScale, resetView, addShape, stageRef, shapes, selectedId, updateShape, undo, redo, canUndo, canRedo } = useCanvas();
+  const { scale, setScale, resetView, addShape, stageRef, shapes, selectedIds, updateShape, undo, redo, canUndo, canRedo } = useCanvas();
   const [fps, setFps] = useState(60);
   const [showPerf, setShowPerf] = useState(false);
   const [showShapeMenu, setShowShapeMenu] = useState(false);
@@ -247,32 +247,36 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
   
   const addShapeButtonRef = useRef<HTMLButtonElement>(null);
   
-  // Movement functions
+  // Movement functions (works on all selected shapes)
   const moveShape = (direction: 'up' | 'down' | 'left' | 'right') => {
-    if (!selectedId) return;
-    const shape = shapes.find(s => s.id === selectedId);
-    if (!shape) return;
+    if (selectedIds.length === 0) return;
     
     const moveDistance = 10; // Move 10px at a time
-    let newX = shape.x;
-    let newY = shape.y;
     
-    switch (direction) {
-      case 'up':
-        newY -= moveDistance;
-        break;
-      case 'down':
-        newY += moveDistance;
-        break;
-      case 'left':
-        newX -= moveDistance;
-        break;
-      case 'right':
-        newX += moveDistance;
-        break;
-    }
-    
-    updateShape(selectedId, { x: newX, y: newY });
+    selectedIds.forEach(id => {
+      const shape = shapes.find(s => s.id === id);
+      if (!shape) return;
+      
+      let newX = shape.x;
+      let newY = shape.y;
+      
+      switch (direction) {
+        case 'up':
+          newY -= moveDistance;
+          break;
+        case 'down':
+          newY += moveDistance;
+          break;
+        case 'left':
+          newX -= moveDistance;
+          break;
+        case 'right':
+          newX += moveDistance;
+          break;
+      }
+      
+      updateShape(id, { x: newX, y: newY });
+    });
   };
   const colorPickerButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -409,7 +413,7 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
             <div className="w-full h-px bg-gray-200/70 dark:bg-slate-600/70" />
             
             {/* Movement Controls */}
-            {selectedId && (
+            {selectedIds.length > 0 && (
               <>
                 <TButton onClick={() => moveShape('up')} title="Move Up" aria-label="Move Up">
                   <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
@@ -450,7 +454,7 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
               </svg>
             </TButton>
 
-            {selectedId && (
+            {selectedIds.length > 0 && (
               <>
                 <div className="w-full h-px bg-gray-200/70 dark:bg-slate-600/70" />
                 <TButton 
@@ -540,7 +544,7 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
             </TButton>
 
             {/* Movement Controls */}
-            {selectedId && (
+            {selectedIds.length > 0 && (
               <>
                 <div className="w-px h-6 bg-gray-200/70 dark:bg-slate-600/70" />
                 <TButton onClick={() => moveShape('up')} title="Move Up" aria-label="Move Up">
@@ -580,7 +584,7 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
               </svg>
             </TButton>
 
-            {selectedId && (
+            {selectedIds.length > 0 && (
               <>
                 <div className="w-px h-6 bg-gray-200/70 dark:bg-slate-600/70" />
                 <TButton 
@@ -634,7 +638,7 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
       />
 
       {/* Color Picker Portal (for selected shapes) */}
-      {showColorPicker && selectedId && colorPickerButtonRef.current && createPortal(
+      {showColorPicker && selectedIds.length > 0 && colorPickerButtonRef.current && createPortal(
         <div
           className="fixed z-50 pointer-events-auto"
           style={{
@@ -659,7 +663,8 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
                 <button
                   key={color}
                   onClick={() => {
-                    updateShape(selectedId, { fill: color });
+                    // Update color for all selected shapes
+                    selectedIds.forEach(id => updateShape(id, { fill: color }));
                     setShowColorPicker(false);
                   }}
                   className="w-8 h-8 rounded-lg border-2 border-gray-300 dark:border-slate-600 hover:scale-110 transition-transform"

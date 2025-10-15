@@ -7,7 +7,7 @@ import type { Shape as ShapeType } from "../../contexts/CanvasContext";
 interface ShapeProps {
   shape: ShapeType;
   isSelected: boolean;
-  onSelect: () => void;
+  onSelect: (e?: Konva.KonvaEventObject<MouseEvent | TouchEvent>) => void;
   onChange: (updates: Partial<ShapeType>) => void;
   onLock: () => Promise<boolean>;
   onStartEditText?: (shapeId: string) => void;
@@ -100,7 +100,7 @@ export default function Shape({ shape, isSelected, onSelect, onChange, onLock, o
     // If moved less than 5 pixels, treat as a click/selection
     if (distance < 5) {
       console.log('Shape clicked (with tolerance):', shape.id);
-      onSelect();
+      onSelect(e); // Pass event to check for Cmd/Ctrl key
     }
 
     mouseDownPosRef.current = null;

@@ -34,7 +34,7 @@ export interface Shape {
 interface CanvasContextType {
   // Canvas state
   shapes: Shape[];
-  selectedId: string | null;
+  selectedIds: string[];
   stageRef: React.MutableRefObject<Konva.Stage | null>;
   loading: boolean;
   
@@ -46,7 +46,10 @@ interface CanvasContextType {
   addShape: (type: 'rectangle' | 'circle' | 'triangle' | 'text' | 'ellipse', overrides?: Partial<Shape>) => void;
   updateShape: (id: string, updates: Partial<Shape>) => void;
   deleteShape: (id: string) => void;
-  selectShape: (id: string | null) => void;
+  deleteSelectedShapes: () => void;
+  selectShape: (id: string | null, addToSelection?: boolean) => void;
+  selectShapes: (ids: string[]) => void;
+  clearSelection: () => void;
   
   // Locking operations
   lockShape: (id: string) => Promise<boolean>;
@@ -70,19 +73,19 @@ interface CanvasContextType {
   canUndo: boolean;
   canRedo: boolean;
   
-  // Alignment operations
-  alignLeft: (id: string) => void;
-  alignRight: (id: string) => void;
-  alignCenter: (id: string) => void;
-  alignTop: (id: string) => void;
-  alignBottom: (id: string) => void;
-  alignMiddle: (id: string) => void;
+  // Alignment operations (work on all selected shapes)
+  alignLeft: () => void;
+  alignRight: () => void;
+  alignCenter: () => void;
+  alignTop: () => void;
+  alignBottom: () => void;
+  alignMiddle: () => void;
 }
 
 const CanvasContext = createContext<CanvasContextType | null>(null);
 
 export function CanvasProvider({ children }: { children: ReactNode }) {
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [scale, setScaleState] = useState(1);
   const [position, setPositionState] = useState({ x: 0, y: 0 });
   const stageRef = useRef<Konva.Stage | null>(null);
@@ -101,12 +104,12 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
   // History management
   const { pushState, undo, redo, canUndo, canRedo } = useHistory(
     shapes,
-    selectedId,
+    selectedIds[0] || null, // Use first selected ID for history (simplified)
     (_restoredShapes, restoredSelectedId) => {
       // This function is called when restoring from history
       // We need to restore the shapes to the sync system
-      // For now, we'll just update the selectedId since shapes are managed by sync
-      setSelectedId(restoredSelectedId);
+      // For now, we'll just update the selectedIds since shapes are managed by sync
+      setSelectedIds(restoredSelectedId ? [restoredSelectedId] : []);
       // Note: In a real implementation, we'd need to restore shapes to the sync system
       // This is a limitation of the current architecture
     }
@@ -166,24 +169,65 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
 
   const deleteShape = (id: string) => {
     deleteShapeSync(id);
-    if (selectedId === id) {
-      setSelectedId(null);
+    if (selectedIds.includes(id)) {
+      setSelectedIds(selectedIds.filter(sid => sid !== id));
     }
     // Push state to history after deleting shape
     setTimeout(() => pushState(), 0);
   };
 
-  const selectShape = (id: string | null) => {
-    // Unlock previously selected shape when deselecting
-    if (selectedId && selectedId !== id) {
-      console.log(`[CanvasContext] Deselecting shape ${selectedId}, selecting ${id}, unlocking ${selectedId}`);
-      unlockShapeSync(selectedId);
-    } else if (id) {
-      console.log(`[CanvasContext] Selecting shape ${id} (no previous selection to unlock)`);
-    } else {
-      console.log(`[CanvasContext] Deselecting all (clicking empty canvas)`);
+  const deleteSelectedShapes = () => {
+    selectedIds.forEach(id => deleteShapeSync(id));
+    setSelectedIds([]);
+    // Push state to history after deleting shapes
+    setTimeout(() => pushState(), 0);
+  };
+
+  const selectShape = (id: string | null, addToSelection = false) => {
+    if (!id) {
+      // Clear selection
+      selectedIds.forEach(sid => unlockShapeSync(sid));
+      setSelectedIds([]);
+      return;
     }
-    setSelectedId(id);
+
+    if (addToSelection) {
+      // Cmd/Ctrl+Click: toggle shape in selection
+      if (selectedIds.includes(id)) {
+        // Remove from selection
+        unlockShapeSync(id);
+        setSelectedIds(selectedIds.filter(sid => sid !== id));
+      } else {
+        // Add to selection
+        lockShapeSync(id);
+        setSelectedIds([...selectedIds, id]);
+      }
+    } else {
+      // Normal click: replace selection
+      selectedIds.forEach(sid => {
+        if (sid !== id) unlockShapeSync(sid);
+      });
+      
+      setSelectedIds([id]);
+      lockShapeSync(id);
+    }
+  };
+
+  const selectShapes = (ids: string[]) => {
+    // Unlock previously selected shapes
+    selectedIds.forEach(sid => {
+      if (!ids.includes(sid)) unlockShapeSync(sid);
+    });
+    
+    // Lock newly selected shapes
+    ids.forEach(id => lockShapeSync(id));
+    
+    setSelectedIds(ids);
+  };
+
+  const clearSelection = () => {
+    selectedIds.forEach(sid => unlockShapeSync(sid));
+    setSelectedIds([]);
   };
 
   const lockShape = async (id: string): Promise<boolean> => {
@@ -246,70 +290,82 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
     setPositionState({ x: newX, y: newY });
   };
 
-  // Alignment functions
-  const alignLeft = (id: string) => {
-    const shape = shapes.find(s => s.id === id);
-    if (!shape) return;
+  // Alignment functions (work on all selected shapes)
+  const alignLeft = () => {
+    if (selectedIds.length === 0) return;
+    const selectedShapes = shapes.filter(s => selectedIds.includes(s.id));
     
-    // Find the leftmost position among all shapes
-    const leftmostX = Math.min(...shapes.map(s => s.x));
-    updateShape(id, { x: leftmostX });
+    // Find the leftmost position among selected shapes
+    const leftmostX = Math.min(...selectedShapes.map(s => s.x));
+    selectedIds.forEach(id => updateShape(id, { x: leftmostX }));
   };
 
-  const alignRight = (id: string) => {
-    const shape = shapes.find(s => s.id === id);
-    if (!shape) return;
+  const alignRight = () => {
+    if (selectedIds.length === 0) return;
+    const selectedShapes = shapes.filter(s => selectedIds.includes(s.id));
     
-    // Find the rightmost position among all shapes
-    const rightmostX = Math.max(...shapes.map(s => s.x + s.width));
-    updateShape(id, { x: rightmostX - shape.width });
+    // Find the rightmost position among selected shapes
+    const rightmostX = Math.max(...selectedShapes.map(s => s.x + s.width));
+    selectedIds.forEach(id => {
+      const shape = shapes.find(s => s.id === id);
+      if (shape) updateShape(id, { x: rightmostX - shape.width });
+    });
   };
 
-  const alignCenter = (id: string) => {
-    const shape = shapes.find(s => s.id === id);
-    if (!shape) return;
+  const alignCenter = () => {
+    if (selectedIds.length === 0) return;
+    const selectedShapes = shapes.filter(s => selectedIds.includes(s.id));
     
-    // Find the center position among all shapes
-    const leftmostX = Math.min(...shapes.map(s => s.x));
-    const rightmostX = Math.max(...shapes.map(s => s.x + s.width));
+    // Find the center position among selected shapes
+    const leftmostX = Math.min(...selectedShapes.map(s => s.x));
+    const rightmostX = Math.max(...selectedShapes.map(s => s.x + s.width));
     const centerX = (leftmostX + rightmostX) / 2;
-    updateShape(id, { x: centerX - shape.width / 2 });
+    selectedIds.forEach(id => {
+      const shape = shapes.find(s => s.id === id);
+      if (shape) updateShape(id, { x: centerX - shape.width / 2 });
+    });
   };
 
-  const alignTop = (id: string) => {
-    const shape = shapes.find(s => s.id === id);
-    if (!shape) return;
+  const alignTop = () => {
+    if (selectedIds.length === 0) return;
+    const selectedShapes = shapes.filter(s => selectedIds.includes(s.id));
     
-    // Find the topmost position among all shapes
-    const topmostY = Math.min(...shapes.map(s => s.y));
-    updateShape(id, { y: topmostY });
+    // Find the topmost position among selected shapes
+    const topmostY = Math.min(...selectedShapes.map(s => s.y));
+    selectedIds.forEach(id => updateShape(id, { y: topmostY }));
   };
 
-  const alignBottom = (id: string) => {
-    const shape = shapes.find(s => s.id === id);
-    if (!shape) return;
+  const alignBottom = () => {
+    if (selectedIds.length === 0) return;
+    const selectedShapes = shapes.filter(s => selectedIds.includes(s.id));
     
-    // Find the bottommost position among all shapes
-    const bottommostY = Math.max(...shapes.map(s => s.y + s.height));
-    updateShape(id, { y: bottommostY - shape.height });
+    // Find the bottommost position among selected shapes
+    const bottommostY = Math.max(...selectedShapes.map(s => s.y + s.height));
+    selectedIds.forEach(id => {
+      const shape = shapes.find(s => s.id === id);
+      if (shape) updateShape(id, { y: bottommostY - shape.height });
+    });
   };
 
-  const alignMiddle = (id: string) => {
-    const shape = shapes.find(s => s.id === id);
-    if (!shape) return;
+  const alignMiddle = () => {
+    if (selectedIds.length === 0) return;
+    const selectedShapes = shapes.filter(s => selectedIds.includes(s.id));
     
-    // Find the middle position among all shapes
-    const topmostY = Math.min(...shapes.map(s => s.y));
-    const bottommostY = Math.max(...shapes.map(s => s.y + s.height));
+    // Find the middle position among selected shapes
+    const topmostY = Math.min(...selectedShapes.map(s => s.y));
+    const bottommostY = Math.max(...selectedShapes.map(s => s.y + s.height));
     const middleY = (topmostY + bottommostY) / 2;
-    updateShape(id, { y: middleY - shape.height / 2 });
+    selectedIds.forEach(id => {
+      const shape = shapes.find(s => s.id === id);
+      if (shape) updateShape(id, { y: middleY - shape.height / 2 });
+    });
   };
 
   return (
     <CanvasContext.Provider
       value={{
         shapes,
-        selectedId,
+        selectedIds,
         stageRef,
         loading,
         scale,
@@ -317,7 +373,10 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
         addShape,
         updateShape,
         deleteShape,
+        deleteSelectedShapes,
         selectShape,
+        selectShapes,
+        clearSelection,
         lockShape,
         unlockShape,
         bringToFront,
