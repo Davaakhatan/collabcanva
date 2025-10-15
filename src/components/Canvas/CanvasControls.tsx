@@ -95,27 +95,47 @@ const ShapeMenu = ({ isOpen, onClose, onSelectShape, anchorRef, mode }: ShapeMen
     { 
       type: 'rectangle' as const, 
       label: 'Rectangle',
-      svg: <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><rect x="3" y="6" width="18" height="12" rx="2" /></svg>
+      svg: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+          <rect x="4" y="7" width="16" height="10" rx="1" />
+        </svg>
+      )
     },
     { 
       type: 'circle' as const, 
       label: 'Circle',
-      svg: <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><circle cx="12" cy="12" r="9" /></svg>
+      svg: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+          <circle cx="12" cy="12" r="8" />
+        </svg>
+      )
     },
     { 
       type: 'triangle' as const, 
       label: 'Triangle',
-      svg: <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path d="M12 4 L20 20 L4 20 Z" /></svg>
+      svg: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+          <path d="M12 5 L20 19 L4 19 Z" />
+        </svg>
+      )
     },
     { 
       type: 'ellipse' as const, 
       label: 'Ellipse',
-      svg: <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><ellipse cx="12" cy="12" rx="9" ry="6" /></svg>
+      svg: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+          <ellipse cx="12" cy="12" rx="8" ry="5" />
+        </svg>
+      )
     },
     { 
       type: 'text' as const, 
       label: 'Text',
-      svg: <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h7" /></svg>
+      svg: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+          <path d="M4 7h16M4 12h16M4 17h10" />
+        </svg>
+      )
     },
   ];
 
@@ -205,7 +225,7 @@ const ShapeMenu = ({ isOpen, onClose, onSelectShape, anchorRef, mode }: ShapeMen
             tabIndex={0}
             className="w-full h-10 px-3 flex items-center gap-3 hover:bg-gray-50 dark:hover:bg-slate-700 focus-visible:bg-gray-50 dark:focus-visible:bg-slate-700 focus-visible:outline-none rounded-md mx-1 transition-colors"
           >
-            <div className="size-9 rounded-md bg-gray-100 dark:bg-slate-700 flex items-center justify-center shrink-0 text-gray-700 dark:text-gray-300">
+            <div className="w-8 h-8 rounded-md bg-gray-100 dark:bg-slate-700 flex items-center justify-center shrink-0 text-gray-700 dark:text-gray-300">
               {shape.svg}
             </div>
             <span className="text-[15px] leading-none font-medium text-gray-700 dark:text-gray-200">{shape.label}</span>
