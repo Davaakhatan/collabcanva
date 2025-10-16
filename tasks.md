@@ -734,7 +734,7 @@ collabcanvas/
   - Verify cursors work (<50ms) ✅
   - Verify presence works ✅
 
-- [ ] **9.9: Create Demo Video**
+- [ ] **9.9: Create Demo Video** ⚠️ **REQUIRED - 10 point penalty without it**
   - Outline key features to demonstrate
   - Prepare 2-3 browser windows for demo
   - **Status**: User will record this themselves
@@ -809,6 +809,18 @@ collabcanvas/
 - [x] **BONUS**: FPS monitor and performance panel
 - [x] **BONUS**: Text formatting (font size, family, bold, italic, underline, color)
 - [x] **BONUS**: Code splitting and lazy loading
+- [x] **BONUS**: Image upload and embedding functionality
+- [x] **BONUS**: Additional shape types (star, polygon, path)
+- [x] **BONUS**: AI grid commands fixed ("Make a 3x3 grid of blue squares")
+- [x] **BONUS**: Improved toolbar UX with distinct upload/export icons
+- [x] **BONUS**: Multi-select operations (move, delete, align, z-index, color, scale, rotate)
+- [x] **BONUS**: History system improvements (no more glitching)
+- [x] **BONUS**: Comprehensive keyboard shortcuts (15+ shortcuts)
+- [x] **BONUS**: Export functionality (PNG/SVG)
+- [x] **BONUS**: Dark/Light mode toggle
+- [x] **BONUS**: Flexible toolbar (sidebar/bottom modes)
+- [x] **BONUS**: Help overlay with shortcuts
+- [x] **BONUS**: FPS monitor and performance panel
 
 Canvas Management
 
