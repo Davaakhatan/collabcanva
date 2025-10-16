@@ -10,11 +10,19 @@ A real-time collaborative canvas application where multiple users can create, ed
 
 ### Core Functionality
 - **🎨 Interactive Canvas** - 5000x5000px workspace with pan and zoom controls
-- **📦 Shape Manipulation** - Create, move, resize, rotate, and delete rectangle shapes
+- **📦 Multi-Shape Support** - Create, move, resize, rotate, and delete rectangles, circles, triangles, text, ellipses, stars, polygons, paths, and images
 - **🔄 Real-time Synchronization** - Changes sync instantly across all connected users (<100ms latency)
 - **🔒 Object Locking** - Automatic locking when users interact with shapes to prevent conflicts
 - **👥 User Presence** - See who's online and actively working on the canvas
 - **🖱️ Multiplayer Cursors** - Track other users' cursor positions in real-time (when Realtime Database is enabled)
+- **🎯 Multi-Select** - Select multiple shapes with Cmd/Ctrl+Click or box selection
+- **📝 Text Editing** - Rich text formatting with font size, family, style (bold, italic, underline), and color
+- **🖼️ Image Upload** - Upload and embed images directly on the canvas
+- **🎨 Color Picker** - Change shape colors with recent colors and saved palettes
+- **↩️ Undo/Redo** - Full history system with keyboard shortcuts (Cmd+Z/Cmd+Shift+Z)
+- **⌨️ Keyboard Shortcuts** - Comprehensive shortcuts for all operations
+- **📤 Export** - Export canvas as PNG or SVG
+- **🤖 AI Assistant** - Natural language commands to create and manipulate shapes
 
 ### Authentication
 - **📧 Email/Password Authentication** - Secure user registration and login
@@ -28,6 +36,10 @@ A real-time collaborative canvas application where multiple users can create, ed
 - **🎭 Empty State** - Helpful onboarding when canvas is empty
 - **⚡ Performance** - 60 FPS rendering with 500+ shapes
 - **📊 Performance Monitor** - Built-in FPS counter and stress testing tools
+- **🌙 Dark/Light Mode** - Toggle between themes
+- **🎛️ Flexible Toolbar** - Movable toolbar (sidebar or bottom docked)
+- **📐 Alignment Tools** - Align and distribute shapes
+- **📚 Z-Index Management** - Bring to front, send to back, layer management
 
 ---
 
@@ -46,6 +58,7 @@ A real-time collaborative canvas application where multiple users can create, ed
 - **Cloud Firestore** - Real-time database for canvas state
 - **Firebase Realtime Database** - High-frequency updates for cursors (optional)
 - **Firebase Hosting** - Static site deployment
+- **OpenAI API** - AI-powered natural language commands
 
 ### Developer Tools
 - **ESLint** - Code linting
@@ -96,6 +109,7 @@ VITE_FIREBASE_STORAGE_BUCKET=your-project.firebasestorage.app
 VITE_FIREBASE_MESSAGING_SENDER_ID=your-sender-id
 VITE_FIREBASE_APP_ID=your-app-id
 VITE_FIREBASE_MEASUREMENT_ID=your-measurement-id
+VITE_OPENAI_API_KEY=your-openai-api-key
 ```
 
 5. **Run development server**
@@ -164,14 +178,36 @@ Your app will be live at: `https://your-project-id.web.app`
 
 2. **Canvas Controls**
    - **Pan:** Click and drag on empty space
-   - **Zoom:** Scroll with mouse wheel
-   - **Add Shape:** Click the "Add Shape" button
+   - **Zoom:** Scroll with mouse wheel or use zoom controls
+   - **Add Shape:** Click the "Add Shape" button (+ icon)
    - **Move Shape:** Click and drag a shape
    - **Resize:** Click a shape to select, then drag corner handles
    - **Rotate:** Click a shape to select, then drag rotation handle
    - **Delete:** Select a shape and press Delete or Backspace
+   - **Multi-Select:** Hold Cmd/Ctrl and click multiple shapes, or drag to box select
+   - **Text Editing:** Double-click text shapes to edit content
+   - **Color Change:** Select shapes and use the color picker
+   - **Upload Images:** Click the upload button to add images
+   - **Export:** Click export button to download as PNG/SVG
 
-3. **Collaboration**
+3. **AI Assistant**
+   - Click the AI Assistant button to open the command panel
+   - Try commands like:
+     - "Create a red circle at 500, 300"
+     - "Make a 3x3 grid of blue squares"
+     - "Add a text box with 'Hello World'"
+     - "Create 5 green triangles in a row"
+
+4. **Keyboard Shortcuts**
+   - **Cmd+Z / Ctrl+Z:** Undo
+   - **Cmd+Shift+Z / Ctrl+Shift+Z:** Redo
+   - **Delete / Backspace:** Delete selected shapes
+   - **Arrow Keys:** Move selected shapes
+   - **Cmd+D / Ctrl+D:** Duplicate selected shapes
+   - **Esc:** Deselect all shapes
+   - **?:** Show help overlay
+
+5. **Collaboration**
    - Multiple users can work simultaneously
    - Shapes are automatically locked when being edited
    - See other users' presence in the top-right panel
@@ -185,20 +221,24 @@ collabcanvas/
 ├── src/
 │   ├── components/
 │   │   ├── Auth/           # Login & Signup components
-│   │   ├── Canvas/         # Canvas, Shape, Controls
+│   │   ├── AI/             # AI Command Panel
+│   │   ├── Canvas/         # Canvas, Shape, Controls, TextFormatting
 │   │   ├── Collaboration/  # Cursors, Presence
 │   │   └── Layout/         # Navbar
 │   ├── contexts/
 │   │   ├── AuthContext.tsx      # Authentication state
-│   │   └── CanvasContext.tsx    # Canvas state management
+│   │   ├── CanvasContext.tsx    # Canvas state management
+│   │   └── ThemeContext.tsx     # Dark/Light mode
 │   ├── hooks/
 │   │   ├── useCanvasSync.ts     # Firestore sync
 │   │   ├── useCursors.ts        # Cursor tracking
+│   │   ├── useHistory.ts        # Undo/Redo system
 │   │   └── usePresence.ts       # User presence
 │   ├── services/
 │   │   ├── firebase.ts          # Firebase initialization
 │   │   ├── canvas.ts            # Canvas CRUD operations
-│   │   └── cursor.ts            # Cursor/presence operations
+│   │   ├── cursor.ts            # Cursor/presence operations
+│   │   └── ai.ts                # AI command processing
 │   ├── utils/
 │   │   ├── constants.ts         # App constants
 │   │   ├── helpers.ts           # Utility functions
@@ -226,7 +266,7 @@ collabcanvas/
 ## 🎯 MVP Requirements Met
 
 ✅ **Basic canvas with pan/zoom** - 5000x5000px bounded canvas  
-✅ **Rectangle shapes** - Create, move, resize, rotate, delete  
+✅ **Multiple shape types** - Rectangles, circles, triangles, text, ellipses, stars, polygons, paths, images  
 ✅ **Object locking** - Automatic locking during interactions  
 ✅ **Real-time sync** - <100ms shape synchronization via Firestore  
 ✅ **Multiplayer cursors** - Real-time cursor tracking (optional RTDB)  
@@ -234,6 +274,17 @@ collabcanvas/
 ✅ **User authentication** - Email/Password + Google Sign-In  
 ✅ **Performance** - 60 FPS with 500+ shapes  
 ✅ **Deployed** - Live on Firebase Hosting  
+✅ **Multi-select** - Select and manipulate multiple shapes  
+✅ **Undo/Redo** - Full history system with keyboard shortcuts  
+✅ **Export functionality** - PNG and SVG export  
+✅ **AI Assistant** - Natural language commands  
+✅ **Image upload** - Upload and embed images  
+✅ **Text formatting** - Rich text editing with fonts and styles  
+✅ **Color picker** - Change shape colors  
+✅ **Keyboard shortcuts** - Comprehensive shortcut system  
+✅ **Dark/Light mode** - Theme switching  
+✅ **Alignment tools** - Align and distribute shapes  
+✅ **Z-index management** - Layer management  
 
 ---
 
@@ -249,23 +300,25 @@ collabcanvas/
 
 ## 🔮 Future Enhancements
 
-- [ ] Multiple shape types (circles, text, lines)
-- [ ] Custom shape colors and styling
-- [ ] Undo/redo functionality
-- [ ] Multi-select and grouping
-- [ ] Export to PNG/SVG
-- [ ] Keyboard shortcuts
+- [ ] Advanced shape editing (bezier curves, custom paths)
+- [ ] Shape grouping and ungrouping
+- [ ] Layer management panel
+- [ ] Custom shape libraries
+- [ ] Animation and transitions
 - [ ] Touch/mobile optimizations
 - [ ] Voice chat integration
-- [ ] AI-powered design suggestions
+- [ ] Advanced AI features (auto-layout, design suggestions)
+- [ ] Plugin system for custom tools
+- [ ] Version history and branching
+- [ ] Collaborative comments and annotations
 
 ---
 
 ## 🐛 Known Issues
 
 - Multiplayer cursors require Realtime Database to be manually created in Firebase Console
-- Currently supports rectangles only (other shapes coming in v2)
 - Mobile touch gestures need optimization
+- Some complex multi-select operations may have minor performance impacts with 100+ shapes
 
 ---
 
@@ -299,4 +352,4 @@ For questions or issues, please open an issue on GitHub or contact the developer
 
 ---
 
-**Last Updated:** October 2025
+**Last Updated:** January 2025
