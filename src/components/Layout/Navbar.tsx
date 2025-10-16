@@ -11,7 +11,7 @@ export default function Navbar() {
   const displayName = getDisplayName(user);
 
   return (
-    <nav className="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-lg border-b border-gray-200/50 px-6 py-4 z-40 shadow-sm">
+    <nav className="fixed top-0 left-0 right-0 bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg border-b border-gray-200/50 dark:border-slate-700/50 px-6 py-4 z-40 shadow-sm">
       <div className="flex items-center justify-between max-w-screen-2xl mx-auto">
         {/* Logo & Brand */}
         <div className="flex items-center gap-3">
@@ -34,7 +34,7 @@ export default function Navbar() {
             <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
               CollabCanvas
             </h1>
-            <p className="text-xs text-gray-500">Real-time Design Tool</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">Real-time Design Tool</p>
           </div>
         </div>
         
@@ -57,18 +57,18 @@ export default function Navbar() {
             )}
           </button>
           
-          <div className="flex items-center gap-3 px-4 py-2 bg-gray-50 rounded-xl border border-gray-200">
+          <div className="flex items-center gap-3 px-4 py-2 bg-gray-50 dark:bg-slate-700 rounded-xl border border-gray-200 dark:border-slate-600">
             <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center text-white font-bold text-sm shadow-sm">
               {displayName.charAt(0).toUpperCase()}
             </div>
             <div className="text-left">
-              <p className="text-sm font-semibold text-gray-900">{displayName}</p>
-              <p className="text-xs text-gray-500">Online</p>
+              <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">{displayName}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">Online</p>
             </div>
           </div>
           <button
             onClick={logout}
-            className="px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-100 rounded-xl transition-all duration-200 border border-gray-200 hover:border-gray-300"
+            className="px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-600 rounded-xl transition-all duration-200 border border-gray-200 dark:border-slate-600 hover:border-gray-300 dark:hover:border-slate-500"
             title="Logout"
           >
             <svg
