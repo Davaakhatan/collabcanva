@@ -7,7 +7,7 @@ import { useHistory } from "../hooks/useHistory";
 
 export interface Shape {
   id: string;
-  type: 'rectangle' | 'circle' | 'triangle' | 'text' | 'ellipse';
+  type: 'rectangle' | 'circle' | 'triangle' | 'text' | 'ellipse' | 'star' | 'polygon' | 'path' | 'image';
   x: number;
   y: number;
   width: number;
@@ -22,6 +22,16 @@ export interface Shape {
   fontStyle?: 'normal' | 'italic';
   fontWeight?: 'normal' | 'bold';
   textDecoration?: 'none' | 'underline';
+  // Star-specific properties
+  numPoints?: number; // Number of points for star (default 5)
+  innerRadius?: number; // Inner radius for star (default 0.4)
+  // Polygon-specific properties
+  sides?: number; // Number of sides for polygon (default 6)
+  // Path-specific properties
+  pathData?: string; // SVG path data
+  // Image-specific properties
+  imageUrl?: string; // URL or data URL of the image
+  imageAlt?: string; // Alt text for accessibility
   createdBy?: string;
   createdAt?: number;
   lastModifiedBy?: string;
@@ -43,10 +53,13 @@ interface CanvasContextType {
   position: { x: number; y: number };
   
   // Shape operations
-  addShape: (type: 'rectangle' | 'circle' | 'triangle' | 'text' | 'ellipse', overrides?: Partial<Shape>) => void;
+  addShape: (type: 'rectangle' | 'circle' | 'triangle' | 'text' | 'ellipse' | 'star' | 'polygon' | 'path' | 'image', overrides?: Partial<Shape>) => void;
+  addImageShape: (file: File, overrides?: Partial<Shape>) => Promise<void>;
   updateShape: (id: string, updates: Partial<Shape>) => void;
+  updateSelectedShapes: (updates: Partial<Shape>) => void; // Batch update all selected shapes with same updates
+  batchUpdateShapes: (updates: Array<{ id: string; updates: Partial<Shape> }>) => void; // Batch update with different updates per shape
   deleteShape: (id: string) => void;
-  deleteSelectedShapes: () => void;
+  deleteSelectedShapes: () => Promise<void>;
   selectShape: (id: string | null, addToSelection?: boolean) => Promise<void>;
   selectShapes: (ids: string[]) => Promise<void>;
   clearSelection: () => void;
@@ -55,11 +68,11 @@ interface CanvasContextType {
   lockShape: (id: string) => Promise<boolean>;
   unlockShape: (id: string) => void;
   
-  // Z-index operations
-  bringToFront: (id: string) => void;
-  sendToBack: (id: string) => void;
-  bringForward: (id: string) => void;
-  sendBackward: (id: string) => void;
+  // Z-index operations (work on all selected shapes)
+  bringToFront: () => void;
+  sendToBack: () => void;
+  bringForward: () => void;
+  sendBackward: () => void;
   
   // Canvas operations
   setScale: (scale: number) => void;
@@ -94,8 +107,10 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
   const {
     shapes,
     loading,
+    setShapes,
     addShape: addShapeSync,
     updateShape: updateShapeSync,
+    updateShapes: updateShapesSync,
     deleteShape: deleteShapeSync,
     lockShape: lockShapeSync,
     unlockShape: unlockShapeSync,
@@ -104,19 +119,82 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
   // History management
   const { pushState, undo, redo, canUndo, canRedo } = useHistory(
     shapes,
-    selectedIds[0] || null, // Use first selected ID for history (simplified)
-    (_restoredShapes, restoredSelectedId) => {
+    selectedIds,
+    (restoredShapes, restoredSelectedIds) => {
       // This function is called when restoring from history
       // We need to restore the shapes to the sync system
-      // For now, we'll just update the selectedIds since shapes are managed by sync
-      setSelectedIds(restoredSelectedId ? [restoredSelectedId] : []);
-      // Note: In a real implementation, we'd need to restore shapes to the sync system
-      // This is a limitation of the current architecture
+      console.log('🔄 Restoring from history:', { shapeCount: restoredShapes.length, selectedIds: restoredSelectedIds });
+      
+      // Update the shapes in the sync system
+      // This is a simplified approach - in a real app you'd want to sync with Firebase
+      setShapes(restoredShapes);
+      setSelectedIds(restoredSelectedIds);
+      
+      console.log('✅ History restoration complete');
     }
   );
 
+  // Direct history push for immediate saving
+  const saveToHistory = () => {
+    console.log('💾 Saving to history...');
+    pushState();
+  };
+
+  // Wrapper functions for undo/redo with debugging
+  const handleUndo = () => {
+    console.log('⏪ Undo button clicked');
+    undo();
+  };
+
+  const handleRedo = () => {
+    console.log('⏩ Redo button clicked');
+    redo();
+  };
+
+  // Image upload function
+  const uploadImage = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const result = e.target?.result;
+        if (typeof result === 'string') {
+          resolve(result);
+        } else {
+          reject(new Error('Failed to read file'));
+        }
+      };
+      reader.onerror = () => reject(new Error('Failed to read file'));
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const addImageShape = async (file: File, overrides?: Partial<Shape>) => {
+    try {
+      const imageUrl = await uploadImage(file);
+      const newShape: Shape = {
+        id: generateId(),
+        type: 'image',
+        x: 100,
+        y: 100,
+        width: 200,
+        height: 150,
+        rotation: 0,
+        fill: 'transparent',
+        imageUrl,
+        imageAlt: file.name,
+        createdAt: Date.now(),
+        ...overrides,
+      };
+      addShapeSync(newShape);
+      saveToHistory();
+    } catch (error) {
+      console.error('Failed to upload image:', error);
+      throw error;
+    }
+  };
+
   const addShape = (
-    type: 'rectangle' | 'circle' | 'triangle' | 'text' | 'ellipse',
+    type: 'rectangle' | 'circle' | 'triangle' | 'text' | 'ellipse' | 'star' | 'polygon' | 'path' | 'image',
     overrides?: Partial<Shape>
   ) => {
     // Default dimensions based on shape type
@@ -132,6 +210,18 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
     } else if (type === 'text') {
       defaultWidth = 300;
       defaultHeight = 60;
+    } else if (type === 'star') {
+      defaultWidth = 120;
+      defaultHeight = 120;
+    } else if (type === 'polygon') {
+      defaultWidth = 120;
+      defaultHeight = 120;
+    } else if (type === 'path') {
+      defaultWidth = 200;
+      defaultHeight = 100;
+    } else if (type === 'image') {
+      defaultWidth = 200;
+      defaultHeight = 150;
     }
 
     const newShape: Shape = {
@@ -153,18 +243,58 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
         fontWeight: 'normal',
         textDecoration: 'none',
       }),
+      // Star-specific defaults
+      ...(type === 'star' && {
+        numPoints: 5,
+        innerRadius: 0.4,
+      }),
+      // Polygon-specific defaults
+      ...(type === 'polygon' && {
+        sides: 6,
+      }),
+      // Path-specific defaults
+      ...(type === 'path' && {
+        pathData: 'M10,10 L50,10 L50,50 L10,50 Z', // Simple rectangle path
+      }),
+      // Image-specific defaults
+      ...(type === 'image' && {
+        imageUrl: '',
+        imageAlt: 'Uploaded image',
+      }),
       // Apply any overrides
       ...overrides,
     };
     addShapeSync(newShape);
     // Push state to history after adding shape
-    setTimeout(() => pushState(), 0);
+    saveToHistory();
   };
 
   const updateShape = (id: string, updates: Partial<Shape>) => {
     updateShapeSync(id, updates);
     // Push state to history after updating shape
-    setTimeout(() => pushState(), 0);
+    saveToHistory();
+  };
+
+  // Update multiple selected shapes at once (batch update for better sync)
+  const updateSelectedShapes = (updates: Partial<Shape>) => {
+    if (selectedIds.length === 0) return;
+    
+    const shapesUpdates = selectedIds.map(id => ({
+      id,
+      updates,
+    }));
+    
+    updateShapesSync(shapesUpdates);
+    // Push state to history after updating shapes
+    saveToHistory();
+  };
+
+  // Batch update multiple shapes with different updates for each
+  const batchUpdateShapes = (updates: Array<{ id: string; updates: Partial<Shape> }>) => {
+    if (updates.length === 0) return;
+    updateShapesSync(updates);
+    // Push state to history after updating shapes
+    saveToHistory();
   };
 
   const deleteShape = (id: string) => {
@@ -173,14 +303,33 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
       setSelectedIds(selectedIds.filter(sid => sid !== id));
     }
     // Push state to history after deleting shape
-    setTimeout(() => pushState(), 0);
+    saveToHistory();
   };
 
-  const deleteSelectedShapes = () => {
-    selectedIds.forEach(id => deleteShapeSync(id));
+  const deleteSelectedShapes = async () => {
+    console.log('[deleteSelectedShapes] Deleting shapes:', selectedIds);
+    
+    if (selectedIds.length === 0) return;
+    
+    // Create a copy of selectedIds to avoid issues during deletion
+    const idsToDelete = [...selectedIds];
+    
+    // Clear selection first to avoid UI issues
     setSelectedIds([]);
+    
+    // Delete all shapes sequentially to avoid race conditions
+    for (const id of idsToDelete) {
+      console.log('[deleteSelectedShapes] Unlocking and deleting:', id);
+      try {
+        await unlockShapeSync(id);
+        await deleteShapeSync(id);
+      } catch (error) {
+        console.error(`Failed to delete shape ${id}:`, error);
+      }
+    }
+    
     // Push state to history after deleting shapes
-    setTimeout(() => pushState(), 0);
+    saveToHistory();
   };
 
   const selectShape = async (id: string | null, addToSelection = false) => {
@@ -219,6 +368,8 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
   };
 
   const selectShapes = async (ids: string[]) => {
+    console.log('[selectShapes] Attempting to select:', ids);
+    
     // Unlock previously selected shapes
     selectedIds.forEach(sid => {
       if (!ids.includes(sid)) unlockShapeSync(sid);
@@ -228,8 +379,12 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
     const lockPromises = ids.map(id => lockShapeSync(id));
     const lockResults = await Promise.all(lockPromises);
     
+    console.log('[selectShapes] Lock results:', lockResults);
+    
     // Only add shapes that were successfully locked
     const lockedIds = ids.filter((_, index) => lockResults[index]);
+    console.log('[selectShapes] Successfully locked IDs:', lockedIds);
+    
     setSelectedIds(lockedIds);
   };
 
@@ -261,29 +416,45 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
   };
 
   // Pan to a specific canvas position (e.g., another user's cursor)
-  // Z-index management
-  const bringToFront = (id: string) => {
+  // Z-index management (work on all selected shapes)
+  const bringToFront = () => {
+    if (selectedIds.length === 0) return;
     const maxZ = Math.max(...shapes.map(s => s.zIndex || 0), 0);
-    updateShape(id, { zIndex: maxZ + 1 });
+    const updates = selectedIds.map((id, index) => ({
+      id,
+      updates: { zIndex: maxZ + 1 + index }
+    }));
+    batchUpdateShapes(updates);
   };
 
-  const sendToBack = (id: string) => {
+  const sendToBack = () => {
+    if (selectedIds.length === 0) return;
     const minZ = Math.min(...shapes.map(s => s.zIndex || 0), 0);
-    updateShape(id, { zIndex: minZ - 1 });
+    const updates = selectedIds.map((id, index) => ({
+      id,
+      updates: { zIndex: minZ - 1 - index }
+    }));
+    batchUpdateShapes(updates);
   };
 
-  const bringForward = (id: string) => {
-    const shape = shapes.find(s => s.id === id);
-    if (!shape) return;
-    const currentZ = shape.zIndex || 0;
-    updateShape(id, { zIndex: currentZ + 1 });
+  const bringForward = () => {
+    if (selectedIds.length === 0) return;
+    const updates = selectedIds.map(id => {
+      const shape = shapes.find(s => s.id === id);
+      const currentZ = shape?.zIndex || 0;
+      return { id, updates: { zIndex: currentZ + 1 } };
+    });
+    batchUpdateShapes(updates);
   };
 
-  const sendBackward = (id: string) => {
-    const shape = shapes.find(s => s.id === id);
-    if (!shape) return;
-    const currentZ = shape.zIndex || 0;
-    updateShape(id, { zIndex: currentZ - 1 });
+  const sendBackward = () => {
+    if (selectedIds.length === 0) return;
+    const updates = selectedIds.map(id => {
+      const shape = shapes.find(s => s.id === id);
+      const currentZ = shape?.zIndex || 0;
+      return { id, updates: { zIndex: currentZ - 1 } };
+    });
+    batchUpdateShapes(updates);
   };
 
   const panToPosition = (canvasX: number, canvasY: number) => {
@@ -305,7 +476,11 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
     
     // Find the leftmost position among selected shapes
     const leftmostX = Math.min(...selectedShapes.map(s => s.x));
-    selectedIds.forEach(id => updateShape(id, { x: leftmostX }));
+    const updates = selectedIds.map(id => ({
+      id,
+      updates: { x: leftmostX }
+    }));
+    batchUpdateShapes(updates);
   };
 
   const alignRight = () => {
@@ -314,10 +489,14 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
     
     // Find the rightmost position among selected shapes
     const rightmostX = Math.max(...selectedShapes.map(s => s.x + s.width));
-    selectedIds.forEach(id => {
+    const updates = selectedIds.map(id => {
       const shape = shapes.find(s => s.id === id);
-      if (shape) updateShape(id, { x: rightmostX - shape.width });
+      return {
+        id,
+        updates: { x: shape ? rightmostX - shape.width : 0 }
+      };
     });
+    batchUpdateShapes(updates);
   };
 
   const alignCenter = () => {
@@ -328,10 +507,14 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
     const leftmostX = Math.min(...selectedShapes.map(s => s.x));
     const rightmostX = Math.max(...selectedShapes.map(s => s.x + s.width));
     const centerX = (leftmostX + rightmostX) / 2;
-    selectedIds.forEach(id => {
+    const updates = selectedIds.map(id => {
       const shape = shapes.find(s => s.id === id);
-      if (shape) updateShape(id, { x: centerX - shape.width / 2 });
+      return {
+        id,
+        updates: { x: shape ? centerX - shape.width / 2 : 0 }
+      };
     });
+    batchUpdateShapes(updates);
   };
 
   const alignTop = () => {
@@ -340,7 +523,11 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
     
     // Find the topmost position among selected shapes
     const topmostY = Math.min(...selectedShapes.map(s => s.y));
-    selectedIds.forEach(id => updateShape(id, { y: topmostY }));
+    const updates = selectedIds.map(id => ({
+      id,
+      updates: { y: topmostY }
+    }));
+    batchUpdateShapes(updates);
   };
 
   const alignBottom = () => {
@@ -349,10 +536,14 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
     
     // Find the bottommost position among selected shapes
     const bottommostY = Math.max(...selectedShapes.map(s => s.y + s.height));
-    selectedIds.forEach(id => {
+    const updates = selectedIds.map(id => {
       const shape = shapes.find(s => s.id === id);
-      if (shape) updateShape(id, { y: bottommostY - shape.height });
+      return {
+        id,
+        updates: { y: shape ? bottommostY - shape.height : 0 }
+      };
     });
+    batchUpdateShapes(updates);
   };
 
   const alignMiddle = () => {
@@ -363,10 +554,14 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
     const topmostY = Math.min(...selectedShapes.map(s => s.y));
     const bottommostY = Math.max(...selectedShapes.map(s => s.y + s.height));
     const middleY = (topmostY + bottommostY) / 2;
-    selectedIds.forEach(id => {
+    const updates = selectedIds.map(id => {
       const shape = shapes.find(s => s.id === id);
-      if (shape) updateShape(id, { y: middleY - shape.height / 2 });
+      return {
+        id,
+        updates: { y: shape ? middleY - shape.height / 2 : 0 }
+      };
     });
+    batchUpdateShapes(updates);
   };
 
   return (
@@ -379,7 +574,10 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
         scale,
         position,
         addShape,
+        addImageShape,
         updateShape,
+        updateSelectedShapes,
+        batchUpdateShapes,
         deleteShape,
         deleteSelectedShapes,
         selectShape,
@@ -395,8 +593,8 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
         setPosition,
         resetView,
         panToPosition,
-        undo,
-        redo,
+        undo: handleUndo,
+        redo: handleRedo,
         canUndo,
         canRedo,
         alignLeft,

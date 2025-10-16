@@ -82,7 +82,7 @@ const ToolbarToggle = ({ state, onToggle }: ToolbarToggleProps) => {
 interface ShapeMenuProps {
   isOpen: boolean;
   onClose: () => void;
-  onSelectShape: (type: 'rectangle' | 'circle' | 'triangle' | 'text' | 'ellipse') => void;
+  onSelectShape: (type: 'rectangle' | 'circle' | 'triangle' | 'text' | 'ellipse' | 'star' | 'polygon' | 'path') => void;
   anchorRef: React.RefObject<HTMLButtonElement | null>;
   mode: 'bottom' | 'left';
 }
@@ -91,7 +91,7 @@ const ShapeMenu = ({ isOpen, onClose, onSelectShape, anchorRef, mode }: ShapeMen
   const menuRef = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState({ top: 0, left: 0 });
 
-  const shapeTypes: Array<{ type: 'rectangle' | 'circle' | 'triangle' | 'ellipse' | 'text', label: string, svg: React.ReactElement }> = [
+  const shapeTypes: Array<{ type: 'rectangle' | 'circle' | 'triangle' | 'ellipse' | 'text' | 'star' | 'polygon' | 'path', label: string, svg: React.ReactElement }> = [
     { 
       type: 'rectangle' as const, 
       label: 'Rectangle',
@@ -134,6 +134,33 @@ const ShapeMenu = ({ isOpen, onClose, onSelectShape, anchorRef, mode }: ShapeMen
       svg: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
           <path d="M4 7h16M4 12h16M4 17h10" />
+        </svg>
+      )
+    },
+    { 
+      type: 'star' as const, 
+      label: 'Star',
+      svg: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+          <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" />
+        </svg>
+      )
+    },
+    { 
+      type: 'polygon' as const, 
+      label: 'Polygon',
+      svg: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+          <polygon points="12,2 22,8.5 22,15.5 12,22 2,15.5 2,8.5" />
+        </svg>
+      )
+    },
+    { 
+      type: 'path' as const, 
+      label: 'Path',
+      svg: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+          <path d="M3 3l18 18M9 9l6 6M15 9l-6 6" />
         </svg>
       )
     },
@@ -238,7 +265,7 @@ const ShapeMenu = ({ isOpen, onClose, onSelectShape, anchorRef, mode }: ShapeMen
 };
 
 export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
-  const { scale, setScale, resetView, addShape, stageRef, shapes, selectedIds, updateShape, undo, redo, canUndo, canRedo } = useCanvas();
+  const { scale, setScale, resetView, addShape, addImageShape, stageRef, shapes, selectedIds, batchUpdateShapes, undo, redo, canUndo, canRedo } = useCanvas();
   const [fps, setFps] = useState(60);
   const [showPerf, setShowPerf] = useState(false);
   const [showShapeMenu, setShowShapeMenu] = useState(false);
@@ -246,16 +273,48 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
   const [toolbarPosition, setToolbarPosition] = useState<'bottom' | 'left'>('bottom');
   
   const addShapeButtonRef = useRef<HTMLButtonElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Image upload handler
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      alert('Please select an image file');
+      return;
+    }
+
+    // Validate file size (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      alert('Image file is too large. Please select a file smaller than 10MB');
+      return;
+    }
+
+    try {
+      await addImageShape(file);
+    } catch (error) {
+      console.error('Failed to upload image:', error);
+      alert('Failed to upload image. Please try again.');
+    }
+
+    // Reset the input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
   
-  // Movement functions (works on all selected shapes)
+  // Movement functions (works on all selected shapes) - USES BATCH UPDATES
   const moveShape = (direction: 'up' | 'down' | 'left' | 'right') => {
     if (selectedIds.length === 0) return;
     
     const moveDistance = 10; // Move 10px at a time
     
-    selectedIds.forEach(id => {
+    // Collect all updates first, then batch them
+    const updates = selectedIds.map(id => {
       const shape = shapes.find(s => s.id === id);
-      if (!shape) return;
+      if (!shape) return null;
       
       let newX = shape.x;
       let newY = shape.y;
@@ -275,8 +334,11 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
           break;
       }
       
-      updateShape(id, { x: newX, y: newY });
-    });
+      return { id, updates: { x: newX, y: newY } };
+    }).filter((u): u is { id: string; updates: { x: number; y: number } } => u !== null);
+    
+    // Batch update all shapes at once
+    batchUpdateShapes(updates);
   };
   const colorPickerButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -313,7 +375,7 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
     return () => monitor.stop();
   }, []);
 
-  const handleAddShape = (type: 'rectangle' | 'circle' | 'triangle' | 'text' | 'ellipse') => {
+  const handleAddShape = (type: 'rectangle' | 'circle' | 'triangle' | 'text' | 'ellipse' | 'star' | 'polygon' | 'path') => {
     try {
       const stage = stageRef.current;
       if (stage) {
@@ -454,6 +516,24 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
               </svg>
             </TButton>
 
+            {/* Image Upload Button */}
+            <TButton 
+              onClick={() => fileInputRef.current?.click()}
+              title="Upload Image"
+              aria-label="Upload Image"
+            >
+              <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+              </svg>
+            </TButton>
+
+            {/* Export Button */}
+            <TButton onClick={handleExportPNG} title="Export as PNG" aria-label="Export as PNG">
+              <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+            </TButton>
+
             {selectedIds.length > 0 && (
               <>
                 <div className="w-full h-px bg-gray-200/70 dark:bg-slate-600/70" />
@@ -480,14 +560,6 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
             >
               <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-              </svg>
-            </TButton>
-
-            <div className="w-full h-px bg-gray-200/70 dark:bg-slate-600/70" />
-
-            <TButton onClick={handleExportPNG} title="Export as PNG" aria-label="Export as PNG">
-              <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
             </TButton>
 
@@ -584,6 +656,24 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
               </svg>
             </TButton>
 
+            {/* Image Upload Button */}
+            <TButton 
+              onClick={() => fileInputRef.current?.click()}
+              title="Upload Image"
+              aria-label="Upload Image"
+            >
+              <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+              </svg>
+            </TButton>
+
+            {/* Export Button */}
+            <TButton onClick={handleExportPNG} title="Export as PNG" aria-label="Export as PNG">
+              <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+            </TButton>
+
             {selectedIds.length > 0 && (
               <>
                 <div className="w-px h-6 bg-gray-200/70 dark:bg-slate-600/70" />
@@ -610,12 +700,6 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
             >
               <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-              </svg>
-            </TButton>
-
-            <TButton onClick={handleExportPNG} title="Export as PNG" aria-label="Export as PNG">
-              <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
             </TButton>
 
@@ -663,8 +747,9 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
                 <button
                   key={color}
                   onClick={() => {
-                    // Update color for all selected shapes
-                    selectedIds.forEach(id => updateShape(id, { fill: color }));
+                    // Update color for all selected shapes - USES BATCH UPDATES
+                    const updates = selectedIds.map(id => ({ id, updates: { fill: color } }));
+                    batchUpdateShapes(updates);
                     setShowColorPicker(false);
                   }}
                   className="w-8 h-8 rounded-lg border-2 border-gray-300 dark:border-slate-600 hover:scale-110 transition-transform"
@@ -710,6 +795,15 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
           </div>
         </div>
       )}
+
+      {/* Hidden file input for image upload */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        onChange={handleImageUpload}
+        style={{ display: 'none' }}
+      />
     </>
   );
 }

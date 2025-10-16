@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { Rect, Circle, Ellipse, Line, Text, Transformer } from "react-konva";
+import { Rect, Circle, Ellipse, Line, Text, Transformer, Star, RegularPolygon, Path, Image } from "react-konva";
 import type Konva from "konva";
 import { useAuth } from "../../contexts/AuthContext";
 import type { Shape as ShapeType } from "../../contexts/CanvasContext";
@@ -10,14 +10,19 @@ interface ShapeProps {
   onSelect: (e?: Konva.KonvaEventObject<MouseEvent | TouchEvent>) => void;
   onChange: (updates: Partial<ShapeType>) => void;
   onStartEditText?: (shapeId: string) => void;
+  showTransformer?: boolean; // Only show transformer if single selection
+  isDraggable?: boolean; // Allow disabling drag for group transforms
+  listening?: boolean; // Allow disabling events for group transforms
 }
 
-export default function Shape({ shape, isSelected, onSelect, onChange, onStartEditText }: ShapeProps) {
+export default function Shape({ shape, isSelected, onSelect, onChange, onStartEditText, showTransformer = true, isDraggable = true, listening = true }: ShapeProps) {
   const { user } = useAuth();
   const shapeRef = useRef<any>(null); // Can be Rect, Circle, Line, or Text
   const transformerRef = useRef<Konva.Transformer>(null);
   const hasLockedRef = useRef(false);
   const mouseDownPosRef = useRef<{ x: number; y: number } | null>(null);
+  const isTransformingRef = useRef(false); // Track if this shape is being transformed
+  const imageRef = useRef<HTMLImageElement | null>(null);
   
   // Check if locked by someone else
   const userId = (user as any)?.uid || null;
@@ -28,6 +33,23 @@ export default function Shape({ shape, isSelected, onSelect, onChange, onStartEd
   // Consider locked by other only if locked, not by me, and not stale
   const isLockedByOther = shape.isLocked && shape.lockedBy !== userId && !isLockStale;
 
+  // Load image for image shapes
+  useEffect(() => {
+    if (shape.type === 'image' && shape.imageUrl && !imageRef.current) {
+      const img = new window.Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => {
+        imageRef.current = img;
+        // Force re-render by updating the shape
+        onChange({});
+      };
+      img.onerror = () => {
+        console.error('Failed to load image:', shape.imageUrl);
+      };
+      img.src = shape.imageUrl;
+    }
+  }, [shape.type, shape.imageUrl, onChange]);
+
   // Lock is now handled in selectShape/selectShapes functions
   // This effect just resets the lock ref when deselected
   useEffect(() => {
@@ -36,6 +58,20 @@ export default function Shape({ shape, isSelected, onSelect, onChange, onStartEd
       hasLockedRef.current = false;
     }
   }, [isSelected]);
+
+  // Update shape node properties from React props, but ONLY when not transforming
+  useEffect(() => {
+    const node = shapeRef.current;
+    if (!node || isTransformingRef.current) return;
+    
+    // Update node properties to match React props
+    node.x(shape.x);
+    node.y(shape.y);
+    node.rotation(shape.rotation || 0);
+    // DO NOT reset scale here - only in onTransformEnd for single selection
+    
+    node.getLayer()?.batchDraw();
+  }, [shape.x, shape.y, shape.width, shape.height, shape.rotation]);
 
   // Separate effect for transformer attachment to ensure it always updates
   useEffect(() => {
@@ -46,7 +82,7 @@ export default function Shape({ shape, isSelected, onSelect, onChange, onStartEd
       transformerRef.current.forceUpdate();
       transformerRef.current.getLayer()?.batchDraw();
     }
-  }, [isSelected, isLockedByOther, shape.id, shape.x, shape.y, shape.width, shape.height, shape.rotation]);
+  }, [isSelected, isLockedByOther, shape.id]); // Removed shape properties - they shouldn't trigger re-attachment!
 
   // Handle mouse/touch down to track starting position
   const handlePointerDown = (e: Konva.KonvaEventObject<MouseEvent | TouchEvent>) => {
@@ -105,18 +141,13 @@ export default function Shape({ shape, isSelected, onSelect, onChange, onStartEd
   };
 
   const handleDragEnd = (e: Konva.KonvaEventObject<DragEvent>) => {
-    let newX = e.target.x();
-    let newY = e.target.y();
+    const newX = e.target.x();
+    const newY = e.target.y();
     
-    // For shapes that render from center (circle, ellipse, triangle),
-    // we need to convert the center position back to top-left corner
-    if (shape.type === 'circle' || shape.type === 'ellipse') {
-      newX = newX - shape.width / 2;
-      newY = newY - shape.height / 2;
-    } else if (shape.type === 'triangle') {
-      newX = newX - shape.width / 2;
-      newY = newY - shape.height / 2;
-    }
+    // All shapes now use top-left coordinates consistently
+    // Reset the node position to match our coordinate system
+    e.target.x(newX);
+    e.target.y(newY);
     
     onChange({
       x: newX,
@@ -126,18 +157,23 @@ export default function Shape({ shape, isSelected, onSelect, onChange, onStartEd
   };
 
   const handleTransformStart = async () => {
-    // Shape is already locked when selected, no need to lock again
+    // Set flag to prevent React from overwriting during transformation
+    isTransformingRef.current = true;
+    console.log('[Shape Transform] Started for:', shape.id);
   };
 
   const handleTransformEnd = () => {
     const node = shapeRef.current;
     if (!node) return;
+    
+    console.log('[Shape Transform] Ended for:', shape.id);
+    isTransformingRef.current = false;
 
     const scaleX = node.scaleX();
     const scaleY = node.scaleY();
     const rotation = node.rotation();
 
-    // Reset scale and apply it to width/height
+    // Reset scale and apply it to width/height (only for single selection)
     node.scaleX(1);
     node.scaleY(1);
 
@@ -147,15 +183,8 @@ export default function Shape({ shape, isSelected, onSelect, onChange, onStartEd
     let newX = node.x();
     let newY = node.y();
     
-    // For shapes that render from center (circle, ellipse, triangle),
-    // we need to convert the center position back to top-left corner
-    if (shape.type === 'circle' || shape.type === 'ellipse') {
-      newX = newX - newWidth / 2;
-      newY = newY - newHeight / 2;
-    } else if (shape.type === 'triangle') {
-      newX = newX - newWidth / 2;
-      newY = newY - newHeight / 2;
-    }
+    // All shapes now use top-left coordinates consistently
+    // No coordinate conversion needed
 
     onChange({
       x: newX,
@@ -185,8 +214,10 @@ export default function Shape({ shape, isSelected, onSelect, onChange, onStartEd
 
   // Common props for all shapes
   const commonProps = {
+    id: shape.id, // Real ID for Konva node selection
     ref: shapeRef,
-    draggable: !isLockedByOther,
+    draggable: !isLockedByOther && isDraggable, // Respect isDraggable prop
+    listening: listening, // Respect listening prop for group transforms
     onMouseDown: handlePointerDown,
     onMouseUp: handlePointerUp,
     onTouchStart: handlePointerDown,
@@ -220,10 +251,13 @@ export default function Shape({ shape, isSelected, onSelect, onChange, onStartEd
         return (
           <Circle
             {...commonProps}
-            x={shape.x + shape.width / 2}
-            y={shape.y + shape.height / 2}
+            x={shape.x}
+            y={shape.y}
             radius={shape.width / 2}
+            offsetX={shape.width / 2}
+            offsetY={shape.height / 2}
             fill={shape.fill}
+            rotation={shape.rotation || 0}
           />
         );
       
@@ -231,10 +265,12 @@ export default function Shape({ shape, isSelected, onSelect, onChange, onStartEd
         return (
           <Ellipse
             {...commonProps}
-            x={shape.x + shape.width / 2}
-            y={shape.y + shape.height / 2}
+            x={shape.x}
+            y={shape.y}
             radiusX={shape.width / 2}
             radiusY={shape.height / 2}
+            offsetX={shape.width / 2}
+            offsetY={shape.height / 2}
             fill={shape.fill}
             rotation={shape.rotation || 0}
           />
@@ -256,8 +292,8 @@ export default function Shape({ shape, isSelected, onSelect, onChange, onStartEd
             rotation={shape.rotation || 0}
             offsetX={shape.width / 2}
             offsetY={shape.height / 2}
-            x={shape.x + shape.width / 2}
-            y={shape.y + shape.height / 2}
+            x={shape.x}
+            y={shape.y}
           />
         );
       
@@ -268,8 +304,15 @@ export default function Shape({ shape, isSelected, onSelect, onChange, onStartEd
         const textFontSize = shape.fontSize || 16;
         const textFontFamily = shape.fontFamily || 'Arial';
         
-        // Build font string with style and weight: "italic bold Arial"
-        const fontFamilyWithStyles = `${textFontStyle} ${textFontWeight} ${textFontFamily}`;
+        // Konva Text uses separate fontFamily and fontStyle props
+        const konvaFontStyle = 
+          textFontStyle === 'italic' && textFontWeight === 'bold'
+            ? 'bold italic'
+            : textFontWeight === 'bold'
+            ? 'bold'
+            : textFontStyle === 'italic'
+            ? 'italic'
+            : 'normal';
         
         return (
           <Text
@@ -278,7 +321,8 @@ export default function Shape({ shape, isSelected, onSelect, onChange, onStartEd
             y={shape.y}
             text={shape.text || 'Double-click to edit'}
             fontSize={textFontSize}
-            fontFamily={fontFamilyWithStyles}
+            fontFamily={textFontFamily}
+            fontStyle={konvaFontStyle}
             textDecoration={shape.textDecoration || ''}
             fill={shape.fill}
             width={shape.width}
@@ -291,6 +335,65 @@ export default function Shape({ shape, isSelected, onSelect, onChange, onStartEd
                 onStartEditText(shape.id);
               }
             }}
+          />
+        );
+      
+      case 'star':
+        return (
+          <Star
+            {...commonProps}
+            x={shape.x}
+            y={shape.y}
+            numPoints={shape.numPoints || 5}
+            innerRadius={(shape.innerRadius || 0.4) * (shape.width / 2)}
+            outerRadius={shape.width / 2}
+            offsetX={shape.width / 2}
+            offsetY={shape.height / 2}
+            fill={shape.fill}
+            rotation={shape.rotation || 0}
+          />
+        );
+      
+      case 'polygon':
+        return (
+          <RegularPolygon
+            {...commonProps}
+            x={shape.x}
+            y={shape.y}
+            sides={shape.sides || 6}
+            radius={shape.width / 2}
+            offsetX={shape.width / 2}
+            offsetY={shape.height / 2}
+            fill={shape.fill}
+            rotation={shape.rotation || 0}
+          />
+        );
+      
+      case 'path':
+        return (
+          <Path
+            {...commonProps}
+            x={shape.x}
+            y={shape.y}
+            data={shape.pathData || 'M10,10 L50,10 L50,50 L10,50 Z'}
+            fill={shape.fill}
+            rotation={shape.rotation || 0}
+            scaleX={shape.width / 60} // Scale to fit width
+            scaleY={shape.height / 60} // Scale to fit height
+          />
+        );
+      
+      case 'image':
+        return (
+          <Image
+            {...commonProps}
+            x={shape.x}
+            y={shape.y}
+            width={shape.width}
+            height={shape.height}
+            image={imageRef.current || undefined}
+            rotation={shape.rotation || 0}
+            fill={shape.fill}
           />
         );
       
@@ -315,7 +418,7 @@ export default function Shape({ shape, isSelected, onSelect, onChange, onStartEd
         />
       )}
       
-      {isSelected && !isLockedByOther && (
+      {isSelected && !isLockedByOther && showTransformer && (
         <Transformer
           ref={transformerRef}
           boundBoxFunc={(oldBox, newBox) => {

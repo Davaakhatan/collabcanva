@@ -102,6 +102,34 @@ export async function updateShape(
 }
 
 /**
+ * Update multiple shapes at once (batch update)
+ */
+export async function updateShapes(updates: Array<{ id: string; updates: Partial<Shape> }>): Promise<void> {
+  const canvasRef = doc(db, "canvas", CANVAS_ID);
+  const canvasDoc = await getDoc(canvasRef);
+  
+  if (canvasDoc.exists()) {
+    const data = canvasDoc.data() as CanvasDocument;
+    const shapes = data.shapes || [];
+    
+    // Create a map of updates for quick lookup
+    const updatesMap = new Map(updates.map(u => [u.id, u.updates]));
+    
+    const updatedShapes = shapes.map((shape) => {
+      const shapeUpdates = updatesMap.get(shape.id);
+      return shapeUpdates 
+        ? { ...shape, ...shapeUpdates, lastModifiedAt: Date.now() }
+        : shape;
+    });
+    
+    await updateDoc(canvasRef, {
+      shapes: updatedShapes,
+      lastUpdated: serverTimestamp(),
+    });
+  }
+}
+
+/**
  * Delete a shape
  */
 export async function deleteShape(shapeId: string): Promise<void> {

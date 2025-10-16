@@ -22,7 +22,7 @@ try {
 // Shape types supported
 export type ShapeCommand = {
   action: 'create' | 'modify' | 'delete' | 'arrange';
-  shapeType?: 'rectangle' | 'circle' | 'triangle' | 'text' | 'ellipse';
+  shapeType?: 'rectangle' | 'circle' | 'triangle' | 'text' | 'ellipse' | 'star' | 'polygon' | 'path' | 'image';
   properties?: {
     x?: number;
     y?: number;
@@ -220,7 +220,7 @@ export async function executeAICommand(userCommand: string): Promise<AICommandRe
 // Execute shape commands on the canvas
 export function executeShapeCommands(
   commands: ShapeCommand[],
-  addShape: (type: 'rectangle' | 'circle' | 'triangle' | 'text' | 'ellipse', overrides?: any) => void
+  addShape: (type: 'rectangle' | 'circle' | 'triangle' | 'text' | 'ellipse' | 'star' | 'polygon' | 'path' | 'image', overrides?: any) => void
 ): void {
   commands.forEach((cmd) => {
     if (cmd.action === 'create') {
@@ -234,14 +234,19 @@ export function executeShapeCommands(
         // Create single shape
         addShape(cmd.shapeType || 'rectangle', cmd.properties || {});
       }
+    } else if (cmd.action === 'arrange') {
+      // Handle arrange action (like grid layouts)
+      if (cmd.layoutType) {
+        createLayout(cmd, addShape);
+      }
     }
-    // TODO: Implement modify, delete, arrange actions
+    // TODO: Implement modify, delete actions
   });
 }
 
 function createLayout(
   cmd: ShapeCommand,
-  addShape: (type: 'rectangle' | 'circle' | 'triangle' | 'text' | 'ellipse', overrides?: any) => void
+  addShape: (type: 'rectangle' | 'circle' | 'triangle' | 'text' | 'ellipse' | 'star' | 'polygon' | 'path' | 'image', overrides?: any) => void
 ): void {
   const { layoutType, layoutParams, shapeType, properties } = cmd;
   const count = layoutParams?.count || 1;

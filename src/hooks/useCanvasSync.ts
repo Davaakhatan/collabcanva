@@ -5,6 +5,7 @@ import {
   subscribeToCanvas,
   createShape as createShapeService,
   updateShape as updateShapeService,
+  updateShapes as updateShapesService,
   deleteShape as deleteShapeService,
   lockShape as lockShapeService,
   unlockShape as unlockShapeService,
@@ -123,6 +124,28 @@ export function useCanvasSync() {
     [user]
   );
 
+  // Update multiple shapes at once (batch update)
+  const updateShapes = useCallback(
+    async (shapesUpdates: Array<{ id: string; updates: Partial<Shape> }>) => {
+      const userId = (user as any)?.uid;
+      if (!userId) return;
+
+      try {
+        console.log('Batch updating shapes:', shapesUpdates.length, 'shapes');
+        // Add lastModifiedBy to all updates
+        const updatesWithUser = shapesUpdates.map(({ id, updates }) => ({
+          id,
+          updates: { ...updates, lastModifiedBy: userId },
+        }));
+        await updateShapesService(updatesWithUser);
+      } catch (err: any) {
+        console.error("Failed to batch update shapes:", err);
+        setError(err.message);
+      }
+    },
+    [user]
+  );
+
   // Delete shape
   const deleteShape = useCallback(
     async (shapeId: string) => {
@@ -214,8 +237,10 @@ export function useCanvasSync() {
     shapes,
     loading,
     error,
+    setShapes,
     addShape,
     updateShape,
+    updateShapes,
     deleteShape,
     lockShape,
     unlockShape,

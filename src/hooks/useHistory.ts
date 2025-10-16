@@ -1,41 +1,58 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import type { Shape } from '../contexts/CanvasContext';
 
 interface HistoryState {
   shapes: Shape[];
-  selectedId: string | null;
+  selectedIds: string[];
 }
 
 const MAX_HISTORY = 50; // Maximum number of undo states
 
 export function useHistory(
   currentShapes: Shape[],
-  selectedId: string | null,
-  onRestore: (shapes: Shape[], selectedId: string | null) => void
+  selectedIds: string[],
+  onRestore: (shapes: Shape[], selectedIds: string[]) => void
 ) {
   const [history, setHistory] = useState<HistoryState[]>([]);
   const [currentIndex, setCurrentIndex] = useState(-1);
+  const isRestoringRef = useRef(false);
+  const hasInitializedRef = useRef(false);
+
+  // Initialize history with current state on first load
+  useEffect(() => {
+    if (!hasInitializedRef.current && currentShapes.length >= 0) {
+      console.log('🚀 Initializing history with current state');
+      const initialState: HistoryState = {
+        shapes: JSON.parse(JSON.stringify(currentShapes)),
+        selectedIds: [...selectedIds],
+      };
+      setHistory([initialState]);
+      setCurrentIndex(0);
+      hasInitializedRef.current = true;
+    }
+  }, [currentShapes, selectedIds]);
 
   // Save current state to history
   const pushState = useCallback(() => {
-    console.log('📝 Saving to history:', { shapeCount: currentShapes.length, selectedId });
+    // Don't save to history if we're currently restoring
+    if (isRestoringRef.current) {
+      console.log('🚫 Skipping history save - currently restoring');
+      return;
+    }
+    
+    console.log('📝 Saving to history:', { shapeCount: currentShapes.length, selectedIds });
+    
+    const newState: HistoryState = {
+      shapes: JSON.parse(JSON.stringify(currentShapes)),
+      selectedIds: [...selectedIds],
+    };
     
     setHistory((prev) => {
-      // Get current index from the updater function to avoid stale closure
-      return prev;
-    });
-    
-    setCurrentIndex((prevIndex) => {
-      setHistory((prev) => {
+      setCurrentIndex((prevIndex) => {
         // Remove any redo history if we're not at the end
         const newHistory = prev.slice(0, prevIndex + 1);
         
         // Add new state
-        const newState: HistoryState = {
-          shapes: JSON.parse(JSON.stringify(currentShapes)),
-          selectedId,
-        };
-        
         newHistory.push(newState);
         
         console.log('✅ History saved. New history length:', newHistory.length, 'New index:', prevIndex + 1);
@@ -43,15 +60,15 @@ export function useHistory(
         // Limit history size
         if (newHistory.length > MAX_HISTORY) {
           newHistory.shift();
-          return newHistory;
+          return Math.min(prevIndex, MAX_HISTORY - 1);
         }
         
-        return newHistory;
+        return prevIndex + 1;
       });
       
-      return Math.min(prevIndex + 1, MAX_HISTORY - 1);
+      return prev.slice(0, currentIndex + 1).concat([newState]);
     });
-  }, [currentShapes, selectedId]);
+  }, [currentShapes, selectedIds, currentIndex]);
 
   // Undo
   const undo = useCallback(() => {
@@ -60,8 +77,16 @@ export function useHistory(
       const newIndex = currentIndex - 1;
       const state = history[newIndex];
       console.log('⏪ Undoing to index:', newIndex, 'Shape count:', state.shapes.length);
+      
+      // Set restoration flag to prevent saving this as new history
+      isRestoringRef.current = true;
       setCurrentIndex(newIndex);
-      onRestore(state.shapes, state.selectedId);
+      onRestore(state.shapes, state.selectedIds);
+      
+      // Clear restoration flag after a short delay
+      setTimeout(() => {
+        isRestoringRef.current = false;
+      }, 100);
     } else {
       console.log('⏪ Cannot undo - already at oldest state');
     }
@@ -74,8 +99,16 @@ export function useHistory(
       const newIndex = currentIndex + 1;
       const state = history[newIndex];
       console.log('⏩ Redoing to index:', newIndex, 'Shape count:', state.shapes.length);
+      
+      // Set restoration flag to prevent saving this as new history
+      isRestoringRef.current = true;
       setCurrentIndex(newIndex);
-      onRestore(state.shapes, state.selectedId);
+      onRestore(state.shapes, state.selectedIds);
+      
+      // Clear restoration flag after a short delay
+      setTimeout(() => {
+        isRestoringRef.current = false;
+      }, 100);
     } else {
       console.log('⏩ Cannot redo - already at newest state');
     }

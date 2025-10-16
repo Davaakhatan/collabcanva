@@ -1,5 +1,5 @@
 import { useEffect, useCallback, useState, useRef } from "react";
-import { Stage, Layer, Rect } from "react-konva";
+import { Stage, Layer, Rect, Transformer } from "react-konva";
 import type Konva from "konva";
 import { useCanvas } from "../../contexts/CanvasContext";
 import { useCursors } from "../../hooks/useCursors";
@@ -31,9 +31,28 @@ export default function Canvas({ onShowHelp }: CanvasProps) {
     clearSelection,
     deleteSelectedShapes,
     updateShape,
+    batchUpdateShapes,
     addShape,
     panToPosition,
   } = useCanvas();
+
+  // Responsive stage size
+  const [stageSize, setStageSize] = useState({ 
+    w: window.innerWidth, 
+    h: window.innerHeight 
+  });
+
+  useEffect(() => {
+    const onResize = () => {
+      setStageSize({ 
+        w: window.innerWidth, 
+        h: window.innerHeight 
+      });
+    };
+    
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
 
   const { cursors, updateCursor } = useCursors();
   const { user } = useAuth();
@@ -52,6 +71,13 @@ export default function Canvas({ onShowHelp }: CanvasProps) {
     y2: number;
   } | null>(null);
   const selectionStartRef = useRef<{ x: number; y: number } | null>(null);
+  
+  // Group transformer for multi-select
+  const layerRef = useRef<Konva.Layer>(null);
+  const groupTransformerRef = useRef<Konva.Transformer>(null);
+  const isTransformingRef = useRef(false); // Track if currently transforming
+  // const initialShapeStatesRef = useRef<Map<string, any>>(new Map()); // Store initial states before transform
+  const rafIdRef = useRef<number | null>(null); // For throttling onTransform
 
   // Handle text editing start
   const handleStartEditText = useCallback((shapeId: string) => {
@@ -151,6 +177,31 @@ export default function Canvas({ onShowHelp }: CanvasProps) {
     [stageRef, updateCursor, hasInteracted, position, scale]
   );
 
+  // Attach group transformer to all selected shapes (for multi-select transform)
+  useEffect(() => {
+    const tr = groupTransformerRef.current;
+    const layer = layerRef.current;
+    
+    if (!tr || !layer) return;
+    
+    if (selectedIds.length < 2) {
+      tr.nodes([]);
+      layer.batchDraw();
+      return;
+    }
+    
+    // Use requestAnimationFrame to ensure shapes are mounted
+    requestAnimationFrame(() => {
+      const nodes = selectedIds
+        .map(id => layer.findOne('#' + id))
+        .filter(Boolean) as Konva.Node[];
+      
+      console.debug('[GroupTR] nodes=', selectedIds);
+      tr.nodes(nodes);
+      layer.batchDraw();
+    });
+  }, [selectedIds]);
+
   const handleAddFirstShape = () => {
     addShape('rectangle', { x: CANVAS_WIDTH / 2 - 50, y: CANVAS_HEIGHT / 2 - 50 });
     setHasInteracted(true);
@@ -214,7 +265,7 @@ export default function Canvas({ onShowHelp }: CanvasProps) {
 
   // Handle box selection end
   const handleStageMouseUp = useCallback(
-    () => {
+    async () => {
       if (!selectionBox || !selectionStartRef.current) {
         selectionStartRef.current = null;
         setSelectionBox(null);
@@ -242,9 +293,9 @@ export default function Canvas({ onShowHelp }: CanvasProps) {
           return !(x2 < shapeX1 || x1 > shapeX2 || y2 < shapeY1 || y1 > shapeY2);
         });
         
-        // Select ALL shapes in the box (multi-select!)
+        // Select ALL shapes in the box (multi-select!) - AWAIT the async function
         if (shapesInBox.length > 0) {
-          selectShapes(shapesInBox.map(s => s.id));
+          await selectShapes(shapesInBox.map(s => s.id));
         } else {
           clearSelection();
         }
@@ -254,7 +305,7 @@ export default function Canvas({ onShowHelp }: CanvasProps) {
       selectionStartRef.current = null;
       setSelectionBox(null);
     },
-    [selectionBox, shapes, selectShape]
+    [selectionBox, shapes, selectShapes, clearSelection]
   );
 
   // Handle clicking on empty canvas (keep for compatibility)
@@ -268,6 +319,11 @@ export default function Canvas({ onShowHelp }: CanvasProps) {
     [selectShape]
   );
 
+  // Log selectedIds whenever it changes
+  useEffect(() => {
+    console.log('🎯 [selectedIds CHANGED]:', selectedIds);
+  }, [selectedIds]);
+
   // Handle keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -280,6 +336,8 @@ export default function Canvas({ onShowHelp }: CanvasProps) {
         // Prevent default backspace navigation
         e.preventDefault();
         
+        console.log('[Delete] Attempting to delete shapes:', selectedIds);
+        
         // Check if any shape is locked by another user
         const lockedByOthers = selectedIds.some(id => {
           const shape = shapes.find(s => s.id === id);
@@ -291,7 +349,7 @@ export default function Canvas({ onShowHelp }: CanvasProps) {
           return;
         }
         
-        deleteSelectedShapes();
+        deleteSelectedShapes().catch(console.error);
       }
       
       // Duplicate (Cmd/Ctrl + D) - duplicate first selected shape
@@ -316,15 +374,19 @@ export default function Canvas({ onShowHelp }: CanvasProps) {
       // Select All (Cmd/Ctrl + A)
       if ((e.metaKey || e.ctrlKey) && e.key === 'a') {
         e.preventDefault();
-        // Select all shapes
+        // Select all shapes - must be async since selectShapes is async
         if (shapes.length > 0) {
-          selectShapes(shapes.map(s => s.id));
+          (async () => {
+            await selectShapes(shapes.map(s => s.id));
+          })();
         }
       }
       
       // Arrow keys for moving selected shapes
       if (selectedIds.length > 0 && ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key) && !isTyping) {
         e.preventDefault();
+        
+        console.log('[Arrow Keys] Moving shapes:', selectedIds);
         
         // Check if any shape is locked by another user
         const lockedByOthers = selectedIds.some(id => {
@@ -339,30 +401,38 @@ export default function Canvas({ onShowHelp }: CanvasProps) {
         
         const moveDistance = e.shiftKey ? 10 : 1; // Shift = 10px, normal = 1px
         
-        selectedIds.forEach(id => {
+        // Collect all updates first, then batch them
+        const updates = selectedIds.map(id => {
           const shape = shapes.find(s => s.id === id);
-          if (shape) {
-            let newX = shape.x;
-            let newY = shape.y;
-            
-            switch (e.key) {
-              case 'ArrowUp':
-                newY -= moveDistance;
-                break;
-              case 'ArrowDown':
-                newY += moveDistance;
-                break;
-              case 'ArrowLeft':
-                newX -= moveDistance;
-                break;
-              case 'ArrowRight':
-                newX += moveDistance;
-                break;
-            }
-            
-            updateShape(id, { x: newX, y: newY });
+          console.log('[Arrow Keys] Moving shape:', id, shape ? `(${shape.x}, ${shape.y})` : 'NOT FOUND');
+          if (!shape) return null;
+          
+          let newX = shape.x;
+          let newY = shape.y;
+          
+          switch (e.key) {
+            case 'ArrowUp':
+              newY -= moveDistance;
+              break;
+            case 'ArrowDown':
+              newY += moveDistance;
+              break;
+            case 'ArrowLeft':
+              newX -= moveDistance;
+              break;
+            case 'ArrowRight':
+              newX += moveDistance;
+              break;
           }
-        });
+          
+          console.log('[Arrow Keys] Will update shape', id, 'to:', { x: newX, y: newY });
+          return { id, updates: { x: newX, y: newY } };
+        }).filter((u): u is { id: string; updates: { x: number; y: number } } => u !== null);
+        
+        // Batch update all shapes at once
+        console.log('[Arrow Keys] 🚀 Batch updating', updates.length, 'shapes');
+        batchUpdateShapes(updates);
+        console.log('[Arrow Keys] ✅ All shapes updated. selectedIds after updates:', selectedIds);
       }
       
       // Z-index shortcuts - apply to all selected shapes
@@ -420,8 +490,8 @@ export default function Canvas({ onShowHelp }: CanvasProps) {
       {/* Konva Canvas */}
       <Stage
         ref={stageRef}
-        width={window.innerWidth}
-        height={window.innerHeight}
+        width={stageSize.w}
+        height={stageSize.h}
         draggable
         x={position.x}
         y={position.y}
@@ -438,7 +508,7 @@ export default function Canvas({ onShowHelp }: CanvasProps) {
         onClick={handleStageClick}
         onTap={handleStageClick}
       >
-        <Layer>
+        <Layer ref={layerRef}>
           {/* Canvas background - showing bounded area */}
           <Rect
             x={0}
@@ -468,12 +538,39 @@ export default function Canvas({ onShowHelp }: CanvasProps) {
                 key={shape.id}
                 shape={shape}
                 isSelected={selectedIds.includes(shape.id)}
+                showTransformer={selectedIds.length === 1} // Only show individual transformer for single selection
+                isDraggable={true} // Always allow individual dragging
+                listening={true} // Must be true for transformer to work!
                 onSelect={(e?: any) => {
                   // Check for Cmd/Ctrl key for multi-select
                   const addToSelection = e?.evt?.metaKey || e?.evt?.ctrlKey || false;
                   selectShape(shape.id, addToSelection);
                 }}
-                onChange={(updates) => updateShape(shape.id, updates)}
+                onChange={(updates) => {
+                  if (selectedIds.length > 1 && selectedIds.includes(shape.id)) {
+                    // Multi-select dragging: move all selected shapes by the same delta
+                    const currentShape = shapes.find(s => s.id === shape.id);
+                    if (currentShape && updates.x !== undefined && updates.y !== undefined) {
+                      const deltaX = updates.x - currentShape.x;
+                      const deltaY = updates.y - currentShape.y;
+                      
+                      const multiUpdates = selectedIds.map(id => ({
+                        id,
+                        updates: {
+                          x: shapes.find(s => s.id === id)!.x + deltaX,
+                          y: shapes.find(s => s.id === id)!.y + deltaY,
+                        }
+                      }));
+                      
+                      batchUpdateShapes(multiUpdates);
+                    } else {
+                      updateShape(shape.id, updates);
+                    }
+                  } else {
+                    // Single selection or non-selected shape
+                    updateShape(shape.id, updates);
+                  }
+                }}
                 onStartEditText={handleStartEditText}
               />
             ))}
@@ -490,6 +587,85 @@ export default function Canvas({ onShowHelp }: CanvasProps) {
               strokeWidth={2}
               dash={[5, 5]}
               listening={false}
+              style={{ pointerEvents: 'none' }}
+            />
+          )}
+
+          {/* Group transformer for multi-select */}
+          {selectedIds.length > 1 && (
+            <Transformer
+              ref={groupTransformerRef}
+              rotateEnabled={true}
+              resizeEnabled={true}
+              ignoreStroke={true}
+              keepRatio={false}
+              anchorSize={10}
+              anchorCornerRadius={5}
+              boundBoxFunc={(oldBox, newBox) => {
+                if (newBox.width < 5 || newBox.height < 5) {
+                  return oldBox;
+                }
+                return newBox;
+              }}
+              draggable={false}
+              onTransformStart={() => {
+                console.log('[Group Transform] Transform started');
+                isTransformingRef.current = true;
+              }}
+              onTransform={() => {
+                // Throttle with requestAnimationFrame to avoid excessive state churn
+                if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
+                rafIdRef.current = requestAnimationFrame(() => {
+                  const tr = groupTransformerRef.current!;
+                  const nodes = tr.nodes();
+                  
+                  const updates = nodes.map(n => {
+                    const s = shapes.find(x => x.id === n.id());
+                    if (!s) return null;
+                    
+                    const sx = n.scaleX(), sy = n.scaleY(), rot = n.rotation();
+                    const w = Math.max(5, s.width * sx), h = Math.max(5, s.height * sy);
+                    
+                    // Get the current position from the node (same as single shape logic)
+                    let x = n.x(), y = n.y();
+                    
+                    // Reset scale but keep rotation for visual feedback (same as single shape logic)
+                    n.scaleX(1); 
+                    n.scaleY(1); 
+                    
+                    return { id: s.id, updates: { x, y, width: w, height: h, rotation: rot } };
+                  }).filter(Boolean) as any[];
+                  
+                  batchUpdateShapes(updates);
+                  tr.getLayer()?.batchDraw();
+                });
+              }}
+              onTransformEnd={() => {
+                isTransformingRef.current = false;
+                console.log('[Group Transform] Transform ended - final commit');
+                
+                // Final commit with same logic as onTransform (same as single shape logic)
+                const tr = groupTransformerRef.current!;
+                const updates = tr.nodes().map(n => {
+                  const s = shapes.find(x => x.id === n.id());
+                  if (!s) return null;
+                  
+                  const sx = n.scaleX(), sy = n.scaleY(), rot = n.rotation();
+                  const w = Math.max(5, s.width * sx), h = Math.max(5, s.height * sy);
+                  
+                  // Get the current position from the node (same as single shape logic)
+                  let x = n.x(), y = n.y();
+                  
+                  // Reset scale and rotation (same as single shape logic)
+                  n.scaleX(1); 
+                  n.scaleY(1); 
+                  n.rotation(0);
+                  
+                  return { id: s.id, updates: { x, y, width: w, height: h, rotation: rot } };
+                }).filter(Boolean) as any[];
+                
+                batchUpdateShapes(updates);
+              }}
             />
           )}
         </Layer>
