@@ -26,7 +26,6 @@ A real-time collaborative canvas application where multiple users can create, ed
 
 ### Authentication
 - **📧 Email/Password Authentication** - Secure user registration and login
-- **🔐 Google Sign-In** - One-click authentication with Google accounts
 - **💾 Persistent Sessions** - Stay logged in across browser sessions
 
 ### User Experience
@@ -89,7 +88,7 @@ npm install
 
 3. **Set up Firebase**
    - Create a new Firebase project at [Firebase Console](https://console.firebase.google.com)
-   - Enable Authentication (Email/Password and Google)
+   - Enable Authentication (Email/Password only)
    - Create a Firestore database
    - (Optional) Create a Realtime Database for multiplayer cursors
    - Copy your Firebase configuration
@@ -174,7 +173,7 @@ Your app will be live at: `https://your-project-id.web.app`
 
 1. **Sign Up / Login**
    - Create an account with email/password
-   - Or sign in with Google
+   - Sign in with your registered credentials
 
 2. **Canvas Controls**
    - **Pan:** Click and drag on empty space
@@ -271,7 +270,7 @@ collabcanvas/
 ✅ **Real-time sync** - <100ms shape synchronization via Firestore  
 ✅ **Multiplayer cursors** - Real-time cursor tracking (optional RTDB)  
 ✅ **Presence awareness** - See online users  
-✅ **User authentication** - Email/Password + Google Sign-In  
+✅ **User authentication** - Email/Password authentication  
 ✅ **Performance** - 60 FPS with 500+ shapes  
 ✅ **Deployed** - Live on Firebase Hosting  
 ✅ **Multi-select** - Select and manipulate multiple shapes  

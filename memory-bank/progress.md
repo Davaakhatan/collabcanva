@@ -181,7 +181,7 @@
 ### Authentication & Security (5/5) ✅
 - [x] Firebase Authentication working
 - [x] Email/password sign up
-- [x] Google OAuth integration
+- [x] Email/password authentication only
 - [x] Protected routes (auth required for canvas)
 - [x] No exposed credentials (all in .env)
 - [x] Firebase security rules configured
@@ -267,7 +267,7 @@
 
 ### User Authentication ✅
 - Email/password signup and login
-- Google OAuth integration
+- Email/password authentication only
 - Protected routes
 - Session persistence
 - Auto-logout on expiry
