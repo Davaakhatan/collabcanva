@@ -222,9 +222,7 @@ export function executeShapeCommands(
   commands: ShapeCommand[],
   addShape: (type: 'rectangle' | 'circle' | 'triangle' | 'text' | 'ellipse' | 'star' | 'polygon' | 'path' | 'image', overrides?: any) => void
 ): void {
-  console.log('🎯 [executeShapeCommands] Executing', commands.length, 'commands:', commands);
-  commands.forEach((cmd, index) => {
-    console.log(`🎯 [executeShapeCommands] Command ${index + 1}:`, cmd);
+  commands.forEach((cmd) => {
     if (cmd.action === 'create') {
       if (cmd.shapeType === 'text') {
         // Create text shape

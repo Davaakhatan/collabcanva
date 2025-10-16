@@ -198,7 +198,6 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
     type: 'rectangle' | 'circle' | 'triangle' | 'text' | 'ellipse' | 'star' | 'polygon' | 'path' | 'image',
     overrides?: Partial<Shape>
   ) => {
-    console.log('🎨 [addShape] Called with:', { type, overrides });
     // Default dimensions based on shape type
     let defaultWidth = DEFAULT_SHAPE_WIDTH;
     let defaultHeight = DEFAULT_SHAPE_HEIGHT;
@@ -267,7 +266,6 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
       ...overrides,
     };
     addShapeSync(newShape);
-    console.log('🎨 [addShape] Shape added to canvas:', newShape);
     // Push state to history after adding shape
     saveToHistory();
   };
