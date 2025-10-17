@@ -24,6 +24,12 @@ export function useCursors(projectId?: string, canvasId?: string) {
     if (!userId) return;
 
     console.log('🎯 [useCursors] Initializing for:', { userId, projectId, canvasId });
+    
+    // Don't initialize if projectId or canvasId are missing
+    if (!projectId || !canvasId) {
+      console.warn('⚠️ [useCursors] Missing projectId or canvasId, skipping initialization:', { projectId, canvasId });
+      return;
+    }
 
     // Generate consistent color for this user
     if (!userColorRef.current) {
