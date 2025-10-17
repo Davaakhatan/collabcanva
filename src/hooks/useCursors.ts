@@ -17,6 +17,7 @@ export function useCursors(projectId?: string, canvasId?: string) {
   const lastPositionRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
 
   console.log('🚀 [useCursors] Hook called with:', { projectId, canvasId, user: !!user });
+  console.log('🚀 [useCursors] Current cursors state:', { cursorsCount: Object.keys(cursors).length, cursors: Object.keys(cursors) });
 
   // Initialize user presence and get color
   useEffect(() => {

@@ -46,7 +46,8 @@ const PresenceList: React.FC<{ projectId: string; canvasId: string; variant?: st
     canvasId,
     cursorsCount: Object.keys(cursors).length,
     userId: user?.uid,
-    cursors: Object.keys(cursors)
+    cursors: Object.keys(cursors),
+    rawCursors: cursors
   });
   
   const handleUserClick = (_userId: string, cursorX: number, cursorY: number) => {
