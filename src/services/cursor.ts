@@ -19,10 +19,16 @@ export type CursorsMap = Record<string, CursorData>;
  * Format: projects/{projectId}/canvases/{canvasId}/cursors
  */
 function getCanvasPath(projectId?: string, canvasId?: string): string {
+  console.log('🔍 [getCanvasPath] Called with:', { projectId, canvasId });
+  
   if (projectId && canvasId) {
-    return `projects/${projectId}/canvases/${canvasId}/cursors`;
+    const path = `projects/${projectId}/canvases/${canvasId}/cursors`;
+    console.log('✅ [getCanvasPath] Using canvas-specific path:', path);
+    return path;
   }
+  
   // Fallback to global canvas for backwards compatibility
+  console.warn('⚠️ [getCanvasPath] Falling back to global path - missing projectId or canvasId');
   return `sessions/global-canvas-v1`;
 }
 
