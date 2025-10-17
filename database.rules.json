@@ -31,10 +31,8 @@
               }
             },
             "cursors": {
-              "$userId": {
-                ".read": "auth != null",
-                ".write": "$userId === auth.uid"
-              }
+              ".read": "auth != null",
+              ".write": "auth != null"
             }
           }
         }
