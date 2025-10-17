@@ -21,10 +21,18 @@ export function useCursors(projectId?: string, canvasId?: string) {
 
   // Initialize user presence and get color
   useEffect(() => {
-    if (!user) return;
+    console.log('✨ [useCursors] useEffect triggered:', { user: !!user, projectId, canvasId });
+    
+    if (!user) {
+      console.log('❌ [useCursors] No user, returning early');
+      return;
+    }
 
     const userId = (user as any).uid;
-    if (!userId) return;
+    if (!userId) {
+      console.log('❌ [useCursors] No userId, returning early');
+      return;
+    }
 
     console.log('🎯 [useCursors] Initializing for:', { userId, projectId, canvasId });
     
