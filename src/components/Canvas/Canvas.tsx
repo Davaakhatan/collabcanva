@@ -75,6 +75,9 @@ export default function Canvas({ onShowHelp, projectId: propProjectId, canvasId:
     finalCanvasId: canvasId,
     cursorsCount: Object.keys(cursors).length 
   });
+
+  // Debug useCursors call
+  console.log('🎯 [Canvas] About to call useCursors with:', { projectId, canvasId });
   
   // Text editing state
   const [editingTextId, setEditingTextId] = useState<string | null>(null);

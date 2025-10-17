@@ -16,6 +16,8 @@ export function useCursors(projectId?: string, canvasId?: string) {
   const userColorRef = useRef<string | null>(null);
   const lastPositionRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
 
+  console.log('🚀 [useCursors] Hook called with:', { projectId, canvasId, user: !!user });
+
   // Initialize user presence and get color
   useEffect(() => {
     if (!user) return;
