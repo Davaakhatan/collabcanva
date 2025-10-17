@@ -19,7 +19,7 @@ export default function PresenceList({ cursors, onUserClick, projectId, canvasId
   const cursorUsers = Object.entries(cursors).map(([userId, cursor]) => ({
     userId,
     displayName: cursor.displayName,
-    color: cursor.color,
+    color: cursor.cursorColor, // Fixed: use cursorColor instead of color
     cursorX: cursor.cursorX,
     cursorY: cursor.cursorY,
     isOnline: true
@@ -32,7 +32,8 @@ export default function PresenceList({ cursors, onUserClick, projectId, canvasId
     canvasId,
     userCount,
     cursorsCount: Object.keys(cursors).length,
-    users: cursorUsers.map(u => u.displayName)
+    users: cursorUsers.map(u => u.displayName),
+    rawCursors: cursors
   });
 
   // TEMPORARY: Always show for debugging
