@@ -33,6 +33,8 @@ export function useCursors(projectId?: string, canvasId?: string) {
       return;
     }
 
+    console.log('✅ [useCursors] Both projectId and canvasId are available, proceeding with initialization');
+
     // Generate consistent color for this user
     if (!userColorRef.current) {
       userColorRef.current = generateUserColor(userId);
@@ -46,6 +48,7 @@ export function useCursors(projectId?: string, canvasId?: string) {
     });
 
     // Subscribe to all cursors for this canvas
+    console.log('🔗 [useCursors] About to subscribe to cursors with:', { projectId, canvasId });
     const unsubscribe = subscribeToCursors((allCursors) => {
       console.log('📥 [useCursors] Received cursor update:', {
         totalUsers: Object.keys(allCursors).length,
