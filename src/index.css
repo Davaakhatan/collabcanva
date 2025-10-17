@@ -34,9 +34,12 @@ a:hover {
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
   min-width: 320px;
+  min-height: 100vh;
+}
+
+#root {
+  width: 100%;
   min-height: 100vh;
 }
 
@@ -219,4 +222,33 @@ button:focus-visible {
 .vertical-toolbar-container {
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
+}
+
+/* Cross-browser, overrides Tailwind's w-* and h-* classes on the <svg> */
+.t-btn > svg {
+  width: var(--icon-size, 40px) !important;
+  height: var(--icon-size, 40px) !important;
+  flex: none;
+  vertical-align: middle;
+  /* Helps Safari render crisply */
+  shape-rendering: geometricPrecision;
+}
+
+/* Optional: desktop tweak */
+@media (min-width: 768px) {
+  .t-btn { --icon-size: 36px; }
+}
+
+/* Shimmer animation for loading states */
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite;
 }

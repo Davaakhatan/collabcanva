@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
-import { useCanvas } from "../../contexts/CanvasContext";
+import { useProjectCanvas } from "../../contexts/ProjectCanvasContext";
 import { MIN_ZOOM, MAX_ZOOM, ZOOM_SPEED, CANVAS_WIDTH, CANVAS_HEIGHT } from "../../utils/constants";
 import { clamp } from "../../utils/helpers";
 import { FPSMonitor, generateRandomPosition } from "../../utils/performance";
@@ -20,16 +20,23 @@ interface TButtonProps {
   className?: string;
   'aria-label'?: string;
   buttonRef?: React.RefObject<HTMLButtonElement | null>;
+  iconSize?: number; // pixels, default 40
 }
 
-const TButton = ({ onClick, disabled, title, active, children, className = '', 'aria-label': ariaLabel, buttonRef }: TButtonProps) => (
+const TButton = ({
+  onClick, disabled, title, active, children, className = '',
+  'aria-label': ariaLabel, buttonRef, iconSize = 40
+}: TButtonProps) => (
   <button
     ref={buttonRef}
     onClick={onClick}
     disabled={disabled}
     title={title}
     aria-label={ariaLabel || title}
+    /* 👇 stable class + icon size var */
+    style={{ ['--icon-size' as any]: `${iconSize}px` }}
     className={`
+      t-btn
       size-12 rounded-xl border flex items-center justify-center shrink-0
       transition-all duration-150
       focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40
@@ -38,8 +45,6 @@ const TButton = ({ onClick, disabled, title, active, children, className = '', '
         ? 'bg-gradient-to-br from-blue-500/90 to-purple-500/90 text-white border-transparent shadow-md focus-visible:ring-2 ring-blue-500/40' 
         : 'border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-slate-700 active:scale-95'
       }
-      /* 👇 force bigger icons for any direct child <svg> */
-      [&>svg]:w-10 [&>svg]:h-10 md:[&>svg]:w-9 md:[&>svg]:h-9
       ${className}
     `}
   >
@@ -267,7 +272,7 @@ const ShapeMenu = ({ isOpen, onClose, onSelectShape, anchorRef, mode }: ShapeMen
 };
 
 export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
-  const { scale, setScale, resetView, addShape, addImageShape, stageRef, shapes, selectedIds, batchUpdateShapes, undo, redo, canUndo, canRedo } = useCanvas();
+  const { scale, setScale, resetView, addShape, addImageShape, stageRef, shapes, selectedIds, batchUpdateShapes, undo, redo, canUndo, canRedo, projectId, canvasId } = useProjectCanvas();
   const [fps, setFps] = useState(60);
   const [showPerf, setShowPerf] = useState(false);
   const [perfPosition, setPerfPosition] = useState({ x: 0, y: 0 });

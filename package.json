@@ -11,8 +11,10 @@
   },
   "dependencies": {
     "@firebasegen/default-connector": "file:dataconnect-generated/js/default-connector",
+    "@heroicons/react": "^2.2.0",
     "firebase": "^12.4.0",
     "konva": "^10.0.2",
+    "lucide-react": "^0.546.0",
     "openai": "^6.3.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",

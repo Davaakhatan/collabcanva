@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
+import { ThemeToggle } from "../../contexts/ThemeContext";
 
 export default function Login() {
   const { user, login, loginWithGoogle } = useAuth();
@@ -43,7 +44,12 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen w-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 flex items-center justify-center p-6">
+    <div className="min-h-screen w-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center p-6">
+      {/* Theme Toggle - Fixed in top-right corner */}
+      <div className="fixed top-4 right-4 z-50">
+        <ThemeToggle size="md" />
+      </div>
+      
       <div className="w-full max-w-md mx-auto">
         {/* Logo & Title */}
         <div className="text-center mb-8">

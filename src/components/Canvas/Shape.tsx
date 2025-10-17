@@ -75,14 +75,23 @@ export default function Shape({ shape, isSelected, onSelect, onChange, onStartEd
 
   // Separate effect for transformer attachment to ensure it always updates
   useEffect(() => {
-    if (isSelected && !isLockedByOther && transformerRef.current && shapeRef.current) {
+    console.log('[Shape Transformer] Effect triggered:', {
+      shapeId: shape.id,
+      isSelected,
+      isLockedByOther,
+      showTransformer,
+      hasTransformerRef: !!transformerRef.current,
+      hasShapeRef: !!shapeRef.current
+    });
+    
+    if (isSelected && !isLockedByOther && showTransformer && transformerRef.current && shapeRef.current) {
       // Attach transformer to the shape
-      console.log('Attaching transformer to shape:', shape.id);
+      console.log('[Shape Transformer] ✅ Attaching transformer to shape:', shape.id);
       transformerRef.current.nodes([shapeRef.current]);
       transformerRef.current.forceUpdate();
       transformerRef.current.getLayer()?.batchDraw();
     }
-  }, [isSelected, isLockedByOther, shape.id]); // Removed shape properties - they shouldn't trigger re-attachment!
+  }, [isSelected, isLockedByOther, shape.id, showTransformer]); // Added showTransformer to dependencies
 
   // Handle mouse/touch down to track starting position
   const handlePointerDown = (e: Konva.KonvaEventObject<MouseEvent | TouchEvent>) => {
@@ -421,6 +430,8 @@ export default function Shape({ shape, isSelected, onSelect, onChange, onStartEd
       {isSelected && !isLockedByOther && showTransformer && (
         <Transformer
           ref={transformerRef}
+          listening={true}
+          draggable={false}
           boundBoxFunc={(oldBox, newBox) => {
             // Limit resize to minimum 5x5
             if (newBox.width < 5 || newBox.height < 5) {

@@ -1,19 +1,47 @@
-import { useState } from "react";
-import { usePresence } from "../../hooks/usePresence";
+import { useState, useRef, useEffect } from "react";
 import type { CursorsMap } from "../../services/cursor";
 
 interface PresenceListProps {
   cursors: CursorsMap;
   onUserClick: (userId: string, cursorX: number, cursorY: number) => void;
+  projectId?: string;
+  canvasId?: string;
+  variant?: string;
 }
 
-export default function PresenceList({ cursors, onUserClick }: PresenceListProps) {
-  const { onlineUsers, onlineCount } = usePresence();
+export default function PresenceList({ cursors, onUserClick, projectId, canvasId }: PresenceListProps) {
   const [isExpanded, setIsExpanded] = useState(true);
+  const [position, setPosition] = useState({ x: 24, y: window.innerHeight - 300 });
+  const [isDragging, setIsDragging] = useState(false);
+  const dragRef = useRef<{ startX: number; startY: number; initialX: number; initialY: number } | null>(null);
 
-  if (onlineCount === 0) {
-    return null;
-  }
+  // Convert cursors map to array for easier rendering
+  const cursorUsers = Object.entries(cursors).map(([userId, cursor]) => ({
+    userId,
+    displayName: cursor.displayName,
+    color: cursor.color,
+    cursorX: cursor.cursorX,
+    cursorY: cursor.cursorY,
+    isOnline: true
+  }));
+
+  const userCount = cursorUsers.length;
+
+  console.log('🔍 [PresenceList] Rendering with:', {
+    projectId,
+    canvasId,
+    userCount,
+    cursorsCount: Object.keys(cursors).length,
+    users: cursorUsers.map(u => u.displayName)
+  });
+
+  // TEMPORARY: Always show for debugging
+  // if (userCount === 0) {
+  //   console.log('⚠️ [PresenceList] No users online, returning null');
+  //   return null;
+  // }
+  
+  console.log('✅ [PresenceList] Rendering presence list with', userCount, 'users');
 
   const handleUserClick = (userId: string) => {
     const cursor = cursors[userId];
@@ -23,17 +51,58 @@ export default function PresenceList({ cursors, onUserClick }: PresenceListProps
     }
   };
 
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setIsDragging(true);
+    dragRef.current = {
+      startX: e.clientX,
+      startY: e.clientY,
+      initialX: position.x,
+      initialY: position.y
+    };
+  };
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isDragging || !dragRef.current) return;
+      
+      const deltaX = e.clientX - dragRef.current.startX;
+      const deltaY = e.clientY - dragRef.current.startY;
+      
+      setPosition({
+        x: dragRef.current.initialX + deltaX,
+        y: dragRef.current.initialY + deltaY
+      });
+    };
+
+    const handleMouseUp = () => {
+      setIsDragging(false);
+      dragRef.current = null;
+    };
+
+    if (isDragging) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isDragging]);
+
   return (
     <div 
-      className="fixed left-6 bg-white/90 dark:bg-slate-800/90 backdrop-blur-lg rounded-xl shadow-lg border border-gray-200/50 dark:border-slate-600/50 z-30 max-w-[200px] overflow-hidden transition-all duration-300"
+      className="fixed bg-white/90 dark:bg-slate-800/90 backdrop-blur-lg rounded-xl shadow-lg border border-gray-200/50 dark:border-slate-600/50 z-30 max-w-[200px] overflow-hidden transition-shadow duration-300 hover:shadow-xl"
       style={{
-        bottom: 'max(env(safe-area-inset-bottom, 0px), 24px)'
+        left: `${position.x}px`,
+        top: `${position.y}px`,
+        cursor: isDragging ? 'grabbing' : 'grab'
       }}
     >
-      {/* Header */}
-      <button
-        onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full px-3 py-2.5 flex items-center justify-between hover:bg-gray-50/50 dark:hover:bg-slate-700/50 transition-colors"
+      {/* Header with drag handle */}
+      <div 
+        className="px-3 py-2.5 flex items-center justify-between hover:bg-gray-50/50 dark:hover:bg-slate-700/50 transition-colors"
+        onMouseDown={handleMouseDown}
       >
         <div className="flex items-center gap-2">
           <div className="relative">
@@ -44,65 +113,79 @@ export default function PresenceList({ cursors, onUserClick }: PresenceListProps
             <h3 className="text-xs font-bold text-gray-900 dark:text-gray-100">
               Online
             </h3>
-            <p className="text-[10px] text-gray-500 dark:text-gray-400">{onlineCount} {onlineCount === 1 ? 'person' : 'people'}</p>
+            <p className="text-[10px] text-gray-500 dark:text-gray-400">{userCount} {userCount === 1 ? 'person' : 'people'}</p>
           </div>
         </div>
-        <svg
-          className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsExpanded(!isExpanded);
+          }}
+          className="p-1 hover:bg-gray-100 dark:hover:bg-slate-600 rounded transition-colors"
+          onMouseDown={(e) => e.stopPropagation()}
         >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-        </svg>
-      </button>
+          <svg
+            className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+      </div>
 
       {/* User List */}
       {isExpanded && (
         <div className="px-2 pb-2 space-y-1 max-h-64 overflow-y-auto">
-          {onlineUsers.map((user) => {
-            const hasCursor = cursors[user.userId];
-            return (
-              <button
-                key={user.userId}
-                onClick={() => handleUserClick(user.userId)}
-                disabled={!hasCursor}
-                className="w-full flex items-center gap-2 p-1.5 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-all group disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-gray-50 dark:disabled:hover:bg-slate-700"
-                title={hasCursor ? `Jump to ${user.displayName}'s cursor` : `${user.displayName} (no cursor yet)`}
+          {cursorUsers.length > 0 ? (
+            cursorUsers.map((user) => (
+            <button
+              key={user.userId}
+              onClick={() => handleUserClick(user.userId)}
+              className="w-full flex items-center gap-2 p-1.5 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-all group"
+              title={`Jump to ${user.displayName}'s cursor`}
+            >
+              <div
+                className="w-7 h-7 rounded-lg flex items-center justify-center text-white text-xs font-bold shadow-sm group-hover:scale-110 transition-transform shrink-0"
+                style={{ backgroundColor: user.color }}
               >
-                <div
-                  className="w-7 h-7 rounded-lg flex items-center justify-center text-white text-xs font-bold shadow-sm group-hover:scale-110 transition-transform shrink-0"
-                  style={{ backgroundColor: user.color }}
-                >
-                  {user.displayName.charAt(0).toUpperCase()}
+                {user.displayName.charAt(0).toUpperCase()}
+              </div>
+              <div className="flex-1 min-w-0 text-left">
+                <p className="text-xs font-semibold text-gray-900 dark:text-gray-100 truncate">
+                  {user.displayName}
+                </p>
+                <div className="flex items-center gap-1">
+                  <div
+                    className="w-1.5 h-1.5 rounded-full"
+                    style={{ backgroundColor: user.color }}
+                  />
+                  <span className="text-[10px] text-gray-500 dark:text-gray-400">
+                    Follow
+                  </span>
                 </div>
-                <div className="flex-1 min-w-0 text-left">
-                  <p className="text-xs font-semibold text-gray-900 dark:text-gray-100 truncate">
-                    {user.displayName}
-                  </p>
-                  <div className="flex items-center gap-1">
-                    <div
-                      className="w-1.5 h-1.5 rounded-full"
-                      style={{ backgroundColor: user.color }}
-                    />
-                    <span className="text-[10px] text-gray-500 dark:text-gray-400">
-                      {hasCursor ? 'Follow' : 'Active'}
-                    </span>
-                  </div>
-                </div>
-                {hasCursor && (
-                  <svg 
-                    className="w-3 h-3 text-blue-500 opacity-0 group-hover:opacity-100 transition-opacity shrink-0" 
-                    fill="none" 
-                    stroke="currentColor" 
-                    viewBox="0 0 24 24"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                  </svg>
-                )}
-              </button>
-            );
-          })}
+              </div>
+              <svg 
+                className="w-3 h-3 text-blue-500 opacity-0 group-hover:opacity-100 transition-opacity shrink-0" 
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              </svg>
+            </button>
+            ))
+          ) : (
+            <div className="px-2 py-4 text-center">
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                No other users online
+              </p>
+              <p className="text-[10px] text-gray-400 dark:text-gray-500 mt-1">
+                Open in another browser to test
+              </p>
+            </div>
+          )}
         </div>
       )}
     </div>

@@ -10,7 +10,7 @@ import { generateUserColor, getDisplayName } from "../utils/helpers";
 import { CURSOR_UPDATE_THROTTLE } from "../utils/constants";
 import { throttle } from "../utils/helpers";
 
-export function useCursors() {
+export function useCursors(projectId?: string, canvasId?: string) {
   const { user } = useAuth();
   const [cursors, setCursors] = useState<CursorsMap>({});
   const userColorRef = useRef<string | null>(null);
@@ -23,6 +23,8 @@ export function useCursors() {
     const userId = (user as any).uid;
     if (!userId) return;
 
+    console.log('🎯 [useCursors] Initializing for:', { userId, projectId, canvasId });
+
     // Generate consistent color for this user
     if (!userColorRef.current) {
       userColorRef.current = generateUserColor(userId);
@@ -31,22 +33,55 @@ export function useCursors() {
     const displayName = getDisplayName(user);
 
     // Set user as online
-    setUserOnline(userId, displayName, userColorRef.current).catch((err) => {
+    setUserOnline(userId, displayName, userColorRef.current, projectId, canvasId).catch((err) => {
       console.error("Failed to set user online:", err);
     });
 
-    // Subscribe to all cursors
+    // Subscribe to all cursors for this canvas
     const unsubscribe = subscribeToCursors((allCursors) => {
+      console.log('📥 [useCursors] Received cursor update:', {
+        totalUsers: Object.keys(allCursors).length,
+        currentUserId: userId,
+        allUserIds: Object.keys(allCursors),
+        projectId,
+        canvasId,
+        rawData: allCursors
+      });
+      
       // Filter out current user's cursor
       const otherCursors = { ...allCursors };
       delete otherCursors[userId];
-      setCursors(otherCursors);
-    });
+      
+      console.log('👥 [useCursors] After filtering current user:', {
+        otherUsersCount: Object.keys(otherCursors).length,
+        otherUserIds: Object.keys(otherCursors)
+      });
+      
+      // Use functional update to prevent infinite loops
+      setCursors(prev => {
+        // Only update if cursors actually changed
+        const prevKeys = Object.keys(prev).sort().join(',');
+        const newKeys = Object.keys(otherCursors).sort().join(',');
+        if (prevKeys === newKeys) {
+          // Check if any cursor values changed
+          const hasChanged = Object.keys(otherCursors).some(key => {
+            const prevCursor = prev[key];
+            const newCursor = otherCursors[key];
+            return !prevCursor || 
+                   prevCursor.cursorX !== newCursor.cursorX || 
+                   prevCursor.cursorY !== newCursor.cursorY;
+          });
+          if (!hasChanged) return prev;
+        }
+        console.log('✅ [useCursors] Updating cursors state:', Object.keys(otherCursors).length, 'users');
+        return otherCursors;
+      });
+    }, projectId, canvasId);
 
     return () => {
       unsubscribe();
     };
-  }, [user]);
+  }, [user, projectId, canvasId]);
 
   // Throttled cursor position update
   const updateCursor = useCallback(
@@ -66,17 +101,27 @@ export function useCursors() {
 
       const displayName = getDisplayName(user);
 
+      console.log('🖱️ [useCursors] Updating cursor position:', {
+        userId,
+        x: Math.round(x),
+        y: Math.round(y),
+        projectId,
+        canvasId
+      });
+
       updateCursorPosition(
         userId,
         x,
         y,
         displayName,
-        userColorRef.current
+        userColorRef.current,
+        projectId,
+        canvasId
       ).catch((err) => {
         console.error("Failed to update cursor:", err);
       });
     }, CURSOR_UPDATE_THROTTLE),
-    [user]
+    [user, projectId, canvasId]
   );
 
   return {

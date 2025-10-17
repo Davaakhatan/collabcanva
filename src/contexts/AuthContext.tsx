@@ -33,26 +33,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-      console.log('[AuthContext] Auth state changed:', firebaseUser);
-      if (firebaseUser) {
-        const authUser: AuthUser = {
-          uid: firebaseUser.uid,
-          email: firebaseUser.email,
-          displayName: firebaseUser.displayName,
-          photoURL: firebaseUser.photoURL,
-        };
-        console.log('[AuthContext] Setting user:', authUser);
-        console.log('[AuthContext] User UID:', authUser.uid);
-        setUser(authUser);
-      } else {
-        console.log('[AuthContext] User logged out');
-        setUser(null);
-      }
+    try {
+      const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+        console.log('[AuthContext] Auth state changed:', firebaseUser);
+        if (firebaseUser) {
+          const authUser: AuthUser = {
+            uid: firebaseUser.uid,
+            email: firebaseUser.email,
+            displayName: firebaseUser.displayName,
+            photoURL: firebaseUser.photoURL,
+          };
+          console.log('[AuthContext] Setting user:', authUser);
+          console.log('[AuthContext] User UID:', authUser.uid);
+          setUser(authUser);
+        } else {
+          console.log('[AuthContext] User logged out');
+          setUser(null);
+        }
+        setLoading(false);
+      });
+      
+      return unsubscribe;
+    } catch (error) {
+      console.error('[AuthContext] Firebase auth initialization failed:', error);
       setLoading(false);
-    });
-    
-    return unsubscribe;
+      // Continue without authentication for demo purposes
+    }
   }, []);
 
   const signup = async (email: string, password: string, displayName?: string) => {

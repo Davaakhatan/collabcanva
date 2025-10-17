@@ -1,7 +1,7 @@
 import { useEffect, useCallback, useState, useRef } from "react";
 import { Stage, Layer, Rect, Transformer } from "react-konva";
 import type Konva from "konva";
-import { useCanvas } from "../../contexts/CanvasContext";
+import { useProjectCanvas } from "../../contexts/ProjectCanvasContext";
 import { useCursors } from "../../hooks/useCursors";
 import { useAuth } from "../../contexts/AuthContext";
 import Shape from "./Shape";
@@ -14,9 +14,11 @@ import { clamp } from "../../utils/helpers";
 
 interface CanvasProps {
   onShowHelp?: () => void;
+  projectId?: string;
+  canvasId?: string;
 }
 
-export default function Canvas({ onShowHelp }: CanvasProps) {
+export default function Canvas({ onShowHelp, projectId: propProjectId, canvasId: propCanvasId }: CanvasProps) {
   const {
     shapes,
     selectedIds,
@@ -34,7 +36,13 @@ export default function Canvas({ onShowHelp }: CanvasProps) {
     batchUpdateShapes,
     addShape,
     panToPosition,
-  } = useCanvas();
+    projectId: contextProjectId,
+    canvasId: contextCanvasId,
+  } = useProjectCanvas();
+
+  // Use props if available, fallback to context
+  const projectId = propProjectId || contextProjectId;
+  const canvasId = propCanvasId || contextCanvasId;
 
   // Responsive stage size
   const [stageSize, setStageSize] = useState({ 
@@ -54,9 +62,19 @@ export default function Canvas({ onShowHelp }: CanvasProps) {
     return () => window.removeEventListener('resize', onResize);
   }, []);
 
-  const { cursors, updateCursor } = useCursors();
+  const { cursors, updateCursor } = useCursors(projectId, canvasId);
   const { user } = useAuth();
   const [hasInteracted, setHasInteracted] = useState(false);
+  
+  console.log('🖼️ [Canvas] Initializing with:', { 
+    propProjectId, 
+    propCanvasId, 
+    contextProjectId, 
+    contextCanvasId,
+    finalProjectId: projectId,
+    finalCanvasId: canvasId,
+    cursorsCount: Object.keys(cursors).length 
+  });
   
   // Text editing state
   const [editingTextId, setEditingTextId] = useState<string | null>(null);
@@ -688,8 +706,8 @@ export default function Canvas({ onShowHelp }: CanvasProps) {
         );
       })}
 
-      {/* Draggable Presence List */}
-      <PresenceList cursors={cursors} onUserClick={handleUserClick} />
+      {/* Draggable Presence List - Removed: Now rendered in ProjectCanvasPage */}
+      {/* <PresenceList cursors={cursors} onUserClick={handleUserClick} /> */}
 
       {/* Empty State */}
       {showEmptyState && (
