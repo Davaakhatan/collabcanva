@@ -205,6 +205,76 @@ button:focus-visible {
   background-color: rgba(30, 41, 59, 0.95) !important;
 }
 
+/* Additional dark mode button styles */
+.dark button {
+  background-color: #1e293b !important;
+  color: #e5e7eb !important;
+  border-color: #334155 !important;
+}
+
+.dark button:hover {
+  background-color: #334155 !important;
+  border-color: #475569 !important;
+}
+
+/* Dark mode input styles */
+.dark input {
+  background-color: #1e293b !important;
+  color: #e5e7eb !important;
+  border-color: #334155 !important;
+}
+
+.dark input:focus {
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+}
+
+/* Dark mode dropdown styles */
+.dark .bg-white {
+  background-color: #1e293b !important;
+}
+
+.dark .text-gray-900 {
+  color: #f1f5f9 !important;
+}
+
+.dark .text-gray-700 {
+  color: #cbd5e1 !important;
+}
+
+.dark .text-gray-600 {
+  color: #94a3b8 !important;
+}
+
+.dark .text-gray-500 {
+  color: #64748b !important;
+}
+
+.dark .border-gray-200 {
+  border-color: #334155 !important;
+}
+
+.dark .border-gray-300 {
+  border-color: #475569 !important;
+}
+
+/* Dark mode hover states */
+.dark .hover\:bg-gray-50:hover {
+  background-color: #334155 !important;
+}
+
+.dark .hover\:bg-gray-100:hover {
+  background-color: #475569 !important;
+}
+
+.dark .hover\:text-gray-900:hover {
+  color: #f1f5f9 !important;
+}
+
+.dark .hover\:text-gray-700:hover {
+  color: #cbd5e1 !important;
+}
+
 /* Dark mode scrollbar in help overlay */
 .dark .help-overlay-content::-webkit-scrollbar-thumb {
   background: #475569;

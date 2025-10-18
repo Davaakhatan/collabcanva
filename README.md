@@ -23,6 +23,9 @@ A real-time collaborative canvas application where multiple users can create, ed
 - **⌨️ Keyboard Shortcuts** - Comprehensive shortcuts for all operations
 - **📤 Export** - Export canvas as PNG or SVG
 - **🤖 AI Assistant** - Natural language commands to create and manipulate shapes
+- **🏢 Multi-Project System** - Create and manage multiple projects with separate canvases
+- **👤 User Management** - Profile, settings, and signout functionality
+- **🌙 Dark/Light Mode** - Complete theme switching with proper canvas backgrounds
 
 ### Authentication
 - **📧 Email/Password Authentication** - Secure user registration and login
@@ -35,10 +38,13 @@ A real-time collaborative canvas application where multiple users can create, ed
 - **🎭 Empty State** - Helpful onboarding when canvas is empty
 - **⚡ Performance** - 60 FPS rendering with 500+ shapes
 - **📊 Performance Monitor** - Built-in FPS counter and stress testing tools
-- **🌙 Dark/Light Mode** - Toggle between themes
+- **🌙 Dark/Light Mode** - Complete theme switching with proper canvas backgrounds
 - **🎛️ Flexible Toolbar** - Movable toolbar (sidebar or bottom docked)
 - **📐 Alignment Tools** - Align and distribute shapes
 - **📚 Z-Index Management** - Bring to front, send to back, layer management
+- **🔔 Notifications** - Real-time notification system
+- **🔍 Search** - Search projects and canvases
+- **👤 User Profile** - Profile management with settings and signout
 
 ---
 
@@ -281,9 +287,13 @@ collabcanvas/
 ✅ **Text formatting** - Rich text editing with fonts and styles  
 ✅ **Color picker** - Change shape colors  
 ✅ **Keyboard shortcuts** - Comprehensive shortcut system  
-✅ **Dark/Light mode** - Theme switching  
+✅ **Dark/Light mode** - Complete theme switching with proper canvas backgrounds  
 ✅ **Alignment tools** - Align and distribute shapes  
 ✅ **Z-index management** - Layer management  
+✅ **Multi-Project System** - Create and manage multiple projects  
+✅ **User Management** - Profile, settings, and signout functionality  
+✅ **Notifications** - Real-time notification system  
+✅ **Search** - Search projects and canvases  
 
 ---
 

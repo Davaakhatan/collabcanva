@@ -30,9 +30,6 @@ export function useProjectCanvasSync({
   const [shapes, setShapes] = useState<Shape[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
-  // Track lock timeouts
-  const lockTimeoutsRef = useRef<Map<string, number>>(new Map());
 
   // Subscribe to real-time updates
   useEffect(() => {
@@ -74,9 +71,6 @@ export function useProjectCanvasSync({
       if (unsubscribe) {
         unsubscribe();
       }
-      // Clear all lock timeouts
-      lockTimeoutsRef.current.forEach(timeout => clearTimeout(timeout));
-      lockTimeoutsRef.current.clear();
     };
   }, [projectId, canvasId, enabled]);
 
@@ -247,41 +241,35 @@ export function useProjectCanvasSync({
 
   // Lock shape
   const lockShape = useCallback(
-    async (shapeId: string, lockDuration: number = 30000) => {
+    async (shapeId: string): Promise<boolean> => {
       if (!user) {
         console.error('Cannot lock shape: user is null/undefined');
         setError('You must be logged in to lock shapes. Please refresh the page.');
-        return;
+        return false;
       }
       
       const userId = (user as any).uid;
       if (!userId) {
         console.error('Cannot lock shape: user.uid not found', { user });
         setError('Authentication error: User ID not found. Please log out and log back in.');
-        return;
+        return false;
       }
 
       if (!projectId || !canvasId) {
         console.error('Cannot lock shape: projectId or canvasId not provided', { projectId, canvasId });
         setError('Canvas not properly initialized. Please refresh the page.');
-        return;
+        return false;
       }
 
       try {
-        console.log('Locking shape in project canvas:', { projectId, canvasId, shapeId, userId, lockDuration });
+        console.log('Locking shape in project canvas:', { projectId, canvasId, shapeId, userId });
         await lockProjectShape(projectId, canvasId, shapeId, userId);
         console.log('Shape locked successfully in project canvas');
-        
-        // Set timeout to auto-unlock
-        const timeoutId = window.setTimeout(() => {
-          unlockShape(shapeId);
-          lockTimeoutsRef.current.delete(shapeId);
-        }, lockDuration);
-        
-        lockTimeoutsRef.current.set(shapeId, timeoutId);
+        return true;
       } catch (err: any) {
         console.error("Failed to lock shape in project canvas:", err);
         setError('Failed to lock shape: ' + err.message);
+        return false;
       }
     },
     [user, projectId, canvasId]
@@ -315,11 +303,6 @@ export function useProjectCanvasSync({
         console.log('Shape unlocked successfully in project canvas');
         
         // Clear timeout if exists
-        const timeoutId = lockTimeoutsRef.current.get(shapeId);
-        if (timeoutId) {
-          clearTimeout(timeoutId);
-          lockTimeoutsRef.current.delete(shapeId);
-        }
       } catch (err: any) {
         console.error("Failed to unlock shape in project canvas:", err);
         setError('Failed to unlock shape: ' + err.message);

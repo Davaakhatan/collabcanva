@@ -113,41 +113,53 @@ User: "Create a login form"
   "commands": [
     {
       "action": "create",
+      "shapeType": "rectangle",
+      "properties": {"x": 500, "y": 400, "width": 300, "height": 50, "fill": "#D3D3D3"}
+    },
+    {
+      "action": "create",
       "shapeType": "text",
-      "properties": {"x": 700, "y": 400, "text": "Login", "fontSize": 32, "fill": "#333333"}
+      "properties": {"x": 520, "y": 420, "text": "Username", "fontSize": 26, "fill": "#000000"}
     },
     {
       "action": "create",
       "shapeType": "rectangle",
-      "properties": {"x": 650, "y": 460, "width": 300, "height": 50, "fill": "#FFFFFF"}
+      "properties": {"x": 500, "y": 480, "width": 300, "height": 50, "fill": "#D3D3D3"}
     },
     {
       "action": "create",
       "shapeType": "text",
-      "properties": {"x": 660, "y": 470, "text": "Username", "fontSize": 16, "fill": "#888888"}
-    },
-    {
-      "action": "create",
-      "shapeType": "rectangle",
-      "properties": {"x": 650, "y": 530, "width": 300, "height": 50, "fill": "#FFFFFF"}
-    },
-    {
-      "action": "create",
-      "shapeType": "text",
-      "properties": {"x": 660, "y": 540, "text": "Password", "fontSize": 16, "fill": "#888888"}
-    },
-    {
-      "action": "create",
-      "shapeType": "rectangle",
-      "properties": {"x": 700, "y": 600, "width": 200, "height": 50, "fill": "#0066FF"}
-    },
-    {
-      "action": "create",
-      "shapeType": "text",
-      "properties": {"x": 760, "y": 615, "text": "Submit", "fontSize": 18, "fill": "#FFFFFF"}
+      "properties": {"x": 520, "y": 500, "text": "Password", "fontSize": 26, "fill": "#000000"}
     }
   ],
-  "explanation": "Created a login form with username, password fields, and submit button"
+  "explanation": "Created a login form with two light gray rectangles and username/password text"
+}
+
+User: "Make a login form"
+{
+  "commands": [
+    {
+      "action": "create",
+      "shapeType": "rectangle",
+      "properties": {"x": 500, "y": 400, "width": 300, "height": 50, "fill": "#D3D3D3"}
+    },
+    {
+      "action": "create",
+      "shapeType": "text",
+      "properties": {"x": 520, "y": 420, "text": "Username", "fontSize": 26, "fill": "#000000"}
+    },
+    {
+      "action": "create",
+      "shapeType": "rectangle",
+      "properties": {"x": 500, "y": 480, "width": 300, "height": 50, "fill": "#D3D3D3"}
+    },
+    {
+      "action": "create",
+      "shapeType": "text",
+      "properties": {"x": 520, "y": 500, "text": "Password", "fontSize": 26, "fill": "#000000"}
+    }
+  ],
+  "explanation": "Created a login form with two light gray rectangles and username/password text"
 }
 
 IMPORTANT: 
@@ -156,6 +168,8 @@ IMPORTANT:
 - For text shapes, include both text content and fontSize
 - Ensure coordinates keep shapes visible on canvas (0-3000 x, 0-2000 y)
 - Use hex color codes (e.g., #FF5733)
+- Execute ALL commands in the array - do not skip any shapes
+- For login forms, create BOTH rectangles AND BOTH text elements
 `;
 
 export async function executeAICommand(userCommand: string): Promise<AICommandResult> {
@@ -222,25 +236,39 @@ export function executeShapeCommands(
   commands: ShapeCommand[],
   addShape: (type: 'rectangle' | 'circle' | 'triangle' | 'text' | 'ellipse' | 'star' | 'polygon' | 'path' | 'image', overrides?: any) => void
 ): void {
-  commands.forEach((cmd) => {
-    if (cmd.action === 'create') {
-      if (cmd.shapeType === 'text') {
-        // Create text shape
-        addShape('text', cmd.properties || {});
-      } else if (cmd.layoutType) {
-        // Create multiple shapes in a layout
-        createLayout(cmd, addShape);
-      } else {
-        // Create single shape
-        addShape(cmd.shapeType || 'rectangle', cmd.properties || {});
+  console.log('🎯 [executeShapeCommands] Processing commands:', commands);
+  
+  commands.forEach((cmd, index) => {
+    console.log(`🎯 [executeShapeCommands] Command ${index + 1}:`, cmd);
+    
+    // Add a small delay between shape creations to prevent conflicts
+    setTimeout(() => {
+      if (cmd.action === 'create') {
+        if (cmd.shapeType === 'text') {
+          // Create text shape
+          console.log('📝 Creating text shape with properties:', cmd.properties);
+          addShape('text', cmd.properties || {});
+        } else if (cmd.shapeType === 'rectangle') {
+          // Create rectangle shape
+          console.log('🔲 Creating rectangle shape with properties:', cmd.properties);
+          addShape('rectangle', cmd.properties || {});
+        } else if (cmd.layoutType) {
+          // Create multiple shapes in a layout
+          console.log('📐 Creating layout with type:', cmd.layoutType);
+          createLayout(cmd, addShape);
+        } else {
+          // Create single shape
+          console.log('🔷 Creating single shape:', cmd.shapeType, 'with properties:', cmd.properties);
+          addShape(cmd.shapeType || 'rectangle', cmd.properties || {});
+        }
+      } else if (cmd.action === 'arrange') {
+        // Handle arrange action (like grid layouts)
+        if (cmd.layoutType) {
+          console.log('📐 Arranging shapes with type:', cmd.layoutType);
+          createLayout(cmd, addShape);
+        }
       }
-    } else if (cmd.action === 'arrange') {
-      // Handle arrange action (like grid layouts)
-      if (cmd.layoutType) {
-        createLayout(cmd, addShape);
-      }
-    }
-    // TODO: Implement modify, delete actions
+    }, index * 100); // 100ms delay between each shape
   });
 }
 

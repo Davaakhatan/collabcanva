@@ -225,16 +225,16 @@ function ProjectCanvasContent() {
         <ProjectCanvasProvider>
           <CanvasProvider>
             <CanvasInitializer projectId={projectId!} canvasId={canvasId!}>
-                <div className="relative w-full h-screen overflow-hidden bg-gray-50 dark:bg-gray-900">
+                <div className="relative w-full h-screen overflow-hidden bg-gray-50 dark:bg-slate-900">
                   {/* Enhanced navigation bar with breadcrumb */}
                   <NavigationBar 
-                    showBreadcrumb={true}
+                    showBreadcrumb={false}
                     showSearch={true}
                     showNotifications={true}
                     showUserMenu={true}
-                    showBackButton={true}
-                    showQuickActions={true}
-                    variant="default"
+                    showBackButton={false}
+                    showQuickActions={false}
+                    variant="minimal"
                   />
                   
                   {/* Compact canvas header with switcher and actions */}

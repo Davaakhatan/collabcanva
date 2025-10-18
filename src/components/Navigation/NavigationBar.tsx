@@ -54,7 +54,7 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, signOut } = useAuth();
+  const { user, logout } = useAuth();
   const { currentProject } = useProjects();
   const { currentProjectCanvases } = useProjectData();
   const { goBack, goForward, recentItems, favorites } = useNavigation();
@@ -136,7 +136,7 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
   // Handle sign out
   const handleSignOut = async () => {
     try {
-      await signOut();
+      await logout();
       navigate('/');
     } catch (error) {
       console.error('Failed to sign out:', error);
@@ -197,14 +197,84 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
               {/* Theme Toggle */}
               <ThemeToggle size="sm" />
               
+              {/* Notifications */}
+              {showNotifications && (
+                <div className="relative" ref={notificationsRef}>
+                  <button
+                    onClick={handleNotificationClick}
+                    className="relative p-1.5 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                    title="Notifications"
+                  >
+                    {notificationCount > 0 ? (
+                      <BellIconSolid className="w-4 h-4" />
+                    ) : (
+                      <BellIcon className="w-4 h-4" />
+                    )}
+                    {notificationCount > 0 && (
+                      <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                        {notificationCount > 9 ? '9+' : notificationCount}
+                      </span>
+                    )}
+                  </button>
+                </div>
+              )}
+              
               {showUserMenu && user && (
-                <button
-                  onClick={handleUserMenuClick}
-                  className="flex items-center space-x-2 text-sm text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
-                >
-                  <span>{user.displayName || user.email?.split('@')[0]}</span>
-                  <UserCircleIcon className="w-5 h-5" />
-                </button>
+                <div className="relative" ref={userMenuRef}>
+                  <button
+                    onClick={() => setShowUserDropdown(!showUserDropdown)}
+                    className="flex items-center space-x-2 text-sm text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
+                  >
+                    <span>{user.displayName || user.email?.split('@')[0]}</span>
+                    <UserCircleIcon className="w-5 h-5" />
+                  </button>
+
+                  {showUserDropdown && (
+                    <div className="absolute top-full right-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50">
+                      <div className="py-2">
+                        <div className="px-4 py-2 border-b border-gray-200 dark:border-gray-700">
+                          <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                            {user.displayName || 'User'}
+                          </p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            {user.email}
+                          </p>
+                        </div>
+                        
+                        <button
+                          onClick={() => {
+                            navigate('/profile');
+                            setShowUserDropdown(false);
+                          }}
+                          className="w-full flex items-center space-x-3 px-4 py-2 text-left hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                        >
+                          <UserCircleIcon className="w-4 h-4 text-gray-500" />
+                          <span className="text-sm text-gray-900 dark:text-gray-100">Profile</span>
+                        </button>
+                        
+                        <button
+                          onClick={() => {
+                            navigate('/settings');
+                            setShowUserDropdown(false);
+                          }}
+                          className="w-full flex items-center space-x-3 px-4 py-2 text-left hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                        >
+                          <Cog6ToothIcon className="w-4 h-4 text-gray-500" />
+                          <span className="text-sm text-gray-900 dark:text-gray-100">Settings</span>
+                        </button>
+                        
+                        <div className="border-t border-gray-200 dark:border-gray-700 my-1" />
+                        
+                        <button
+                          onClick={handleSignOut}
+                          className="w-full flex items-center space-x-3 px-4 py-2 text-left hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                        >
+                          <span className="text-sm text-red-600 dark:text-red-400">Sign out</span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
               )}
             </div>
           </div>
@@ -219,7 +289,7 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
       <div className="px-6 py-4">
         <div className="flex items-center justify-between">
           {/* Left section - Navigation controls and breadcrumb */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-6">
             {/* Back/Forward buttons */}
             {showBackButton && (
               <div className="flex items-center space-x-1">
@@ -242,11 +312,13 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
 
             {/* Breadcrumb */}
             {showBreadcrumb && (
-              <ProjectBreadcrumb 
-                variant="default"
-                showRecentItems={true}
-                showQuickActions={showQuickActions}
-              />
+              <div className="flex-1 min-w-0">
+                <ProjectBreadcrumb 
+                  variant="default"
+                  showRecentItems={true}
+                  showQuickActions={showQuickActions}
+                />
+              </div>
             )}
           </div>
 

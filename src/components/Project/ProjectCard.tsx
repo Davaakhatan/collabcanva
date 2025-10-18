@@ -454,14 +454,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
                   Public
                 </span>
               )}
-              {showActions && actionMenuItems.length > 0 && (
-                <button
-                  onClick={handleActionMenuToggle}
-                  className="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-700 opacity-0 group-hover:opacity-100 transition-all duration-300 hover:scale-110"
-                >
-                  <EllipsisVerticalIcon className="w-5 h-5 text-gray-500" />
-                </button>
-              )}
+              {/* Removed ellipsis button */}
             </div>
           </div>
           

@@ -1,14 +1,60 @@
-import { useCanvas } from "../../contexts/CanvasContext";
+import { useState, useRef, useEffect } from "react";
+import { useProjectCanvas } from "../../contexts/ProjectCanvasContext";
 
 interface TextFormattingProps {
   selectedShapeId: string;
 }
 
 export default function TextFormatting({ selectedShapeId }: TextFormattingProps) {
-  const { shapes, updateShape } = useCanvas();
+  const { shapes, updateShape } = useProjectCanvas();
+  const [position, setPosition] = useState({ x: 24, y: 96 }); // Default position (right-6, top-24)
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const containerRef = useRef<HTMLDivElement>(null);
   
   const shape = shapes.find(s => s.id === selectedShapeId);
   if (!shape || shape.type !== 'text') return null;
+
+  // Drag handlers
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (e.target !== e.currentTarget) return; // Only drag from header area
+    setIsDragging(true);
+    setDragStart({
+      x: e.clientX - position.x,
+      y: e.clientY - position.y
+    });
+    e.preventDefault();
+  };
+
+  const handleMouseMove = (e: MouseEvent) => {
+    if (!isDragging) return;
+    const newX = e.clientX - dragStart.x;
+    const newY = e.clientY - dragStart.y;
+    
+    // Constrain to viewport
+    const maxX = window.innerWidth - 320; // 320px is the width of the panel
+    const maxY = window.innerHeight - 200; // 200px is minimum height
+    
+    setPosition({
+      x: Math.max(0, Math.min(newX, maxX)),
+      y: Math.max(0, Math.min(newY, maxY))
+    });
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  useEffect(() => {
+    if (isDragging) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      return () => {
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+      };
+    }
+  }, [isDragging, dragStart]);
 
   const fontSize = shape.fontSize || 16;
   const fontFamily = shape.fontFamily || 'Arial';
@@ -45,9 +91,20 @@ export default function TextFormatting({ selectedShapeId }: TextFormattingProps)
   ];
 
   return (
-    <div className="fixed top-24 right-6 bg-white/95 dark:bg-slate-800/95 backdrop-blur-lg rounded-2xl shadow-2xl border border-gray-200/50 dark:border-slate-600/50 p-4 z-50 w-[320px] max-h-[calc(100vh-120px)] overflow-y-auto">
-      {/* Header */}
-      <div className="flex items-center gap-2 mb-4 pb-3 border-b border-gray-200 dark:border-slate-600">
+    <div 
+      ref={containerRef}
+      className="fixed bg-white/95 dark:bg-slate-800/95 backdrop-blur-lg rounded-2xl shadow-2xl border border-gray-200/50 dark:border-slate-600/50 p-4 z-50 w-[320px] max-h-[calc(100vh-120px)] overflow-y-auto"
+      style={{
+        left: `${position.x}px`,
+        top: `${position.y}px`,
+        cursor: isDragging ? 'grabbing' : 'grab'
+      }}
+    >
+      {/* Header - Draggable area */}
+      <div 
+        className="flex items-center gap-2 mb-4 pb-3 border-b border-gray-200 dark:border-slate-600 cursor-grab active:cursor-grabbing select-none"
+        onMouseDown={handleMouseDown}
+      >
         <svg className="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
         </svg>

@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { Rect, Circle, Ellipse, Line, Text, Transformer, Star, RegularPolygon, Path, Image } from "react-konva";
 import type Konva from "konva";
 import { useAuth } from "../../contexts/AuthContext";
+import { useCursors } from "../../hooks/useCursors";
 import type { Shape as ShapeType } from "../../contexts/CanvasContext";
 
 interface ShapeProps {
@@ -13,10 +14,13 @@ interface ShapeProps {
   showTransformer?: boolean; // Only show transformer if single selection
   isDraggable?: boolean; // Allow disabling drag for group transforms
   listening?: boolean; // Allow disabling events for group transforms
+  projectId?: string;
+  canvasId?: string;
 }
 
-export default function Shape({ shape, isSelected, onSelect, onChange, onStartEditText, showTransformer = true, isDraggable = true, listening = true }: ShapeProps) {
+export default function Shape({ shape, isSelected, onSelect, onChange, onStartEditText, showTransformer = true, isDraggable = true, listening = true, projectId, canvasId }: ShapeProps) {
   const { user } = useAuth();
+  const { cursors } = useCursors(projectId || '', canvasId || '');
   const shapeRef = useRef<any>(null); // Can be Rect, Circle, Line, or Text
   const transformerRef = useRef<Konva.Transformer>(null);
   const hasLockedRef = useRef(false);
@@ -27,11 +31,8 @@ export default function Shape({ shape, isSelected, onSelect, onChange, onStartEd
   // Check if locked by someone else
   const userId = (user as any)?.uid || null;
   
-  // Check if lock is stale (older than 10 seconds)
-  const isLockStale = shape.isLocked && shape.lockedAt && (Date.now() - shape.lockedAt) > 10000;
-  
-  // Consider locked by other only if locked, not by me, and not stale
-  const isLockedByOther = shape.isLocked && shape.lockedBy !== userId && !isLockStale;
+  // Consider locked by other only if locked and not by me (no timer-based auto-unlock)
+  const isLockedByOther = shape.isLocked && shape.lockedBy !== userId;
 
   // Load image for image shapes
   useEffect(() => {
@@ -84,12 +85,22 @@ export default function Shape({ shape, isSelected, onSelect, onChange, onStartEd
       hasShapeRef: !!shapeRef.current
     });
     
-    if (isSelected && !isLockedByOther && showTransformer && transformerRef.current && shapeRef.current) {
+    if (isSelected && showTransformer && transformerRef.current && shapeRef.current) {
       // Attach transformer to the shape
       console.log('[Shape Transformer] ✅ Attaching transformer to shape:', shape.id);
       transformerRef.current.nodes([shapeRef.current]);
       transformerRef.current.forceUpdate();
       transformerRef.current.getLayer()?.batchDraw();
+    } else {
+      console.log('[Shape Transformer] ❌ Not attaching transformer:', {
+        isSelected,
+        showTransformer,
+        hasTransformerRef: !!transformerRef.current,
+        hasShapeRef: !!shapeRef.current,
+        isLocked: shape.isLocked,
+        lockedBy: shape.lockedBy,
+        currentUserId: userId
+      });
     }
   }, [isSelected, isLockedByOther, shape.id, showTransformer]); // Added showTransformer to dependencies
 
@@ -110,13 +121,11 @@ export default function Shape({ shape, isSelected, onSelect, onChange, onStartEd
 
   // Handle mouse/touch up to detect clicks (even with slight movement)
   const handlePointerUp = (e: Konva.KonvaEventObject<MouseEvent | TouchEvent>) => {
-    // Only use click detection for non-selected shapes
-    if (isSelected || !mouseDownPosRef.current) {
-      mouseDownPosRef.current = null;
+    if (!mouseDownPosRef.current) {
       return;
     }
 
-    // PREVENT selection if locked by another user
+    // PREVENT selection if locked by another user (but allow current user to select their own locked shapes)
     if (isLockedByOther) {
       console.warn('Shape is locked by another user, cannot select');
       mouseDownPosRef.current = null;
@@ -416,18 +425,24 @@ export default function Shape({ shape, isSelected, onSelect, onChange, onStartEd
       {renderShape()}
       
       {/* Show lock indicator text - only when locked by someone else */}
-      {isLockedByOther && (
-        <Text
-          x={shape.x}
-          y={shape.y - 20}
-          text="🔒 In use by another user"
-          fontSize={12}
-          fill="#FF3333"
-          listening={false}
-        />
-      )}
+      {isLockedByOther && (() => {
+        // Find the user who has locked this shape
+        const lockedByUser = Object.entries(cursors).find(([userId, cursor]) => userId === shape.lockedBy);
+        const lockedByUserName = lockedByUser?.[1]?.displayName || 'Unknown User';
+        
+        return (
+          <Text
+            x={shape.x}
+            y={shape.y - 20}
+            text={`🔒 In use by ${lockedByUserName}`}
+            fontSize={12}
+            fill="#FF3333"
+            listening={false}
+          />
+        );
+      })()}
       
-      {isSelected && !isLockedByOther && showTransformer && (
+      {isSelected && showTransformer && (
         <Transformer
           ref={transformerRef}
           listening={true}

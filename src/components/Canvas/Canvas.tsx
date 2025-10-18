@@ -4,6 +4,7 @@ import type Konva from "konva";
 import { useProjectCanvas } from "../../contexts/ProjectCanvasContext";
 import { useCursors } from "../../hooks/useCursors";
 import { useAuth } from "../../contexts/AuthContext";
+import { useTheme } from "../../contexts/ThemeContext";
 import Shape from "./Shape";
 import Cursor from "../Collaboration/Cursor";
 import PresenceList from "../Collaboration/PresenceList";
@@ -64,6 +65,7 @@ export default function Canvas({ onShowHelp, projectId: propProjectId, canvasId:
 
   const { cursors, updateCursor } = useCursors(projectId, canvasId);
   const { user } = useAuth();
+  const { theme } = useTheme();
   const [hasInteracted, setHasInteracted] = useState(false);
   
   console.log('🖼️ [Canvas] Initializing with:', { 
@@ -536,7 +538,7 @@ export default function Canvas({ onShowHelp, projectId: propProjectId, canvasId:
             y={0}
             width={CANVAS_WIDTH}
             height={CANVAS_HEIGHT}
-            fill="#ffffff"
+            fill={theme === 'dark' ? '#1e293b' : '#ffffff'}
             listening={false}
           />
           
@@ -546,7 +548,7 @@ export default function Canvas({ onShowHelp, projectId: propProjectId, canvasId:
             y={0}
             width={CANVAS_WIDTH}
             height={CANVAS_HEIGHT}
-            stroke="#e0e0e0"
+            stroke={theme === 'dark' ? '#475569' : '#e0e0e0'}
             strokeWidth={2}
             listening={false}
           />
@@ -562,9 +564,12 @@ export default function Canvas({ onShowHelp, projectId: propProjectId, canvasId:
                 showTransformer={selectedIds.length === 1} // Only show individual transformer for single selection
                 isDraggable={true} // Always allow individual dragging
                 listening={true} // Must be true for transformer to work!
+                projectId={projectId}
+                canvasId={canvasId}
                 onSelect={(e?: any) => {
                   // Check for Cmd/Ctrl key for multi-select
                   const addToSelection = e?.evt?.metaKey || e?.evt?.ctrlKey || false;
+                  console.log('[Canvas] Shape clicked:', { shapeId: shape.id, addToSelection, currentSelectedIds: selectedIds });
                   selectShape(shape.id, addToSelection);
                 }}
                 onChange={(updates) => {

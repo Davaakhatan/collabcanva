@@ -67,7 +67,7 @@ const ToolbarToggle = ({ state, onToggle }: ToolbarToggleProps) => {
       role="switch"
       aria-checked={isBottom}
       title={isBottom ? 'Move toolbar to sidebar' : 'Move toolbar to bottom'}
-      className="absolute top-20 left-6 z-40 inline-flex items-center gap-2 rounded-full px-3 py-1.5 bg-white dark:bg-slate-800 shadow-md border border-gray-200 dark:border-slate-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-slate-700 active:scale-95 focus-visible:ring-2 ring-blue-500/40 transition-all duration-150 w-auto"
+      className="absolute top-20 right-6 z-40 inline-flex items-center gap-2 rounded-full px-3 py-1.5 bg-white dark:bg-slate-800 shadow-md border border-gray-200 dark:border-slate-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-slate-700 active:scale-95 focus-visible:ring-2 ring-blue-500/40 transition-all duration-150 w-auto"
     >
       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
         <path  d="M4 6h16M4 12h16M4 18h16" />

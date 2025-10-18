@@ -263,22 +263,22 @@ export const ProjectBreadcrumb: React.FC<ProjectBreadcrumbProps> = ({
   // Render default variant
   return (
     <div className={`relative ${className}`}>
-      <nav className="flex items-center space-x-2 text-sm">
+      <nav className="flex items-center space-x-1 text-sm">
         {breadcrumbItems.map((item, index) => (
           <React.Fragment key={item.id}>
             {index > 0 && (
-              <ChevronRightIcon className="w-4 h-4 text-gray-400" />
+              <ChevronRightIcon className="w-4 h-4 text-gray-400 mx-1" />
             )}
             <button
               onClick={() => handleNavigate(item.path, item)}
-              className={`flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors ${
+              className={`flex items-center space-x-2 px-2 py-1.5 rounded-md transition-colors whitespace-nowrap ${
                 item.isActive
                   ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300'
                   : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800'
               }`}
             >
               {item.icon}
-              <span className="font-medium">{item.label}</span>
+              <span className="font-medium text-sm">{item.label}</span>
               {item.metadata && (
                 <div className="flex items-center space-x-1 text-xs opacity-75">
                   {item.metadata.memberCount !== undefined && (

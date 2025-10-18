@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import { executeAICommand, executeShapeCommands, type AICommandResult } from '../../services/ai';
-import { useCanvas } from '../../contexts/CanvasContext';
+import { useProjectCanvas } from '../../contexts/ProjectCanvasContext';
 
 export default function AICommandPanel() {
   const [command, setCommand] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [lastResult, setLastResult] = useState<AICommandResult | null>(null);
   const [isExpanded, setIsExpanded] = useState(false);
-  const { addShape } = useCanvas();
+  const { addShape } = useProjectCanvas();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

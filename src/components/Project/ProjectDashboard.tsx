@@ -173,15 +173,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
                   Archived
                 </span>
               )}
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowActions(!showActions);
-                }}
-                className="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-700 opacity-0 group-hover:opacity-100 transition-opacity"
-              >
-                <EllipsisVerticalIcon className="w-5 h-5 text-gray-500" />
-              </button>
+              {/* Removed ellipsis button */}
             </div>
           </div>
           

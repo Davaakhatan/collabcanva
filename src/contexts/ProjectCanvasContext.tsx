@@ -262,42 +262,75 @@ export function ProjectCanvasProvider({ children }: { children: ReactNode }) {
       return;
     }
 
+    // Default dimensions based on shape type (like CanvasContext)
+    let defaultWidth = DEFAULT_SHAPE_WIDTH;
+    let defaultHeight = DEFAULT_SHAPE_HEIGHT;
+    
+    if (type === 'circle') {
+      defaultWidth = 150;
+      defaultHeight = 150;
+    } else if (type === 'ellipse') {
+      defaultWidth = 200;
+      defaultHeight = 120;
+    } else if (type === 'text') {
+      defaultWidth = 300;
+      defaultHeight = 60;
+    } else if (type === 'star') {
+      defaultWidth = 120;
+      defaultHeight = 120;
+    } else if (type === 'polygon') {
+      defaultWidth = 120;
+      defaultHeight = 120;
+    } else if (type === 'path') {
+      defaultWidth = 200;
+      defaultHeight = 100;
+    } else if (type === 'image') {
+      defaultWidth = 200;
+      defaultHeight = 150;
+    }
+
     const newShape: Shape = {
       id: generateId(),
       type,
       x: 100,
       y: 100,
-      width: DEFAULT_SHAPE_WIDTH,
-      height: DEFAULT_SHAPE_HEIGHT,
+      width: defaultWidth,
+      height: defaultHeight,
       rotation: 0,
       fill: DEFAULT_SHAPE_COLOR,
       zIndex: Math.max(...shapes.map(s => s.zIndex || 0), 0) + 1,
+      // Text-specific defaults (like CanvasContext)
+      ...(type === 'text' && {
+        text: 'Double-click to edit',
+        fontSize: 16,
+        fontFamily: 'Arial',
+        fontStyle: 'normal',
+        fontWeight: 'normal',
+        textDecoration: 'none',
+      }),
+      // Star-specific defaults
+      ...(type === 'star' && {
+        numPoints: 5,
+        innerRadius: 0.4,
+      }),
+      // Polygon-specific defaults
+      ...(type === 'polygon' && {
+        sides: 6,
+      }),
+      // Path-specific defaults
+      ...(type === 'path' && {
+        pathData: 'M10,10 L50,10 L50,50 L10,50 Z', // Simple rectangle path
+      }),
+      // Image-specific defaults
+      ...(type === 'image' && {
+        imageUrl: '',
+        imageAlt: 'Uploaded image',
+      }),
+      // Apply any overrides LAST (so they override defaults)
       ...overrides,
     };
 
-    // Set default properties based on shape type
-    switch (type) {
-      case 'text':
-        newShape.text = 'Text';
-        newShape.fontSize = 16;
-        newShape.fontFamily = 'Arial';
-        newShape.fontStyle = 'normal';
-        newShape.fontWeight = 'normal';
-        newShape.textDecoration = 'none';
-        newShape.fill = '#000000';
-        break;
-      case 'star':
-        newShape.numPoints = 5;
-        newShape.innerRadius = 0.4;
-        break;
-      case 'polygon':
-        newShape.sides = 6;
-        break;
-      case 'path':
-        newShape.pathData = 'M10,10 L50,50 L10,50 Z';
-        break;
-    }
-
+    console.log('🎨 [addShape] About to add shape:', { projectId, canvasId, newShape });
     addShapeSync(newShape);
     console.log('🎨 [addShape] Shape added to project canvas:', { projectId, canvasId, newShape });
     saveToHistory();
@@ -393,25 +426,63 @@ export function ProjectCanvasProvider({ children }: { children: ReactNode }) {
   };
 
   const selectShape = async (id: string | null, addToSelection = false) => {
-    if (id === null) {
+    if (!id) {
+      // Clear selection and unlock all shapes
+      selectedIds.forEach(sid => unlockShapeSync(sid));
       setSelectedIds([]);
       return;
     }
 
     if (addToSelection) {
-      setSelectedIds(prev => 
-        prev.includes(id) ? prev.filter(selectedId => selectedId !== id) : [...prev, id]
-      );
+      // Cmd/Ctrl+Click: toggle shape in selection
+      if (selectedIds.includes(id)) {
+        // Remove from selection and unlock
+        unlockShapeSync(id);
+        setSelectedIds(selectedIds.filter(sid => sid !== id));
+      } else {
+        // Add to selection - await lock acquisition
+        const locked = await lockShapeSync(id);
+        if (locked) {
+          setSelectedIds([...selectedIds, id]);
+        }
+      }
     } else {
-      setSelectedIds([id]);
+      // Normal click: replace selection
+      selectedIds.forEach(sid => {
+        if (sid !== id) unlockShapeSync(sid);
+      });
+      
+      // Await lock acquisition before updating selection
+      const locked = await lockShapeSync(id);
+      if (locked) {
+        setSelectedIds([id]);
+      }
     }
   };
 
   const selectShapes = async (ids: string[]) => {
-    setSelectedIds(ids);
+    console.log('[selectShapes] Attempting to select:', ids);
+    
+    // Unlock previously selected shapes
+    selectedIds.forEach(sid => {
+      if (!ids.includes(sid)) unlockShapeSync(sid);
+    });
+    
+    // Lock newly selected shapes - await all locks
+    const lockPromises = ids.map(id => lockShapeSync(id));
+    const lockResults = await Promise.all(lockPromises);
+    
+    console.log('[selectShapes] Lock results:', lockResults);
+    
+    // Only add shapes that were successfully locked
+    const lockedIds = ids.filter((_, index) => lockResults[index]);
+    console.log('[selectShapes] Successfully locked IDs:', lockedIds);
+    
+    setSelectedIds(lockedIds);
   };
 
   const clearSelection = () => {
+    selectedIds.forEach(sid => unlockShapeSync(sid));
     setSelectedIds([]);
   };
 
