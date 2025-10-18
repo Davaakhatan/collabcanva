@@ -16,14 +16,28 @@ export default function PresenceList({ cursors, onUserClick, projectId, canvasId
   const dragRef = useRef<{ startX: number; startY: number; initialX: number; initialY: number } | null>(null);
 
   // Convert cursors map to array for easier rendering
-  const cursorUsers = Object.entries(cursors).map(([userId, cursor]) => ({
-    userId,
-    displayName: cursor.displayName,
-    color: cursor.cursorColor, // Fixed: use cursorColor instead of color
-    cursorX: cursor.cursorX,
-    cursorY: cursor.cursorY,
-    isOnline: true
-  }));
+  const cursorUsers = Object.entries(cursors).map(([userId, cursor]) => {
+    console.log('🎨 [PresenceList] Processing cursor:', { 
+      userId, 
+      cursor, 
+      cursorColor: cursor.cursorColor,
+      hasCursorColor: !!cursor.cursorColor,
+      allCursorKeys: Object.keys(cursor)
+    });
+    
+    // Try different color properties
+    const color = cursor.cursorColor || cursor.color || '#3B82F6';
+    console.log('🎨 [PresenceList] Final color for', userId, ':', color);
+    
+    return {
+      userId,
+      displayName: cursor.displayName,
+      color: color,
+      cursorX: cursor.cursorX,
+      cursorY: cursor.cursorY,
+      isOnline: true
+    };
+  });
 
   const userCount = cursorUsers.length;
 
@@ -43,12 +57,27 @@ export default function PresenceList({ cursors, onUserClick, projectId, canvasId
   // }
   
   console.log('✅ [PresenceList] Rendering presence list with', userCount, 'users');
+  console.log('🔍 [PresenceList] Cursor users data:', cursorUsers.map(u => ({ userId: u.userId, displayName: u.displayName, color: u.color })));
 
   const handleUserClick = (userId: string) => {
+    console.log('🎯 [PresenceList] handleUserClick called for:', userId);
     const cursor = cursors[userId];
+    console.log('🎯 [PresenceList] Full cursor object:', cursor);
+    console.log('🎯 [PresenceList] Available cursors:', Object.keys(cursors));
+    
     if (cursor) {
-      console.log(`Jumping to user ${userId} at cursor position:`, cursor.cursorX, cursor.cursorY);
+      console.log(`🎯 [PresenceList] Jumping to user ${userId} at cursor position:`, cursor.cursorX, cursor.cursorY);
+      console.log('🎯 [PresenceList] Cursor coordinates type check:', { 
+        cursorX: typeof cursor.cursorX, 
+        cursorY: typeof cursor.cursorY,
+        cursorXValue: cursor.cursorX,
+        cursorYValue: cursor.cursorY
+      });
+      console.log('🎯 [PresenceList] About to call onUserClick with:', { userId, cursorX: cursor.cursorX, cursorY: cursor.cursorY });
       onUserClick(userId, cursor.cursorX, cursor.cursorY);
+      console.log('✅ [PresenceList] onUserClick called successfully');
+    } else {
+      console.log('❌ [PresenceList] No cursor found for user:', userId);
     }
   };
 
@@ -97,7 +126,8 @@ export default function PresenceList({ cursors, onUserClick, projectId, canvasId
       style={{
         left: `${position.x}px`,
         top: `${position.y}px`,
-        cursor: isDragging ? 'grabbing' : 'grab'
+        cursor: isDragging ? 'grabbing' : 'grab',
+        pointerEvents: 'auto'
       }}
     >
       {/* Header with drag handle */}
@@ -143,9 +173,20 @@ export default function PresenceList({ cursors, onUserClick, projectId, canvasId
             cursorUsers.map((user) => (
             <button
               key={user.userId}
-              onClick={() => handleUserClick(user.userId)}
-              className="w-full flex items-center gap-2 p-1.5 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-all group"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('🖱️ [PresenceList] Button clicked for user:', user.userId, user.displayName);
+                handleUserClick(user.userId);
+              }}
+              onMouseDown={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('🖱️ [PresenceList] Mouse down on user:', user.userId, user.displayName);
+              }}
+              className="w-full flex items-center gap-2 p-1.5 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-all group cursor-pointer"
               title={`Jump to ${user.displayName}'s cursor`}
+              style={{ pointerEvents: 'auto', zIndex: 1000 }}
             >
               <div
                 className="w-7 h-7 rounded-lg flex items-center justify-center text-white text-xs font-bold shadow-sm group-hover:scale-110 transition-transform shrink-0"
@@ -154,7 +195,10 @@ export default function PresenceList({ cursors, onUserClick, projectId, canvasId
                 {user.displayName.charAt(0).toUpperCase()}
               </div>
               <div className="flex-1 min-w-0 text-left">
-                <p className="text-xs font-semibold text-gray-900 dark:text-gray-100 truncate">
+                <p 
+                  className="text-xs font-semibold truncate"
+                  style={{ color: user.color }}
+                >
                   {user.displayName}
                 </p>
                 <div className="flex items-center gap-1">

@@ -509,12 +509,39 @@ export function ProjectCanvasProvider({ children }: { children: ReactNode }) {
   };
 
   const panToPosition = (canvasX: number, canvasY: number) => {
+    console.log('🎯 [ProjectCanvasContext] panToPosition called with:', { canvasX, canvasY, currentScale: scale });
+    
+    // Get viewport center
+    const viewportCenterX = window.innerWidth / 2;
+    const viewportCenterY = window.innerHeight / 2;
+    
+    // Calculate new stage position to center the target point
+    const newX = viewportCenterX - canvasX * scale;
+    const newY = viewportCenterY - canvasY * scale;
+    
+    console.log('🎯 [ProjectCanvasContext] Calculated new position:', { newX, newY, viewportCenterX, viewportCenterY });
+    
+    // Force update the position state
+    setPositionState({ x: newX, y: newY });
+    
+    // Also try to update the stage directly if available
     if (stageRef.current) {
-      const stage = stageRef.current;
-      const newX = -canvasX * scale;
-      const newY = -canvasY * scale;
-      setPositionState({ x: newX, y: newY });
+      console.log('🎯 [ProjectCanvasContext] Updating stage position directly');
+      stageRef.current.position({ x: newX, y: newY });
+      stageRef.current.batchDraw();
+      
+      // Force a redraw to ensure the position change is visible
+      setTimeout(() => {
+        if (stageRef.current) {
+          stageRef.current.batchDraw();
+          console.log('🎯 [ProjectCanvasContext] Forced redraw completed');
+        }
+      }, 10);
+    } else {
+      console.log('❌ [ProjectCanvasContext] stageRef.current is null');
     }
+    
+    console.log('✅ [ProjectCanvasContext] Position updated');
   };
 
   // Alignment operations

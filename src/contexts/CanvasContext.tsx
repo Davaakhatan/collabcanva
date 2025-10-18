@@ -459,6 +459,8 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
   };
 
   const panToPosition = (canvasX: number, canvasY: number) => {
+    console.log('🎯 [panToPosition] Called with:', { canvasX, canvasY, currentScale: scale });
+    
     // Get viewport center
     const viewportCenterX = window.innerWidth / 2;
     const viewportCenterY = window.innerHeight / 2;
@@ -467,7 +469,29 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
     const newX = viewportCenterX - canvasX * scale;
     const newY = viewportCenterY - canvasY * scale;
     
+    console.log('🎯 [panToPosition] Calculated new position:', { newX, newY, viewportCenterX, viewportCenterY });
+    
+    // Force update the position state
     setPositionState({ x: newX, y: newY });
+    
+    // Also try to update the stage directly if available
+    if (stageRef.current) {
+      console.log('🎯 [panToPosition] Updating stage position directly');
+      stageRef.current.position({ x: newX, y: newY });
+      stageRef.current.batchDraw();
+      
+      // Force a redraw to ensure the position change is visible
+      setTimeout(() => {
+        if (stageRef.current) {
+          stageRef.current.batchDraw();
+          console.log('🎯 [panToPosition] Forced redraw completed');
+        }
+      }, 10);
+    } else {
+      console.log('❌ [panToPosition] stageRef.current is null');
+    }
+    
+    console.log('✅ [panToPosition] Position updated');
   };
 
   // Alignment functions (work on all selected shapes)

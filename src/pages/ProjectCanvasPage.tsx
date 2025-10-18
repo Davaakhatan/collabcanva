@@ -7,6 +7,7 @@ import { PresenceProvider } from "../contexts/PresenceContext";
 import { NavigationProvider } from "../contexts/NavigationContext";
 import { CanvasProvider } from "../contexts/CanvasContext";
 import { useProject } from "../contexts/ProjectContext";
+import { useProjectCanvas } from "../contexts/ProjectCanvasContext";
 import { useAuth } from "../contexts/AuthContext";
 // import { usePresence } from "../hooks/usePresence"; // Not used
 import { NavigationBar } from "../components/Navigation/NavigationBar";
@@ -38,7 +39,7 @@ const PresenceList: React.FC<{ projectId: string; canvasId: string; variant?: st
   console.log('🚀 [PresenceList Wrapper] Component called with:', { projectId, canvasId });
   
   const { cursors } = useCursors(projectId, canvasId);
-  const { panToPosition } = useCanvas();
+  const { panToPosition } = useProjectCanvas();
   const { user } = useAuth();
   
   console.log('🎨 [PresenceList Wrapper] Rendering with:', {
@@ -50,9 +51,11 @@ const PresenceList: React.FC<{ projectId: string; canvasId: string; variant?: st
     rawCursors: cursors
   });
   
-  const handleUserClick = (_userId: string, cursorX: number, cursorY: number) => {
+  const handleUserClick = (userId: string, cursorX: number, cursorY: number) => {
+    console.log('🎯 [PresenceList] User clicked:', { userId, cursorX, cursorY });
     // Pan the canvas to the user's cursor position
     panToPosition(cursorX, cursorY);
+    console.log('✅ [PresenceList] Called panToPosition with:', { cursorX, cursorY });
   };
   
   return (

@@ -63,38 +63,39 @@ export function useCursors(projectId?: string, canvasId?: string) {
         totalUsers: Object.keys(allCursors).length,
         currentUserId: userId,
         allUserIds: Object.keys(allCursors),
+        includesCurrentUser: allCursors[userId] ? 'YES' : 'NO',
+        currentUserData: allCursors[userId],
         projectId,
         canvasId,
         rawData: allCursors
       });
       
-      // Filter out current user's cursor
-      const otherCursors = { ...allCursors };
-      delete otherCursors[userId];
+      // Include all cursors (including current user) for PresenceList
+      const allCursorsIncludingSelf = { ...allCursors };
       
-      console.log('👥 [useCursors] After filtering current user:', {
-        otherUsersCount: Object.keys(otherCursors).length,
-        otherUserIds: Object.keys(otherCursors)
+      console.log('👥 [useCursors] Including all users (including self):', {
+        totalUsersCount: Object.keys(allCursorsIncludingSelf).length,
+        allUserIds: Object.keys(allCursorsIncludingSelf)
       });
       
       // Use functional update to prevent infinite loops
       setCursors(prev => {
         // Only update if cursors actually changed
         const prevKeys = Object.keys(prev).sort().join(',');
-        const newKeys = Object.keys(otherCursors).sort().join(',');
+        const newKeys = Object.keys(allCursorsIncludingSelf).sort().join(',');
         if (prevKeys === newKeys) {
           // Check if any cursor values changed
-          const hasChanged = Object.keys(otherCursors).some(key => {
+          const hasChanged = Object.keys(allCursorsIncludingSelf).some(key => {
             const prevCursor = prev[key];
-            const newCursor = otherCursors[key];
+            const newCursor = allCursorsIncludingSelf[key];
             return !prevCursor || 
                    prevCursor.cursorX !== newCursor.cursorX || 
                    prevCursor.cursorY !== newCursor.cursorY;
           });
           if (!hasChanged) return prev;
         }
-        console.log('✅ [useCursors] Updating cursors state:', Object.keys(otherCursors).length, 'users');
-        return otherCursors;
+        console.log('✅ [useCursors] Updating cursors state:', Object.keys(allCursorsIncludingSelf).length, 'users');
+        return allCursorsIncludingSelf;
       });
     }, projectId, canvasId);
 
