@@ -273,6 +273,11 @@ const ShapeMenu = ({ isOpen, onClose, onSelectShape, anchorRef, mode }: ShapeMen
 
 export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
   const { scale, setScale, resetView, addShape, addImageShape, stageRef, shapes, selectedIds, batchUpdateShapes, undo, redo, canUndo, canRedo, projectId, canvasId } = useProjectCanvas();
+  
+  // Debug logging for undo/redo state (reduced frequency)
+  if (shapes.length > 0 || canUndo || canRedo) {
+    console.log('🎛️ [CanvasControls] Undo/Redo state:', { canUndo, canRedo, shapesCount: shapes.length });
+  }
   const [fps, setFps] = useState(60);
   const [showPerf, setShowPerf] = useState(false);
   const [perfPosition, setPerfPosition] = useState({ x: 0, y: 0 });
@@ -620,6 +625,35 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
                 <path  d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </TButton>
+
+            {/* Debug Test Button */}
+            <TButton 
+              onClick={() => {
+                console.log('🧪 [Debug] Test button clicked');
+                addShape('rectangle', { x: 100, y: 100, width: 100, height: 100, fill: '#ff0000' });
+              }} 
+              title="Test Add Shape" 
+              aria-label="Test Add Shape"
+            >
+              <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
+                <path d="M12 4v16m8-8H4" />
+              </svg>
+            </TButton>
+
+            {/* Debug History Button */}
+            <TButton 
+              onClick={() => {
+                console.log('🧪 [Debug] Test Add Shape button clicked');
+                // Add a test shape to trigger history
+                addShape('rect', { x: 100, y: 100, width: 50, height: 50, fill: '#ff0000' });
+              }} 
+              title="Test Add Shape" 
+              aria-label="Test Add Shape"
+            >
+              <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
+                <path d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              </svg>
+            </TButton>
           </div>
         </div>
       )}
@@ -756,6 +790,35 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
             <TButton onClick={onShowHelp} title="Help & Shortcuts" aria-label="Help & Shortcuts">
               <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
                 <path  d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </TButton>
+
+            {/* Debug Test Button */}
+            <TButton 
+              onClick={() => {
+                console.log('🧪 [Debug] Test button clicked');
+                addShape('rectangle', { x: 100, y: 100, width: 100, height: 100, fill: '#ff0000' });
+              }} 
+              title="Test Add Shape" 
+              aria-label="Test Add Shape"
+            >
+              <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
+                <path d="M12 4v16m8-8H4" />
+              </svg>
+            </TButton>
+
+            {/* Debug History Button */}
+            <TButton 
+              onClick={() => {
+                console.log('🧪 [Debug] Test Add Shape button clicked');
+                // Add a test shape to trigger history
+                addShape('rect', { x: 100, y: 100, width: 50, height: 50, fill: '#ff0000' });
+              }} 
+              title="Test Add Shape" 
+              aria-label="Test Add Shape"
+            >
+              <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
+                <path d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
               </svg>
             </TButton>
           </div>

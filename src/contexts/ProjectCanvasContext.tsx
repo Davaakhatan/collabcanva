@@ -1,7 +1,7 @@
 // Project-aware canvas context for multi-project system
 // Provides canvas functionality with project-specific Firebase synchronization
 
-import { createContext, useContext, useState, useRef, type ReactNode } from "react";
+import { createContext, useContext, useState, useRef, useEffect, type ReactNode } from "react";
 import type Konva from "konva";
 import { generateId } from "../utils/helpers";
 import { DEFAULT_SHAPE_WIDTH, DEFAULT_SHAPE_HEIGHT, DEFAULT_SHAPE_COLOR } from "../utils/constants";
@@ -138,8 +138,18 @@ export function ProjectCanvasProvider({ children }: { children: ReactNode }) {
     enabled: !!(projectId && canvasId)
   });
 
-  // History management
-  const { pushState, undo, redo, canUndo, canRedo } = useHistory(
+  // Debug sync state
+  console.log('🔄 [ProjectCanvasContext] Sync state:', { 
+    projectId, 
+    canvasId, 
+    enabled: !!(projectId && canvasId),
+    shapesCount: shapes.length,
+    loading,
+    error
+  });
+
+  // History management - only initialize when sync is enabled
+  const { pushState, forceSave, undo, redo, canUndo, canRedo } = useHistory(
     shapes,
     selectedIds,
     (restoredShapes, restoredSelectedIds) => {
@@ -159,30 +169,46 @@ export function ProjectCanvasProvider({ children }: { children: ReactNode }) {
     }
   );
 
-  // Direct history push for immediate saving
-  const saveToHistory = () => {
-    console.log('💾 Saving to project canvas history...', { projectId, canvasId });
-    pushState();
-  };
+  // Force re-initialization of history when sync becomes enabled
+  useEffect(() => {
+    if (projectId && canvasId && shapes.length >= 0) {
+      console.log('🔄 [ProjectCanvasContext] Sync enabled, re-initializing history');
+      // The history will be re-initialized by the useHistory hook
+    }
+  }, [projectId, canvasId, shapes.length]);
 
-  // Wrapper functions for undo/redo with debugging
+  // Removed problematic useEffect that was causing infinite re-renders
+
+  // Debug logging for history state (reduced frequency)
+  if (shapes.length > 0 || canUndo || canRedo) {
+    console.log('📚 [ProjectCanvasContext] History state:', { 
+      canUndo, 
+      canRedo, 
+      shapesCount: shapes.length, 
+      projectId,
+      canvasId
+    });
+  }
+
+  // History is automatically saved via useHistory hook
+
+  // Wrapper functions for undo/redo
   const handleUndo = () => {
-    console.log('⏪ Undo button clicked in project canvas', { projectId, canvasId });
     undo();
   };
 
   const handleRedo = () => {
-    console.log('⏩ Redo button clicked in project canvas', { projectId, canvasId });
     redo();
   };
 
   // Set current canvas
   const setCurrentCanvas = (newProjectId: string, newCanvasId: string) => {
-    console.log('Setting current project canvas:', { newProjectId, newCanvasId });
+    console.log('🎯 [ProjectCanvasContext] Setting current project canvas:', { newProjectId, newCanvasId });
     setProjectId(newProjectId);
     setCanvasId(newCanvasId);
     // Clear selection when switching canvases
     setSelectedIds([]);
+    console.log('✅ [ProjectCanvasContext] Project canvas set successfully');
   };
 
   // Clear current canvas
@@ -245,7 +271,8 @@ export function ProjectCanvasProvider({ children }: { children: ReactNode }) {
       };
       await addShapeSync(newShape);
       console.log('🎨 [addImageShape] Image shape added to project canvas:', { projectId, canvasId, newShape });
-      saveToHistory();
+      // Save to history after adding image shape
+      pushState();
     } catch (error) {
       console.error('Failed to upload image to project canvas:', error);
       throw error;
@@ -256,9 +283,8 @@ export function ProjectCanvasProvider({ children }: { children: ReactNode }) {
     type: 'rectangle' | 'circle' | 'triangle' | 'text' | 'ellipse' | 'star' | 'polygon' | 'path' | 'image',
     overrides?: Partial<Shape>
   ) => {
-    console.log('[ProjectCanvasContext] addShape called', { type, projectId, canvasId, hasOverrides: !!overrides });
     if (!projectId || !canvasId) {
-      console.error('[ProjectCanvasContext] Cannot add shape: no project canvas selected', { projectId, canvasId });
+      console.error('Cannot add shape: no project canvas selected');
       return;
     }
 
@@ -330,10 +356,9 @@ export function ProjectCanvasProvider({ children }: { children: ReactNode }) {
       ...overrides,
     };
 
-    console.log('🎨 [addShape] About to add shape:', { projectId, canvasId, newShape });
     addShapeSync(newShape);
-    console.log('🎨 [addShape] Shape added to project canvas:', { projectId, canvasId, newShape });
-    saveToHistory();
+    // Save to history after adding shape
+    pushState();
   };
 
   const updateShape = (id: string, updates: Partial<Shape>) => {
@@ -343,8 +368,8 @@ export function ProjectCanvasProvider({ children }: { children: ReactNode }) {
     }
 
     updateShapeSync(id, updates);
-    console.log('✏️ [updateShape] Shape updated in project canvas:', { projectId, canvasId, id, updates });
-    saveToHistory();
+    // Save to history after updating shape
+    pushState();
   };
 
   const updateSelectedShapes = (updates: Partial<Shape>) => {
@@ -362,13 +387,8 @@ export function ProjectCanvasProvider({ children }: { children: ReactNode }) {
     );
 
     updateShapesSync(updatedShapes);
-    console.log('✏️ [updateSelectedShapes] Selected shapes updated in project canvas:', { 
-      projectId, 
-      canvasId, 
-      selectedIds, 
-      updates 
-    });
-    saveToHistory();
+    // Save to history after updating shapes
+    pushState();
   };
 
   const batchUpdateShapes = (updates: Array<{ id: string; updates: Partial<Shape> }>) => {
@@ -383,12 +403,8 @@ export function ProjectCanvasProvider({ children }: { children: ReactNode }) {
     });
 
     updateShapesSync(updatedShapes);
-    console.log('✏️ [batchUpdateShapes] Shapes batch updated in project canvas:', { 
-      projectId, 
-      canvasId, 
-      updateCount: updates.length 
-    });
-    saveToHistory();
+    // Save to history after updating shapes
+    pushState();
   };
 
   const deleteShape = (id: string) => {
@@ -399,8 +415,8 @@ export function ProjectCanvasProvider({ children }: { children: ReactNode }) {
 
     deleteShapeSync(id);
     setSelectedIds(prev => prev.filter(selectedId => selectedId !== id));
-    console.log('🗑️ [deleteShape] Shape deleted from project canvas:', { projectId, canvasId, id });
-    saveToHistory();
+    // Save to history after deleting shape
+    pushState();
   };
 
   const deleteSelectedShapes = async () => {
@@ -417,12 +433,8 @@ export function ProjectCanvasProvider({ children }: { children: ReactNode }) {
     }
 
     setSelectedIds([]);
-    console.log('🗑️ [deleteSelectedShapes] Selected shapes deleted from project canvas:', { 
-      projectId, 
-      canvasId, 
-      deletedIds: selectedIds 
-    });
-    saveToHistory();
+    // Save to history after deleting shapes
+    pushState();
   };
 
   const selectShape = async (id: string | null, addToSelection = false) => {
@@ -763,6 +775,8 @@ export function ProjectCanvasProvider({ children }: { children: ReactNode }) {
     redo: handleRedo,
     canUndo,
     canRedo,
+    pushState,
+    forceSave,
     
     // Alignment operations
     alignLeft,

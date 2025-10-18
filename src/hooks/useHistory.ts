@@ -20,8 +20,26 @@ export function useHistory(
 
   // Initialize history with current state on first load
   useEffect(() => {
-    if (!hasInitializedRef.current && currentShapes.length >= 0) {
-      console.log('🚀 Initializing history with current state');
+    if (!hasInitializedRef.current) {
+      const initialState: HistoryState = {
+        shapes: JSON.parse(JSON.stringify(currentShapes)),
+        selectedIds: [...selectedIds],
+      };
+      
+      setHistory([initialState]);
+      setCurrentIndex(0);
+      hasInitializedRef.current = true;
+      console.log('🚀 [useHistory] Initialized with:', { 
+        shapeCount: initialState.shapes.length, 
+        selectedIdsCount: initialState.selectedIds.length 
+      });
+    }
+  }, [currentShapes, selectedIds]);
+
+  // Force initialization if not done yet (fallback)
+  useEffect(() => {
+    if (!hasInitializedRef.current) {
+      console.log('🔄 [useHistory] Force initializing history...');
       const initialState: HistoryState = {
         shapes: JSON.parse(JSON.stringify(currentShapes)),
         selectedIds: [...selectedIds],
@@ -30,87 +48,190 @@ export function useHistory(
       setCurrentIndex(0);
       hasInitializedRef.current = true;
     }
-  }, [currentShapes, selectedIds]);
+  }, []);
+
+  // Re-initialize history when shapes change significantly (e.g., when sync becomes enabled)
+  useEffect(() => {
+    if (hasInitializedRef.current && history.length === 1 && currentIndex === 0) {
+      const currentState = history[0];
+      if (currentState && currentState.shapes.length === 0 && currentShapes.length > 0) {
+        console.log('🔄 [useHistory] Re-initializing history due to significant shape change');
+        const newInitialState: HistoryState = {
+          shapes: JSON.parse(JSON.stringify(currentShapes)),
+          selectedIds: [...selectedIds],
+        };
+        setHistory([newInitialState]);
+        setCurrentIndex(0);
+      }
+    }
+  }, [currentShapes, selectedIds, history, currentIndex]);
+
+  // Reset history when shapes become available (sync enabled)
+  useEffect(() => {
+    if (hasInitializedRef.current && currentShapes.length > 0) {
+      const currentState = history[currentIndex];
+      if (!currentState || currentState.shapes.length === 0) {
+        console.log('🔄 [useHistory] Resetting history with current shapes');
+        const newInitialState: HistoryState = {
+          shapes: JSON.parse(JSON.stringify(currentShapes)),
+          selectedIds: [...selectedIds],
+        };
+        setHistory([newInitialState]);
+        setCurrentIndex(0);
+      }
+    }
+  }, [currentShapes, selectedIds, history, currentIndex]);
+
+  // Removed problematic useEffect that was causing infinite re-renders
+
+  // Removed state change detection to ensure all actions are captured
 
   // Save current state to history
   const pushState = useCallback(() => {
+    console.log('💾 [useHistory] pushState called', { 
+      isRestoring: isRestoringRef.current,
+      shapeCount: currentShapes.length,
+      selectedIdsCount: selectedIds.length,
+      currentIndex,
+      historyLength: history.length
+    });
+    
     // Don't save to history if we're currently restoring
     if (isRestoringRef.current) {
-      console.log('🚫 Skipping history save - currently restoring');
+      console.log('🚫 [useHistory] Skipping save - currently restoring');
       return;
     }
     
-    console.log('📝 Saving to history:', { shapeCount: currentShapes.length, selectedIds });
+    // Validate current state before saving
+    if (!currentShapes || !Array.isArray(currentShapes) || 
+        !selectedIds || !Array.isArray(selectedIds)) {
+      console.log('❌ [useHistory] Invalid state - cannot save');
+      return;
+    }
     
+    // Create a deep copy of the current state
     const newState: HistoryState = {
       shapes: JSON.parse(JSON.stringify(currentShapes)),
       selectedIds: [...selectedIds],
     };
     
+    console.log('✅ [useHistory] Saving state to history', { 
+      newStateShapeCount: newState.shapes.length,
+      newStateSelectedIdsCount: newState.selectedIds.length,
+      shapes: newState.shapes.map(s => ({ id: s.id, x: s.x, y: s.y, fill: s.fill }))
+    });
+    
     setHistory((prev) => {
-      setCurrentIndex((prevIndex) => {
-        // Remove any redo history if we're not at the end
-        const newHistory = prev.slice(0, prevIndex + 1);
-        
-        // Add new state
-        newHistory.push(newState);
-        
-        console.log('✅ History saved. New history length:', newHistory.length, 'New index:', prevIndex + 1);
-        
-        // Limit history size
-        if (newHistory.length > MAX_HISTORY) {
-          newHistory.shift();
-          return Math.min(prevIndex, MAX_HISTORY - 1);
-        }
-        
-        return prevIndex + 1;
+      const newHistory = prev.slice(0, currentIndex + 1);
+      newHistory.push(newState);
+      
+      // Limit history size
+      if (newHistory.length > MAX_HISTORY) {
+        newHistory.shift();
+      }
+      
+      setCurrentIndex(newHistory.length - 1);
+      
+      console.log('📝 [useHistory] History updated', { 
+        newLength: newHistory.length, 
+        newIndex: newHistory.length - 1,
+        previousLength: prev.length
       });
       
-      return prev.slice(0, currentIndex + 1).concat([newState]);
+      return newHistory;
     });
-  }, [currentShapes, selectedIds, currentIndex]);
+  }, [currentShapes, selectedIds, currentIndex, history.length]);
+
+  // Force save current state (useful for ensuring final state is captured)
+  const forceSave = useCallback(() => {
+    console.log('💾 [useHistory] Force save called');
+    pushState();
+  }, [pushState]);
+
+  // No cleanup needed since we removed debouncing
+
+  // Disable auto-save to prevent too many history entries
+  // We'll use manual saving for specific actions only
 
   // Undo
   const undo = useCallback(() => {
-    console.log('⏪ Undo called. Current index:', currentIndex, 'History length:', history.length);
-    if (currentIndex > 0) {
+    console.log('↩️ [useHistory] Undo called', { 
+      currentIndex, 
+      historyLength: history.length,
+      canUndo: currentIndex > 0 && history.length > 0
+    });
+    
+    if (currentIndex > 0 && history.length > 0) {
       const newIndex = currentIndex - 1;
       const state = history[newIndex];
-      console.log('⏪ Undoing to index:', newIndex, 'Shape count:', state.shapes.length);
+      
+      console.log('↩️ [useHistory] Undo to index', { 
+        newIndex, 
+        stateExists: !!state,
+        stateShapes: state?.shapes?.length,
+        stateSelectedIds: state?.selectedIds?.length
+      });
+      
+      // Check if state exists and has required properties
+      if (!state || !state.shapes || !state.selectedIds) {
+        console.log('❌ [useHistory] Undo failed - invalid state');
+        return;
+      }
       
       // Set restoration flag to prevent saving this as new history
       isRestoringRef.current = true;
       setCurrentIndex(newIndex);
       onRestore(state.shapes, state.selectedIds);
       
+      console.log('✅ [useHistory] Undo completed', { newIndex });
+      
       // Clear restoration flag after a short delay
       setTimeout(() => {
         isRestoringRef.current = false;
       }, 100);
     } else {
-      console.log('⏪ Cannot undo - already at oldest state');
+      console.log('❌ [useHistory] Cannot undo - no history or at beginning');
     }
   }, [currentIndex, history, onRestore]);
 
   // Redo
   const redo = useCallback(() => {
-    console.log('⏩ Redo called. Current index:', currentIndex, 'History length:', history.length);
-    if (currentIndex < history.length - 1) {
+    console.log('↪️ [useHistory] Redo called', { 
+      currentIndex, 
+      historyLength: history.length,
+      canRedo: currentIndex < history.length - 1 && history.length > 0
+    });
+    
+    if (currentIndex < history.length - 1 && history.length > 0) {
       const newIndex = currentIndex + 1;
       const state = history[newIndex];
-      console.log('⏩ Redoing to index:', newIndex, 'Shape count:', state.shapes.length);
+      
+      console.log('↪️ [useHistory] Redo to index', { 
+        newIndex, 
+        stateExists: !!state,
+        stateShapes: state?.shapes?.length,
+        stateSelectedIds: state?.selectedIds?.length
+      });
+      
+      // Check if state exists and has required properties
+      if (!state || !state.shapes || !state.selectedIds) {
+        console.log('❌ [useHistory] Redo failed - invalid state');
+        return;
+      }
       
       // Set restoration flag to prevent saving this as new history
       isRestoringRef.current = true;
       setCurrentIndex(newIndex);
       onRestore(state.shapes, state.selectedIds);
       
+      console.log('✅ [useHistory] Redo completed', { newIndex });
+      
       // Clear restoration flag after a short delay
       setTimeout(() => {
         isRestoringRef.current = false;
       }, 100);
     } else {
-      console.log('⏩ Cannot redo - already at newest state');
+      console.log('❌ [useHistory] Cannot redo - no history or at end');
     }
   }, [currentIndex, history, onRestore]);
 
@@ -130,11 +251,29 @@ export function useHistory(
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [undo, redo]);
 
-  const canUndo = currentIndex > 0;
-  const canRedo = currentIndex < history.length - 1;
+  const canUndo = Boolean(currentIndex > 0 && history.length > 0 && 
+                  history[currentIndex - 1] && 
+                  history[currentIndex - 1].shapes && 
+                  history[currentIndex - 1].selectedIds);
+  const canRedo = Boolean(currentIndex < history.length - 1 && history.length > 0 && 
+                  history[currentIndex + 1] && 
+                  history[currentIndex + 1].shapes && 
+                  history[currentIndex + 1].selectedIds);
+
+  // Debug logging to understand why buttons are inactive (reduced frequency)
+  if (currentShapes.length > 0 || history.length > 1) {
+    console.log('🔍 [useHistory] State:', {
+      currentIndex,
+      historyLength: history.length,
+      canUndo,
+      canRedo,
+      currentShapesCount: currentShapes.length
+    });
+  }
 
   return {
     pushState,
+    forceSave,
     undo,
     redo,
     canUndo,

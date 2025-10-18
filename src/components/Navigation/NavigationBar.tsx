@@ -230,13 +230,29 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
                   </button>
 
                   {showUserDropdown && (
-                    <div className="absolute top-full right-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50">
+                    <div className={`absolute top-full right-0 mt-2 w-56 rounded-lg shadow-xl border z-[9999] ring-1 ring-black ring-opacity-5 dark:ring-white dark:ring-opacity-10 ${
+                      document.documentElement.classList.contains('dark') 
+                        ? 'bg-gray-900 border-gray-600' 
+                        : 'bg-white border-gray-200'
+                    }`}>
                       <div className="py-2">
-                        <div className="px-4 py-2 border-b border-gray-200 dark:border-gray-700">
-                          <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                        <div className={`px-4 py-2 border-b ${
+                          document.documentElement.classList.contains('dark') 
+                            ? 'border-gray-700' 
+                            : 'border-gray-200'
+                        }`}>
+                          <p className={`text-sm font-medium ${
+                            document.documentElement.classList.contains('dark') 
+                              ? 'text-gray-100' 
+                              : 'text-gray-900'
+                          }`}>
                             {user.displayName || 'User'}
                           </p>
-                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                          <p className={`text-xs ${
+                            document.documentElement.classList.contains('dark') 
+                              ? 'text-gray-400' 
+                              : 'text-gray-500'
+                          }`}>
                             {user.email}
                           </p>
                         </div>
@@ -246,10 +262,14 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
                             navigate('/profile');
                             setShowUserDropdown(false);
                           }}
-                          className="w-full flex items-center space-x-3 px-4 py-2 text-left hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                          className="w-full flex items-center space-x-3 px-4 py-2 text-left hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                         >
                           <UserCircleIcon className="w-4 h-4 text-gray-500" />
-                          <span className="text-sm text-gray-900 dark:text-gray-100">Profile</span>
+                          <span className={`text-sm ${
+                            document.documentElement.classList.contains('dark') 
+                              ? 'text-gray-100' 
+                              : 'text-gray-900'
+                          }`}>Profile</span>
                         </button>
                         
                         <button
@@ -257,19 +277,27 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
                             navigate('/settings');
                             setShowUserDropdown(false);
                           }}
-                          className="w-full flex items-center space-x-3 px-4 py-2 text-left hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                          className="w-full flex items-center space-x-3 px-4 py-2 text-left hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                         >
                           <Cog6ToothIcon className="w-4 h-4 text-gray-500" />
-                          <span className="text-sm text-gray-900 dark:text-gray-100">Settings</span>
+                          <span className={`text-sm ${
+                            document.documentElement.classList.contains('dark') 
+                              ? 'text-gray-100' 
+                              : 'text-gray-900'
+                          }`}>Settings</span>
                         </button>
                         
                         <div className="border-t border-gray-200 dark:border-gray-700 my-1" />
                         
                         <button
                           onClick={handleSignOut}
-                          className="w-full flex items-center space-x-3 px-4 py-2 text-left hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                          className="w-full flex items-center space-x-3 px-4 py-2 text-left hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                         >
-                          <span className="text-sm text-red-600 dark:text-red-400">Sign out</span>
+                          <span className={`text-sm ${
+                            document.documentElement.classList.contains('dark') 
+                              ? 'text-red-400' 
+                              : 'text-red-600'
+                          }`}>Sign out</span>
                         </button>
                       </div>
                     </div>
@@ -423,40 +451,68 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
                 </button>
 
                 {showUserDropdown && (
-                  <div className="absolute top-full right-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50">
+                  <div className={`absolute top-full right-0 mt-2 w-56 rounded-lg shadow-xl border z-[9999] ring-1 ring-black ring-opacity-5 dark:ring-white dark:ring-opacity-10 ${
+                    document.documentElement.classList.contains('dark') 
+                      ? 'bg-gray-900 border-gray-600' 
+                      : 'bg-white border-gray-200'
+                  }`}>
                     <div className="py-2">
-                      <div className="px-4 py-2 border-b border-gray-200 dark:border-gray-700">
-                        <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                      <div className={`px-4 py-2 border-b ${
+                        document.documentElement.classList.contains('dark') 
+                          ? 'border-gray-700' 
+                          : 'border-gray-200'
+                      }`}>
+                        <p className={`text-sm font-medium ${
+                          document.documentElement.classList.contains('dark') 
+                            ? 'text-gray-100' 
+                            : 'text-gray-900'
+                        }`}>
                           {user.displayName || 'User'}
                         </p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                        <p className={`text-xs ${
+                          document.documentElement.classList.contains('dark') 
+                            ? 'text-gray-400' 
+                            : 'text-gray-500'
+                        }`}>
                           {user.email}
                         </p>
                       </div>
                       
                       <button
                         onClick={() => navigate('/profile')}
-                        className="w-full flex items-center space-x-3 px-4 py-2 text-left hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                        className="w-full flex items-center space-x-3 px-4 py-2 text-left hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                       >
                         <UserCircleIcon className="w-4 h-4 text-gray-500" />
-                        <span className="text-sm text-gray-900 dark:text-gray-100">Profile</span>
+                        <span className={`text-sm ${
+                          document.documentElement.classList.contains('dark') 
+                            ? 'text-gray-100' 
+                            : 'text-gray-900'
+                        }`}>Profile</span>
                       </button>
                       
                       <button
                         onClick={() => navigate('/settings')}
-                        className="w-full flex items-center space-x-3 px-4 py-2 text-left hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                        className="w-full flex items-center space-x-3 px-4 py-2 text-left hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                       >
                         <Cog6ToothIcon className="w-4 h-4 text-gray-500" />
-                        <span className="text-sm text-gray-900 dark:text-gray-100">Settings</span>
+                        <span className={`text-sm ${
+                          document.documentElement.classList.contains('dark') 
+                            ? 'text-gray-100' 
+                            : 'text-gray-900'
+                        }`}>Settings</span>
                       </button>
                       
                       <div className="border-t border-gray-200 dark:border-gray-700 my-1" />
                       
                       <button
                         onClick={handleSignOut}
-                        className="w-full flex items-center space-x-3 px-4 py-2 text-left hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                        className="w-full flex items-center space-x-3 px-4 py-2 text-left hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                       >
-                        <span className="text-sm text-red-600 dark:text-red-400">Sign out</span>
+                        <span className={`text-sm ${
+                          document.documentElement.classList.contains('dark') 
+                            ? 'text-red-400' 
+                            : 'text-red-600'
+                        }`}>Sign out</span>
                       </button>
                     </div>
                   </div>

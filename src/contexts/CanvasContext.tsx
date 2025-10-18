@@ -134,20 +134,14 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
     }
   );
 
-  // Direct history push for immediate saving
-  const saveToHistory = () => {
-    console.log('💾 Saving to history...');
-    pushState();
-  };
+  // History is automatically saved via useHistory hook
 
-  // Wrapper functions for undo/redo with debugging
+  // Wrapper functions for undo/redo
   const handleUndo = () => {
-    console.log('⏪ Undo button clicked');
     undo();
   };
 
   const handleRedo = () => {
-    console.log('⏩ Redo button clicked');
     redo();
   };
 
@@ -186,8 +180,8 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
         ...overrides,
       };
     addShapeSync(newShape);
-    console.log('🎨 [addShape] Shape added to canvas:', newShape);
-    saveToHistory();
+    // Save to history after adding image shape
+    pushState();
     } catch (error) {
       console.error('Failed to upload image:', error);
       throw error;
@@ -266,14 +260,14 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
       ...overrides,
     };
     addShapeSync(newShape);
-    // Push state to history after adding shape
-    saveToHistory();
+    // Save to history after adding shape
+    pushState();
   };
 
   const updateShape = (id: string, updates: Partial<Shape>) => {
     updateShapeSync(id, updates);
-    // Push state to history after updating shape
-    saveToHistory();
+    // Save to history after updating shape
+    pushState();
   };
 
   // Update multiple selected shapes at once (batch update for better sync)
@@ -286,16 +280,16 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
     }));
     
     updateShapesSync(shapesUpdates);
-    // Push state to history after updating shapes
-    saveToHistory();
+    // Save to history after updating shapes
+    pushState();
   };
 
   // Batch update multiple shapes with different updates for each
   const batchUpdateShapes = (updates: Array<{ id: string; updates: Partial<Shape> }>) => {
     if (updates.length === 0) return;
     updateShapesSync(updates);
-    // Push state to history after updating shapes
-    saveToHistory();
+    // Save to history after updating shapes
+    pushState();
   };
 
   const deleteShape = (id: string) => {
@@ -303,8 +297,8 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
     if (selectedIds.includes(id)) {
       setSelectedIds(selectedIds.filter(sid => sid !== id));
     }
-    // Push state to history after deleting shape
-    saveToHistory();
+    // Save to history after deleting shape
+    pushState();
   };
 
   const deleteSelectedShapes = async () => {
@@ -329,8 +323,8 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
       }
     }
     
-    // Push state to history after deleting shapes
-    saveToHistory();
+    // Save to history after deleting shapes
+    pushState();
   };
 
   const selectShape = async (id: string | null, addToSelection = false) => {
