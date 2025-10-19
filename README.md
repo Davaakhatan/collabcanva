@@ -101,7 +101,7 @@ npm install
 
 4. **Configure environment variables**
 ```bash
-cp .env.example .env
+cp env.example .env
 ```
 
 Edit `.env` with your Firebase credentials:
@@ -116,6 +116,8 @@ VITE_FIREBASE_APP_ID=your-app-id
 VITE_FIREBASE_MEASUREMENT_ID=your-measurement-id
 VITE_OPENAI_API_KEY=your-openai-api-key
 ```
+
+**⚠️ Security Note:** Never commit your `.env` file to version control. It's already in `.gitignore` for your protection.
 
 5. **Run development server**
 ```bash

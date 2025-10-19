@@ -12,16 +12,38 @@
 import { initializeApp } from 'firebase/app';
 import { getFirestore, doc, getDoc, setDoc } from 'firebase/firestore';
 
-// Your Firebase config
+// Load environment variables from .env file
+import dotenv from 'dotenv';
+dotenv.config();
+
+// Your Firebase config - REQUIRES .env file with actual credentials
 const firebaseConfig = {
-  apiKey: process.env.VITE_FIREBASE_API_KEY || "AIzaSyA6WBNWtT_Aq4s_s8c7u_vNqbj1R0a0KqY",
-  authDomain: process.env.VITE_FIREBASE_AUTH_DOMAIN || "collabcanva-d9e10.firebaseapp.com",
-  projectId: process.env.VITE_FIREBASE_PROJECT_ID || "collabcanva-d9e10",
-  storageBucket: process.env.VITE_FIREBASE_STORAGE_BUCKET || "collabcanva-d9e10.firebasestorage.app",
-  messagingSenderId: process.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "1096419866833",
-  appId: process.env.VITE_FIREBASE_APP_ID || "1:1096419866833:web:9a9a9a9a9a9a9a9a9a9a9a",
-  databaseURL: process.env.VITE_FIREBASE_DATABASE_URL || "https://collabcanva-d9e10-default-rtdb.firebaseio.com"
+  apiKey: process.env.VITE_FIREBASE_API_KEY,
+  authDomain: process.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.VITE_FIREBASE_APP_ID,
+  databaseURL: process.env.VITE_FIREBASE_DATABASE_URL
 };
+
+// Validate that all required environment variables are set
+const requiredEnvVars = [
+  'VITE_FIREBASE_API_KEY',
+  'VITE_FIREBASE_AUTH_DOMAIN', 
+  'VITE_FIREBASE_PROJECT_ID',
+  'VITE_FIREBASE_STORAGE_BUCKET',
+  'VITE_FIREBASE_MESSAGING_SENDER_ID',
+  'VITE_FIREBASE_APP_ID',
+  'VITE_FIREBASE_DATABASE_URL'
+];
+
+const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
+if (missingVars.length > 0) {
+  console.error('❌ Missing required environment variables:', missingVars.join(', '));
+  console.error('Please create a .env file with your Firebase credentials.');
+  process.exit(1);
+}
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);

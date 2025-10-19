@@ -3,6 +3,7 @@ import { Rect, Circle, Ellipse, Line, Text, Transformer, Star, RegularPolygon, P
 import type Konva from "konva";
 import { useAuth } from "../../contexts/AuthContext";
 import { useCursors } from "../../hooks/useCursors";
+import { createGradientFromShape } from "../../utils/gradientUtils";
 import type { Shape as ShapeType } from "../../contexts/CanvasContext";
 
 interface ShapeProps {
@@ -230,6 +231,12 @@ export default function Shape({ shape, isSelected, onSelect, onChange, onStartEd
   }
   // No border when not selected and not locked = anyone can use it
 
+  // Create gradient if shape has gradient properties
+  const gradient = shape.gradientType ? createGradientFromShape(
+    shapeRef.current?.getStage() || null as any,
+    shape
+  ) : null;
+
   // Common props for all shapes
   const commonProps = {
     id: shape.id, // Real ID for Konva node selection
@@ -247,6 +254,7 @@ export default function Shape({ shape, isSelected, onSelect, onChange, onStartEd
     stroke: strokeColor,
     strokeWidth: strokeWidth,
     opacity: isLockedByOther ? 0.6 : 1,
+    fill: gradient || shape.fill, // Use gradient if available, otherwise use solid color
   };
 
   // Render shape based on type
@@ -260,7 +268,6 @@ export default function Shape({ shape, isSelected, onSelect, onChange, onStartEd
             y={shape.y}
             width={shape.width}
             height={shape.height}
-            fill={shape.fill}
             rotation={shape.rotation || 0}
           />
         );
@@ -274,7 +281,6 @@ export default function Shape({ shape, isSelected, onSelect, onChange, onStartEd
             radius={shape.width / 2}
             offsetX={shape.width / 2}
             offsetY={shape.height / 2}
-            fill={shape.fill}
             rotation={shape.rotation || 0}
           />
         );
@@ -289,7 +295,6 @@ export default function Shape({ shape, isSelected, onSelect, onChange, onStartEd
             radiusY={shape.height / 2}
             offsetX={shape.width / 2}
             offsetY={shape.height / 2}
-            fill={shape.fill}
             rotation={shape.rotation || 0}
           />
         );
@@ -306,7 +311,6 @@ export default function Shape({ shape, isSelected, onSelect, onChange, onStartEd
             {...commonProps}
             points={trianglePoints}
             closed
-            fill={shape.fill}
             rotation={shape.rotation || 0}
             offsetX={shape.width / 2}
             offsetY={shape.height / 2}
@@ -342,7 +346,6 @@ export default function Shape({ shape, isSelected, onSelect, onChange, onStartEd
             fontFamily={textFontFamily}
             fontStyle={konvaFontStyle}
             textDecoration={shape.textDecoration || ''}
-            fill={shape.fill}
             width={shape.width}
             height={shape.height}
             rotation={shape.rotation || 0}
@@ -367,7 +370,6 @@ export default function Shape({ shape, isSelected, onSelect, onChange, onStartEd
             outerRadius={shape.width / 2}
             offsetX={shape.width / 2}
             offsetY={shape.height / 2}
-            fill={shape.fill}
             rotation={shape.rotation || 0}
           />
         );
@@ -382,7 +384,6 @@ export default function Shape({ shape, isSelected, onSelect, onChange, onStartEd
             radius={shape.width / 2}
             offsetX={shape.width / 2}
             offsetY={shape.height / 2}
-            fill={shape.fill}
             rotation={shape.rotation || 0}
           />
         );
@@ -394,7 +395,6 @@ export default function Shape({ shape, isSelected, onSelect, onChange, onStartEd
             x={shape.x}
             y={shape.y}
             data={shape.pathData || 'M10,10 L50,10 L50,50 L10,50 Z'}
-            fill={shape.fill}
             rotation={shape.rotation || 0}
             scaleX={shape.width / 60} // Scale to fit width
             scaleY={shape.height / 60} // Scale to fit height
@@ -411,7 +411,6 @@ export default function Shape({ shape, isSelected, onSelect, onChange, onStartEd
             height={shape.height}
             image={imageRef.current || undefined}
             rotation={shape.rotation || 0}
-            fill={shape.fill}
           />
         );
       
@@ -427,7 +426,7 @@ export default function Shape({ shape, isSelected, onSelect, onChange, onStartEd
       {/* Show lock indicator text - only when locked by someone else */}
       {isLockedByOther && (() => {
         // Find the user who has locked this shape
-        const lockedByUser = Object.entries(cursors).find(([userId, cursor]) => userId === shape.lockedBy);
+        const lockedByUser = Object.entries(cursors).find(([userId]) => userId === shape.lockedBy);
         const lockedByUserName = lockedByUser?.[1]?.displayName || 'Unknown User';
         
         return (

@@ -4,6 +4,8 @@ import type { Shape } from '../contexts/CanvasContext';
 interface HistoryState {
   shapes: Shape[];
   selectedIds: string[];
+  timestamp: number;
+  actionId: string;
 }
 
 const MAX_HISTORY = 50; // Maximum number of undo states
@@ -17,39 +19,61 @@ export function useHistory(
   const [currentIndex, setCurrentIndex] = useState(-1);
   const isRestoringRef = useRef(false);
   const hasInitializedRef = useRef(false);
+  const lastSavedStateRef = useRef<string>('');
+  const actionCounterRef = useRef(0);
 
   // Initialize history with current state on first load
   useEffect(() => {
-    if (!hasInitializedRef.current) {
+    if (!hasInitializedRef.current && currentShapes.length >= 0) {
       const initialState: HistoryState = {
         shapes: JSON.parse(JSON.stringify(currentShapes)),
         selectedIds: [...selectedIds],
+        timestamp: Date.now(),
+        actionId: `init_${Date.now()}`,
       };
       
       setHistory([initialState]);
       setCurrentIndex(0);
       hasInitializedRef.current = true;
+      lastSavedStateRef.current = JSON.stringify(initialState);
+      
       console.log('🚀 [useHistory] Initialized with:', { 
         shapeCount: initialState.shapes.length, 
-        selectedIdsCount: initialState.selectedIds.length 
+        selectedIdsCount: initialState.selectedIds.length,
+        actionId: initialState.actionId
       });
     }
-  }, [currentShapes, selectedIds]); // Add dependencies to ensure proper initialization
+  }, [currentShapes.length, selectedIds.length]);
 
-  // Removed problematic useEffect hooks that were causing re-initialization
-
-  // Removed problematic useEffect that was causing infinite re-renders
-
-  // Removed state change detection to ensure all actions are captured
+  // Re-initialize history when shapes change significantly (e.g., from empty to having shapes)
+  useEffect(() => {
+    if (hasInitializedRef.current && history.length === 0 && currentShapes.length > 0) {
+      console.log('🔄 [useHistory] Re-initializing history due to shape changes');
+      const initialState: HistoryState = {
+        shapes: JSON.parse(JSON.stringify(currentShapes)),
+        selectedIds: [...selectedIds],
+        timestamp: Date.now(),
+        actionId: `reinit_${Date.now()}`,
+      };
+      
+      setHistory([initialState]);
+      setCurrentIndex(0);
+      lastSavedStateRef.current = JSON.stringify(initialState);
+    }
+  }, [currentShapes.length, selectedIds.length]);
 
   // Save current state to history
   const pushState = useCallback(() => {
+    actionCounterRef.current += 1;
+    const actionId = `action_${actionCounterRef.current}_${Date.now()}`;
+    
     console.log('💾 [useHistory] pushState called', { 
       isRestoring: isRestoringRef.current,
       shapeCount: currentShapes.length,
       selectedIdsCount: selectedIds.length,
       currentIndex,
-      historyLength: history.length
+      historyLength: history.length,
+      actionId
     });
     
     // Don't save to history if we're currently restoring
@@ -69,14 +93,28 @@ export function useHistory(
     const newState: HistoryState = {
       shapes: JSON.parse(JSON.stringify(currentShapes)),
       selectedIds: [...selectedIds],
+      timestamp: Date.now(),
+      actionId,
     };
+    
+    // Create a string representation for comparison
+    const newStateString = JSON.stringify(newState);
+    
+    // Skip if this state is identical to the last saved state
+    if (newStateString === lastSavedStateRef.current) {
+      console.log('🚫 [useHistory] Skipping save - state unchanged');
+      return;
+    }
     
     console.log('✅ [useHistory] Saving state to history', { 
       newStateShapeCount: newState.shapes.length,
-      newStateSelectedIdsCount: newState.selectedIds.length
+      newStateSelectedIdsCount: newState.selectedIds.length,
+      actionId,
+      shapes: newState.shapes.map(s => ({ id: s.id, type: s.type, x: s.x, y: s.y }))
     });
     
     setHistory((prev) => {
+      // Remove any future history if we're not at the end
       const newHistory = prev.slice(0, currentIndex + 1);
       newHistory.push(newState);
       
@@ -85,17 +123,23 @@ export function useHistory(
         newHistory.shift();
       }
       
-      setCurrentIndex(newHistory.length - 1);
+      const newIndex = newHistory.length - 1;
+      setCurrentIndex(newIndex);
       
       console.log('📝 [useHistory] History updated', { 
         newLength: newHistory.length, 
-        newIndex: newHistory.length - 1,
-        previousLength: prev.length
+        newIndex: newIndex,
+        previousLength: prev.length,
+        lastStateShapes: newHistory[newIndex]?.shapes?.map(s => ({ id: s.id, type: s.type, x: s.x, y: s.y })),
+        actionId
       });
       
       return newHistory;
     });
-  }, [currentShapes, selectedIds, currentIndex, history.length]);
+    
+    // Update the last saved state reference
+    lastSavedStateRef.current = newStateString;
+  }, [currentShapes, selectedIds, currentIndex]);
 
   // Force save current state (useful for ensuring final state is captured)
   const forceSave = useCallback(() => {
@@ -103,128 +147,108 @@ export function useHistory(
     pushState();
   }, [pushState]);
 
-  // No cleanup needed since we removed debouncing
-
-  // Disable auto-save to prevent too many history entries
-  // We'll use manual saving for specific actions only
-
-  // Undo
+  // Undo function
   const undo = useCallback(() => {
     console.log('↩️ [useHistory] Undo called', { 
       currentIndex, 
-      historyLength: history.length,
-      canUndo: currentIndex > 0 && history.length > 0
+      historyLength: history.length, 
+      canUndo: currentIndex > 0 
     });
     
-    if (currentIndex > 0 && history.length > 0) {
+    if (currentIndex > 0) {
       const newIndex = currentIndex - 1;
-      const state = history[newIndex];
+      const stateToRestore = history[newIndex];
       
-      console.log('↩️ [useHistory] Undo to index', { 
-        newIndex, 
-        stateExists: !!state,
-        stateShapes: state?.shapes?.length,
-        stateSelectedIds: state?.selectedIds?.length
-      });
-      
-      // Check if state exists and has required properties
-      if (!state || !state.shapes || !state.selectedIds) {
-        console.log('❌ [useHistory] Undo failed - invalid state');
-        return;
+      if (stateToRestore) {
+        console.log('↩️ [useHistory] Undo to index', { 
+          newIndex, 
+          stateExists: true, 
+          stateShapes: stateToRestore.shapes.length, 
+          stateSelectedIdsCount: stateToRestore.selectedIds.length,
+          actionId: stateToRestore.actionId
+        });
+        
+        isRestoringRef.current = true;
+        setCurrentIndex(newIndex);
+        
+        // Restore the state
+        onRestore(stateToRestore.shapes, stateToRestore.selectedIds);
+        
+        // Reset the restoring flag after a short delay
+        setTimeout(() => {
+          isRestoringRef.current = false;
+        }, 100);
+        
+        console.log('✅ [useHistory] Undo completed', { newIndex, actionId: stateToRestore.actionId });
+      } else {
+        console.log('❌ [useHistory] Undo failed - state not found at index', newIndex);
       }
-      
-      // Set restoration flag to prevent saving this as new history
-      isRestoringRef.current = true;
-      setCurrentIndex(newIndex);
-      onRestore(state.shapes, state.selectedIds);
-      
-      console.log('✅ [useHistory] Undo completed', { newIndex });
-      
-      // Clear restoration flag after a short delay
-      setTimeout(() => {
-        isRestoringRef.current = false;
-      }, 100);
     } else {
-      console.log('❌ [useHistory] Cannot undo - no history or at beginning');
+      console.log('❌ [useHistory] Undo failed - no more history to undo');
     }
   }, [currentIndex, history, onRestore]);
 
-  // Redo
+  // Redo function
   const redo = useCallback(() => {
     console.log('↪️ [useHistory] Redo called', { 
       currentIndex, 
-      historyLength: history.length,
-      canRedo: currentIndex < history.length - 1 && history.length > 0
+      historyLength: history.length, 
+      canRedo: currentIndex < history.length - 1 
     });
     
-    if (currentIndex < history.length - 1 && history.length > 0) {
+    if (currentIndex < history.length - 1) {
       const newIndex = currentIndex + 1;
-      const state = history[newIndex];
+      const stateToRestore = history[newIndex];
       
-      console.log('↪️ [useHistory] Redo to index', { 
-        newIndex, 
-        stateExists: !!state,
-        stateShapes: state?.shapes?.length,
-        stateSelectedIds: state?.selectedIds?.length
-      });
-      
-      // Check if state exists and has required properties
-      if (!state || !state.shapes || !state.selectedIds) {
-        console.log('❌ [useHistory] Redo failed - invalid state');
-        return;
+      if (stateToRestore) {
+        console.log('↪️ [useHistory] Redo to index', { 
+          newIndex, 
+          stateExists: true, 
+          stateShapes: stateToRestore.shapes.length, 
+          stateSelectedIdsCount: stateToRestore.selectedIds.length,
+          actionId: stateToRestore.actionId
+        });
+        
+        isRestoringRef.current = true;
+        setCurrentIndex(newIndex);
+        
+        // Restore the state
+        onRestore(stateToRestore.shapes, stateToRestore.selectedIds);
+        
+        // Reset the restoring flag after a short delay
+        setTimeout(() => {
+          isRestoringRef.current = false;
+        }, 100);
+        
+        console.log('✅ [useHistory] Redo completed', { newIndex, actionId: stateToRestore.actionId });
+      } else {
+        console.log('❌ [useHistory] Redo failed - state not found at index', newIndex);
       }
-      
-      // Set restoration flag to prevent saving this as new history
-      isRestoringRef.current = true;
-      setCurrentIndex(newIndex);
-      onRestore(state.shapes, state.selectedIds);
-      
-      console.log('✅ [useHistory] Redo completed', { newIndex });
-      
-      // Clear restoration flag after a short delay
-      setTimeout(() => {
-        isRestoringRef.current = false;
-      }, 100);
     } else {
-      console.log('❌ [useHistory] Cannot redo - no history or at end');
+      console.log('❌ [useHistory] Redo failed - no more history to redo');
     }
   }, [currentIndex, history, onRestore]);
 
-  // Keyboard shortcuts
+  // Calculate if undo/redo are possible
+  const canUndo = currentIndex > 0;
+  const canRedo = currentIndex < history.length - 1;
+
+  // Debug logging
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'z' && !e.shiftKey) {
-        e.preventDefault();
-        undo();
-      } else if ((e.metaKey || e.ctrlKey) && (e.key === 'Z' || (e.key === 'z' && e.shiftKey))) {
-        e.preventDefault();
-        redo();
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [undo, redo]);
-
-  const canUndo = Boolean(currentIndex > 0 && history.length > 0 && 
-                  history[currentIndex - 1] && 
-                  history[currentIndex - 1].shapes && 
-                  history[currentIndex - 1].selectedIds);
-  const canRedo = Boolean(currentIndex < history.length - 1 && history.length > 0 && 
-                  history[currentIndex + 1] && 
-                  history[currentIndex + 1].shapes && 
-                  history[currentIndex + 1].selectedIds);
-
-  // Debug logging to understand why buttons are inactive (reduced frequency)
-  if (currentShapes.length > 0 || history.length > 1) {
-    console.log('🔍 [useHistory] State:', {
-      currentIndex,
-      historyLength: history.length,
-      canUndo,
-      canRedo,
-      currentShapesCount: currentShapes.length
+    console.log('🔍 [useHistory] State:', { 
+      currentIndex, 
+      historyLength: history.length, 
+      canUndo, 
+      canRedo, 
+      currentShapesCount: currentShapes.length,
+      currentSelectedIdsCount: selectedIds.length,
+      historyActions: history.map((h, i) => ({ 
+        index: i, 
+        shapes: h.shapes.length, 
+        actionId: h.actionId 
+      }))
     });
-  }
+  }, [currentIndex, history.length, canUndo, canRedo, currentShapes.length, selectedIds.length, history]);
 
   return {
     pushState,
@@ -235,4 +259,3 @@ export function useHistory(
     canRedo,
   };
 }
-

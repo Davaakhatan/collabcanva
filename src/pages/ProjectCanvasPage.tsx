@@ -7,18 +7,15 @@ import { PresenceProvider } from "../contexts/PresenceContext";
 import { NavigationProvider } from "../contexts/NavigationContext";
 import { CanvasProvider } from "../contexts/CanvasContext";
 import { useProject } from "../contexts/ProjectContext";
-import { useProjectCanvas } from "../contexts/ProjectCanvasContext";
 import { useAuth } from "../contexts/AuthContext";
 // import { usePresence } from "../hooks/usePresence"; // Not used
 import { NavigationBar } from "../components/Navigation/NavigationBar";
 import Canvas from "../components/Canvas/Canvas";
 import CanvasControls from "../components/Canvas/CanvasControls";
+import PropertiesPanel from "../components/Canvas/PropertiesPanel";
 import { CanvasSwitcher, CanvasInfo } from "../components/Project/CanvasSwitcher";
 import { CanvasToolbar } from "../components/Project/CanvasToolbar";
 import { CanvasInitializer } from "../components/Canvas/CanvasInitializer";
-import PresenceListComponent from "../components/Collaboration/PresenceList";
-import { useCursors } from "../hooks/useCursors";
-import { useCanvas } from "../contexts/CanvasContext";
 
 // Lazy load heavy components
 const HelpOverlay = lazy(() => import("../components/Canvas/HelpOverlay"));
@@ -34,39 +31,6 @@ const LoadingSpinner: React.FC<{ message?: string }> = ({ message = "Loading..."
   </div>
 );
 
-// Compact PresenceList wrapper that connects to Canvas context
-const PresenceList: React.FC<{ projectId: string; canvasId: string; variant?: string }> = ({ projectId, canvasId }) => {
-  console.log('🚀 [PresenceList Wrapper] Component called with:', { projectId, canvasId });
-  
-  const { cursors } = useCursors(projectId, canvasId);
-  const { panToPosition } = useProjectCanvas();
-  const { user } = useAuth();
-  
-  console.log('🎨 [PresenceList Wrapper] Rendering with:', {
-    projectId,
-    canvasId,
-    cursorsCount: Object.keys(cursors).length,
-    userId: user?.uid,
-    cursors: Object.keys(cursors),
-    rawCursors: cursors
-  });
-  
-  const handleUserClick = (userId: string, cursorX: number, cursorY: number) => {
-    console.log('🎯 [PresenceList] User clicked:', { userId, cursorX, cursorY });
-    // Pan the canvas to the user's cursor position
-    panToPosition(cursorX, cursorY);
-    console.log('✅ [PresenceList] Called panToPosition with:', { cursorX, cursorY });
-  };
-  
-  return (
-    <PresenceListComponent 
-      cursors={cursors}
-      onUserClick={handleUserClick}
-      projectId={projectId}
-      canvasId={canvasId}
-    />
-  );
-};
 
 // Inner component that uses the Project context
 function ProjectCanvasContent() {
@@ -264,19 +228,11 @@ function ProjectCanvasContent() {
                       canvasId={canvasId}
                     />
                     <CanvasControls onShowHelp={() => setShowHelp(true)} />
+                    <PropertiesPanel />
                     
                     <Suspense fallback={<div />}>
                       <AICommandPanel />
                     </Suspense>
-                    
-                    {/* Presence List - Fixed bottom-left panel */}
-                    {projectId && canvasId && (
-                      <PresenceList 
-                        projectId={projectId} 
-                        canvasId={canvasId}
-                        variant="panel"
-                      />
-                    )}
                   </div>
 
                   {/* Help overlay */}

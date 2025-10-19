@@ -14,7 +14,22 @@ export interface Shape {
   height: number;
   rotation?: number; // Rotation in degrees
   fill: string;
+  stroke?: string;
+  strokeWidth?: number;
+  scaleX?: number;
+  scaleY?: number;
   zIndex?: number; // Layer order (higher = on top)
+  // Advanced color properties
+  opacity?: number; // 0-1
+  blendMode?: 'normal' | 'multiply' | 'screen' | 'overlay' | 'soft-light' | 'hard-light' | 'color-dodge' | 'color-burn' | 'darken' | 'lighten' | 'difference' | 'exclusion';
+  // Gradient properties
+  gradientType?: 'linear' | 'radial' | 'conic';
+  gradientColors?: string[]; // Array of color stops
+  gradientStops?: number[]; // Array of stop positions (0-1)
+  gradientAngle?: number; // For linear gradients (degrees)
+  gradientCenterX?: number; // For radial/conic gradients (0-1)
+  gradientCenterY?: number; // For radial/conic gradients (0-1)
+  gradientRadius?: number; // For radial gradients (0-1)
   // Text-specific properties
   text?: string;
   fontSize?: number;

@@ -7,10 +7,11 @@ import { generateId } from "../utils/helpers";
 import { DEFAULT_SHAPE_WIDTH, DEFAULT_SHAPE_HEIGHT, DEFAULT_SHAPE_COLOR } from "../utils/constants";
 import { useProjectCanvasSync } from "../hooks/useProjectCanvasSync";
 import { useHistory } from "../hooks/useHistory";
+// import { createGroup, ungroupGroup } from "../utils/groupingUtils"; // Temporarily commented out
 
 export interface Shape {
   id: string;
-  type: 'rectangle' | 'circle' | 'triangle' | 'text' | 'ellipse' | 'star' | 'polygon' | 'path' | 'image';
+  type: 'rectangle' | 'circle' | 'triangle' | 'text' | 'ellipse' | 'star' | 'polygon' | 'path' | 'image' | 'group';
   x: number;
   y: number;
   width: number;
@@ -35,6 +36,9 @@ export interface Shape {
   // Image-specific properties
   imageUrl?: string; // URL or data URL of the image
   imageAlt?: string; // Alt text for accessibility
+  // Group-specific properties
+  children?: string[]; // Array of child shape IDs
+  groupName?: string; // Optional name for the group
   createdBy?: string;
   createdAt?: number;
   lastModifiedBy?: string;
@@ -44,9 +48,32 @@ export interface Shape {
   lockedAt?: number | null; // Timestamp when lock was acquired (null when unlocked)
 }
 
+// Temporarily commented out - Group interface
+// export interface Group {
+//   id: string;
+//   name: string;
+//   children: string[]; // Array of child shape IDs
+//   x: number;
+//   y: number;
+//   width: number;
+//   height: number;
+//   rotation?: number;
+//   scaleX?: number;
+//   scaleY?: number;
+//   zIndex?: number;
+//   createdBy?: string;
+//   createdAt?: number;
+//   lastModifiedBy?: string;
+//   lastModifiedAt?: number;
+//   isLocked?: boolean;
+//   lockedBy?: string | null;
+//   lockedAt?: number | null;
+// }
+
 interface ProjectCanvasContextType {
   // Canvas state
   shapes: Shape[];
+  // groups: Group[]; // Temporarily commented out
   selectedIds: string[];
   stageRef: React.MutableRefObject<Konva.Stage | null>;
   loading: boolean;
@@ -104,6 +131,11 @@ interface ProjectCanvasContextType {
   alignBottom: () => void;
   alignMiddle: () => void;
   
+  // Grouping operations
+  // groupShapes: (groupName?: string) => void; // Temporarily commented out
+  // ungroupShapes: () => void; // Temporarily commented out
+  // renameGroup: (groupId: string, newName: string) => void; // Temporarily commented out
+  
   // Project canvas operations
   setCurrentCanvas: (projectId: string, canvasId: string) => void;
   clearCurrentCanvas: () => void;
@@ -115,6 +147,7 @@ const ProjectCanvasContext = createContext<ProjectCanvasContextType | null>(null
 
 export function ProjectCanvasProvider({ children }: { children: ReactNode }) {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  // const [groups, setGroups] = useState<Group[]>([]); // Temporarily commented out
   const [scale, setScaleState] = useState(1);
   const [position, setPositionState] = useState({ x: 0, y: 0 });
   const [projectId, setProjectId] = useState<string | null>(null);
@@ -273,8 +306,10 @@ export function ProjectCanvasProvider({ children }: { children: ReactNode }) {
       };
       await addShapeSync(newShape);
       console.log('🎨 [addImageShape] Image shape added to project canvas:', { projectId, canvasId, newShape });
-      // Save to history after adding image shape
+      // Save to history after adding image shape with a small delay to ensure state is updated
+      setTimeout(() => {
       pushState();
+    }, 10);
     } catch (error) {
       console.error('Failed to upload image to project canvas:', error);
       throw error;
@@ -359,8 +394,16 @@ export function ProjectCanvasProvider({ children }: { children: ReactNode }) {
     };
 
     addShapeSync(newShape);
-    // Save to history after adding shape
-    pushState();
+    // Save to history after adding shape - use setTimeout with validation
+    setTimeout(() => {
+      // Validate that the shape was actually added before saving to history
+      if (shapes.some(shape => shape.id === newShape.id)) {
+        pushState();
+      } else {
+        console.log('⚠️ [ProjectCanvasContext] Shape not found after add, retrying pushState');
+        setTimeout(() => pushState(), 50);
+      }
+    }, 10);
   };
 
   const updateShape = (id: string, updates: Partial<Shape>) => {
@@ -370,8 +413,17 @@ export function ProjectCanvasProvider({ children }: { children: ReactNode }) {
     }
 
     updateShapeSync(id, updates);
-    // Save to history after updating shape
-    pushState();
+    // Save to history after updating shape - use setTimeout with validation
+    setTimeout(() => {
+      // Validate that the shape was actually updated before saving to history
+      const updatedShape = shapes.find(shape => shape.id === id);
+      if (updatedShape) {
+        pushState();
+      } else {
+        console.log('⚠️ [ProjectCanvasContext] Shape not found after update, retrying pushState');
+        setTimeout(() => pushState(), 50);
+      }
+    }, 10);
   };
 
   const updateSelectedShapes = (updates: Partial<Shape>) => {
@@ -389,8 +441,10 @@ export function ProjectCanvasProvider({ children }: { children: ReactNode }) {
     );
 
     updateShapesSync(updatedShapes);
-    // Save to history after updating shapes
-    pushState();
+    // Save to history after updating shapes with a small delay to ensure state is updated
+    setTimeout(() => {
+      pushState();
+    }, 10);
   };
 
   const batchUpdateShapes = (updates: Array<{ id: string; updates: Partial<Shape> }>) => {
@@ -405,8 +459,10 @@ export function ProjectCanvasProvider({ children }: { children: ReactNode }) {
     });
 
     updateShapesSync(updatedShapes);
-    // Save to history after updating shapes
-    pushState();
+    // Save to history after updating shapes with a small delay to ensure state is updated
+    setTimeout(() => {
+      pushState();
+    }, 10);
   };
 
   const deleteShape = (id: string) => {
@@ -417,8 +473,10 @@ export function ProjectCanvasProvider({ children }: { children: ReactNode }) {
 
     deleteShapeSync(id);
     setSelectedIds(prev => prev.filter(selectedId => selectedId !== id));
-    // Save to history after deleting shape
-    pushState();
+    // Save to history after deleting shape with a small delay to ensure state is updated
+    setTimeout(() => {
+      pushState();
+    }, 10);
   };
 
   const deleteSelectedShapes = async () => {
@@ -435,8 +493,10 @@ export function ProjectCanvasProvider({ children }: { children: ReactNode }) {
     }
 
     setSelectedIds([]);
-    // Save to history after deleting shapes
-    pushState();
+    // Save to history after deleting shapes with a small delay to ensure state is updated
+    setTimeout(() => {
+      pushState();
+    }, 10);
   };
 
   const selectShape = async (id: string | null, addToSelection = false) => {
@@ -728,9 +788,79 @@ export function ProjectCanvasProvider({ children }: { children: ReactNode }) {
     batchUpdateShapes(updates);
   };
 
+  // Grouping operations - Temporarily commented out
+  // const groupShapes = (groupName?: string) => {
+  //   if (selectedIds.length < 2) return;
+
+  //   try {
+  //     const { group, updatedShapes } = createGroup(selectedIds, shapes, groupName);
+      
+  //     // Update shapes
+  //     updateShapesSync(updatedShapes);
+      
+  //     // Add group to groups array
+  //     setGroups(prev => [...prev, group]);
+      
+  //     // Select the new group
+  //     setSelectedIds([group.id]);
+      
+  //     // Save to history
+  //     setTimeout(() => pushState(), 10);
+      
+  //     console.log('✅ [ProjectCanvasContext] Shapes grouped successfully', { 
+  //       groupId: group.id, 
+  //       groupName: group.name, 
+  //       childCount: group.children.length 
+  //     });
+  //   } catch (error) {
+  //     console.error('❌ [ProjectCanvasContext] Failed to group shapes:', error);
+  //   }
+  // };
+
+  // const ungroupShapes = () => {
+  //   if (selectedIds.length !== 1) return;
+    
+  //   const selectedGroup = groups.find(g => g.id === selectedIds[0]);
+  //   if (!selectedGroup) return;
+
+  //   try {
+  //     const { updatedShapes, remainingGroups } = ungroupGroup(selectedGroup.id, groups, shapes);
+      
+  //     // Update shapes
+  //     updateShapesSync(updatedShapes);
+      
+  //     // Update groups array
+  //     setGroups(remainingGroups);
+      
+  //     // Select the ungrouped shapes
+  //     setSelectedIds(selectedGroup.children);
+      
+  //     // Save to history
+  //     setTimeout(() => pushState(), 10);
+      
+  //     console.log('✅ [ProjectCanvasContext] Group ungrouped successfully', { 
+  //       groupId: selectedGroup.id, 
+  //       ungroupedShapes: selectedGroup.children.length 
+  //     });
+  //   } catch (error) {
+  //     console.error('❌ [ProjectCanvasContext] Failed to ungroup shapes:', error);
+  //   }
+  // };
+
+  // const renameGroup = (groupId: string, newName: string) => {
+  //   setGroups(prev => prev.map(group => 
+  //     group.id === groupId 
+  //       ? { ...group, name: newName, lastModifiedAt: Date.now() }
+  //       : group
+  //   ));
+    
+  //   console.log('✅ [ProjectCanvasContext] Group renamed', { groupId, newName });
+  // };
+
   const value: ProjectCanvasContextType = {
     // Canvas state
     shapes,
+    // groups, // Temporarily commented out
     selectedIds,
     stageRef,
     loading,
@@ -787,6 +917,11 @@ export function ProjectCanvasProvider({ children }: { children: ReactNode }) {
     alignTop,
     alignBottom,
     alignMiddle,
+    
+    // Grouping operations - Temporarily commented out
+    // groupShapes,
+    // ungroupShapes,
+    // renameGroup,
     
     // Project canvas operations
     setCurrentCanvas,

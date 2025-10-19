@@ -1,6 +1,6 @@
 export interface Shape {
   id: string;
-  type: 'rectangle' | 'circle' | 'triangle' | 'text' | 'ellipse' | 'star' | 'polygon' | 'path' | 'image';
+  type: 'rectangle' | 'circle' | 'triangle' | 'text' | 'ellipse' | 'star' | 'polygon' | 'path' | 'image' | 'group';
   x: number;
   y: number;
   width: number;
@@ -9,6 +9,17 @@ export interface Shape {
   fill: string;
   stroke?: string;
   strokeWidth?: number;
+  // Advanced color properties
+  opacity?: number; // 0-1
+  blendMode?: 'normal' | 'multiply' | 'screen' | 'overlay' | 'soft-light' | 'hard-light' | 'color-dodge' | 'color-burn' | 'darken' | 'lighten' | 'difference' | 'exclusion';
+  // Gradient properties
+  gradientType?: 'linear' | 'radial' | 'conic';
+  gradientColors?: string[]; // Array of color stops
+  gradientStops?: number[]; // Array of stop positions (0-1)
+  gradientAngle?: number; // For linear gradients (degrees)
+  gradientCenterX?: number; // For radial/conic gradients (0-1)
+  gradientCenterY?: number; // For radial/conic gradients (0-1)
+  gradientRadius?: number; // For radial gradients (0-1)
   scaleX?: number;
   scaleY?: number;
   zIndex?: number; // Layer order (higher = on top)
@@ -29,6 +40,30 @@ export interface Shape {
   // Image-specific properties
   imageUrl?: string; // URL or data URL of the image
   imageAlt?: string; // Alt text for accessibility
+  // Group-specific properties
+  children?: string[]; // Array of child shape IDs
+  groupName?: string; // Optional name for the group
+  // Common properties
+  createdBy?: string;
+  createdAt?: number;
+  lastModifiedAt?: number;
+  isLocked?: boolean;
+  lockedBy?: string | null;
+  lockedAt?: number | null;
+}
+
+export interface Group {
+  id: string;
+  name: string;
+  children: string[]; // Array of child shape IDs
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  rotation?: number;
+  scaleX?: number;
+  scaleY?: number;
+  zIndex?: number;
   createdBy?: string;
   createdAt?: number;
   lastModifiedAt?: number;
@@ -40,6 +75,7 @@ export interface Shape {
 export interface CanvasState {
   shapes: Shape[];
   selectedShapeIds: string[];
+  groups: Group[];
   isPanning: boolean;
   isZooming: boolean;
   zoom: number;

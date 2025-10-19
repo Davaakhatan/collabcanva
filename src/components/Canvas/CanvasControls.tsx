@@ -5,6 +5,7 @@ import { MIN_ZOOM, MAX_ZOOM, ZOOM_SPEED, CANVAS_WIDTH, CANVAS_HEIGHT } from "../
 import { clamp } from "../../utils/helpers";
 import { FPSMonitor, generateRandomPosition } from "../../utils/performance";
 import { exportAsPNG } from "../../utils/export";
+// import GroupingControls from "./GroupingControls"; // Temporarily commented out
 
 interface CanvasControlsProps {
   onShowHelp: () => void;
@@ -59,20 +60,20 @@ interface ToolbarToggleProps {
 }
 
 const ToolbarToggle = ({ state, onToggle }: ToolbarToggleProps) => {
-  const isBottom = state === 'bottom';
+  const isLeft = state === 'left';
   
   return (
     <button
       onClick={onToggle}
       role="switch"
-      aria-checked={isBottom}
-      title={isBottom ? 'Move toolbar to sidebar' : 'Move toolbar to bottom'}
+      aria-checked={isLeft}
+      title={isLeft ? 'Move toolbar to bottom' : 'Move toolbar to sidebar'}
       className="absolute top-20 right-6 z-40 inline-flex items-center gap-2 rounded-full px-3 py-1.5 bg-white dark:bg-slate-800 shadow-md border border-gray-200 dark:border-slate-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-slate-700 active:scale-95 focus-visible:ring-2 ring-blue-500/40 transition-all duration-150 w-auto"
     >
       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
         <path  d="M4 6h16M4 12h16M4 18h16" />
       </svg>
-      {isBottom ? (
+      {isLeft ? (
         <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 20 20" strokeWidth={2}>
           <path  d="M15 19l-7-7 7-7" />
         </svg>
@@ -272,7 +273,11 @@ const ShapeMenu = ({ isOpen, onClose, onSelectShape, anchorRef, mode }: ShapeMen
 };
 
 export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
-  const { scale, setScale, resetView, addShape, addImageShape, stageRef, shapes, selectedIds, batchUpdateShapes, undo, redo, canUndo, canRedo, projectId, canvasId } = useProjectCanvas();
+  const { 
+    scale, setScale, resetView, addShape, addImageShape, stageRef, shapes, /* groups, */ selectedIds, 
+    batchUpdateShapes, undo, redo, canUndo, canRedo, projectId, canvasId, pushState
+    // groupShapes, ungroupShapes, renameGroup // Temporarily commented out
+  } = useProjectCanvas();
   
   // Debug logging for undo/redo state (reduced frequency)
   if (shapes.length > 0 || canUndo || canRedo) {
@@ -405,12 +410,6 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
     }
   };
 
-  const handleStressTest = (count: number) => {
-    for (let i = 0; i < count; i++) {
-      const pos = generateRandomPosition(CANVAS_WIDTH, CANVAS_HEIGHT);
-      addShape('rectangle', pos);
-    }
-  };
 
   const handleExportPNG = () => {
     const stage = stageRef.current;
@@ -558,6 +557,21 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
 
             <div className="w-full h-px bg-gray-200/70 dark:bg-slate-600/70" />
 
+            {/* Grouping Controls - Temporarily commented out */}
+            {/* <div className="flex flex-col items-center gap-2">
+              <GroupingControls
+                selectedShapeIds={selectedIds}
+                shapes={shapes}
+                groups={groups}
+                onGroupShapes={groupShapes}
+                onUngroupShapes={ungroupShapes}
+                onRenameGroup={renameGroup}
+                className="w-full"
+              />
+            </div> */}
+
+            <div className="w-full h-px bg-gray-200/70 dark:bg-slate-600/70" />
+
             {/* Primary Add Button */}
             <TButton 
               buttonRef={addShapeButtonRef}
@@ -625,6 +639,7 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
                 <path  d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </TButton>
+
 
           </div>
         </div>
@@ -852,12 +867,6 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
             </div>
           </div>
           <div className="mt-4 pt-4 border-t border-gray-200 dark:border-slate-600">
-            <p className="text-xs text-gray-500 dark:text-gray-500 mb-3">Stress Test</p>
-            <div className="grid grid-cols-3 gap-2">
-              <button onClick={() => handleStressTest(100)} className="px-3 py-2 text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded-lg hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors">+100</button>
-              <button onClick={() => handleStressTest(500)} className="px-3 py-2 text-xs bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 rounded-lg hover:bg-yellow-200 dark:hover:bg-yellow-900/50 transition-colors">+500</button>
-              <button onClick={() => handleStressTest(1000)} className="px-3 py-2 text-xs bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded-lg hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors">+1K</button>
-            </div>
           </div>
         </div>
       )}
