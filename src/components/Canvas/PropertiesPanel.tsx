@@ -101,10 +101,12 @@ export default function PropertiesPanel({ className = '' }: PropertiesPanelProps
     return null;
   }
 
+  console.log('🔧 [PropertiesPanel] Rendering panel for shape:', selectedShape.id);
+
   return (
     <div
       ref={containerRef}
-      className={`fixed bg-white/95 dark:bg-slate-800/95 backdrop-blur-lg rounded-2xl shadow-2xl border border-gray-200/50 dark:border-slate-600/50 p-4 z-50 w-[320px] max-h-[calc(100vh-120px)] overflow-y-auto ${className}`}
+      className={`fixed bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border-2 border-blue-500 p-4 z-[9999] w-[320px] max-h-[calc(100vh-120px)] overflow-y-auto ${className}`}
       style={{
         left: `${position.x}px`,
         top: `${position.y}px`,
@@ -124,6 +126,11 @@ export default function PropertiesPanel({ className = '' }: PropertiesPanelProps
         <div className="ml-auto text-xs text-gray-500 dark:text-gray-400">
           {selectedIds.length > 1 ? `${selectedIds.length} selected` : selectedShape.type}
         </div>
+      </div>
+
+      {/* Debug indicator */}
+      <div className="mb-2 p-2 bg-green-100 dark:bg-green-900 rounded text-xs">
+        ✅ PropertiesPanel is working! Shape: {selectedShape.id}
       </div>
 
       {/* Properties Content */}
