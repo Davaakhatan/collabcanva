@@ -25,8 +25,8 @@ export default function CanvasPage() {
     // If user has projects, redirect to the first one
     if (projects && projects.length > 0) {
       const firstProject = projects[0];
-      const canvasId = firstProject.canvases && firstProject.canvases.length > 0 
-        ? firstProject.canvases[0].id 
+      const canvasId = firstProject.canvasCount > 0 
+        ? 'main' // Default to main canvas
         : 'main';
       navigate(`/projects/${firstProject.id}/canvas/${canvasId}`, { replace: true });
       return;

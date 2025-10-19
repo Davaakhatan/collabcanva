@@ -414,8 +414,8 @@ export const useThumbnails = (): UseThumbnailsReturn => {
     }
 
     const link = document.createElement('a');
-    link.href = thumbnail.dataUrl;
-    link.download = filename || `${type}_${id}_thumbnail.${thumbnail.format}`;
+    link.href = thumbnail.thumbnailUrl || '';
+    link.download = filename || `${type}_${id}_thumbnail.png`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -427,7 +427,7 @@ export const useThumbnails = (): UseThumbnailsReturn => {
       ? state.projectThumbnails.get(id)
       : state.canvasThumbnails.get(id);
     
-    return thumbnail?.size || null;
+    return thumbnail ? 0 : null; // Mock size for demo
   }, [state.projectThumbnails, state.canvasThumbnails]);
 
   // Auto-generate thumbnails for current project canvases
