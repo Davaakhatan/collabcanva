@@ -178,16 +178,8 @@ export default function PropertiesPanel({ className = '' }: PropertiesPanelProps
           </div>
 
           <div>
-            <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">Rotation</label>
-            <div className="flex items-center gap-2">
-              <input
-                type="range"
-                min="0"
-                max="360"
-                value={selectedShape.rotation || 0}
-                onChange={(e) => handlePropertyChange('rotation', parseFloat(e.target.value))}
-                className="flex-1"
-              />
+            <div className="flex items-center justify-between mb-1">
+              <label className="text-xs text-gray-600 dark:text-gray-400">Rotation</label>
               <input
                 type="number"
                 value={Math.round(selectedShape.rotation || 0)}
@@ -195,6 +187,14 @@ export default function PropertiesPanel({ className = '' }: PropertiesPanelProps
                 className="w-16 px-2 py-1 text-xs border border-gray-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
               />
             </div>
+            <input
+              type="range"
+              min="0"
+              max="360"
+              value={selectedShape.rotation || 0}
+              onChange={(e) => handlePropertyChange('rotation', parseFloat(e.target.value))}
+              className="w-full"
+            />
           </div>
         </div>
 
@@ -246,16 +246,8 @@ export default function PropertiesPanel({ className = '' }: PropertiesPanelProps
           </div>
 
           <div>
-            <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">Stroke Width</label>
-            <div className="flex items-center gap-2">
-              <input
-                type="range"
-                min="0"
-                max="20"
-                value={selectedShape.strokeWidth || 0}
-                onChange={(e) => handleBatchPropertyChange('strokeWidth', parseFloat(e.target.value))}
-                className="flex-1"
-              />
+            <div className="flex items-center justify-between mb-1">
+              <label className="text-xs text-gray-600 dark:text-gray-400">Stroke Width</label>
               <input
                 type="number"
                 value={selectedShape.strokeWidth || 0}
@@ -263,6 +255,14 @@ export default function PropertiesPanel({ className = '' }: PropertiesPanelProps
                 className="w-16 px-2 py-1 text-xs border border-gray-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
               />
             </div>
+            <input
+              type="range"
+              min="0"
+              max="20"
+              value={selectedShape.strokeWidth || 0}
+              onChange={(e) => handleBatchPropertyChange('strokeWidth', parseFloat(e.target.value))}
+              className="w-full"
+            />
           </div>
 
           {/* Border Style Controls */}
@@ -318,16 +318,8 @@ export default function PropertiesPanel({ className = '' }: PropertiesPanelProps
           {/* Corner Radius for Rectangles */}
           {selectedShape.type === 'rectangle' && (
             <div>
-              <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">Corner Radius</label>
-              <div className="flex items-center gap-2">
-                <input
-                  type="range"
-                  min="0"
-                  max="50"
-                  value={selectedShape.cornerRadius || 0}
-                  onChange={(e) => handleBatchPropertyChange('cornerRadius', parseFloat(e.target.value))}
-                  className="flex-1"
-                />
+              <div className="flex items-center justify-between mb-1">
+                <label className="text-xs text-gray-600 dark:text-gray-400">Corner Radius</label>
                 <input
                   type="number"
                   value={selectedShape.cornerRadius || 0}
@@ -335,6 +327,14 @@ export default function PropertiesPanel({ className = '' }: PropertiesPanelProps
                   className="w-16 px-2 py-1 text-xs border border-gray-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
                 />
               </div>
+              <input
+                type="range"
+                min="0"
+                max="50"
+                value={selectedShape.cornerRadius || 0}
+                onChange={(e) => handleBatchPropertyChange('cornerRadius', parseFloat(e.target.value))}
+                className="w-full"
+              />
             </div>
           )}
 
@@ -366,16 +366,8 @@ export default function PropertiesPanel({ className = '' }: PropertiesPanelProps
 
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">Blur</label>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="range"
-                    min="0"
-                    max="50"
-                    value={selectedShape.shadowBlur || 0}
-                    onChange={(e) => handleBatchPropertyChange('shadowBlur', parseFloat(e.target.value))}
-                    className="flex-1"
-                  />
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-xs text-gray-600 dark:text-gray-400">Blur</label>
                   <input
                     type="number"
                     value={selectedShape.shadowBlur || 0}
@@ -383,19 +375,18 @@ export default function PropertiesPanel({ className = '' }: PropertiesPanelProps
                     className="w-16 px-2 py-1 text-xs border border-gray-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
                   />
                 </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="50"
+                  value={selectedShape.shadowBlur || 0}
+                  onChange={(e) => handleBatchPropertyChange('shadowBlur', parseFloat(e.target.value))}
+                  className="w-full"
+                />
               </div>
               <div>
-                <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">Opacity</label>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="range"
-                    min="0"
-                    max="1"
-                    step="0.1"
-                    value={selectedShape.shadowOpacity || 0.5}
-                    onChange={(e) => handleBatchPropertyChange('shadowOpacity', parseFloat(e.target.value))}
-                    className="flex-1"
-                  />
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-xs text-gray-600 dark:text-gray-400">Opacity</label>
                   <input
                     type="number"
                     min="0"
@@ -406,21 +397,22 @@ export default function PropertiesPanel({ className = '' }: PropertiesPanelProps
                     className="w-16 px-2 py-1 text-xs border border-gray-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
                   />
                 </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.1"
+                  value={selectedShape.shadowOpacity || 0.5}
+                  onChange={(e) => handleBatchPropertyChange('shadowOpacity', parseFloat(e.target.value))}
+                  className="w-full"
+                />
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">Offset X</label>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="range"
-                    min="-50"
-                    max="50"
-                    value={selectedShape.shadowOffsetX || 0}
-                    onChange={(e) => handleBatchPropertyChange('shadowOffsetX', parseFloat(e.target.value))}
-                    className="flex-1"
-                  />
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-xs text-gray-600 dark:text-gray-400">Offset X</label>
                   <input
                     type="number"
                     value={selectedShape.shadowOffsetX || 0}
@@ -428,18 +420,18 @@ export default function PropertiesPanel({ className = '' }: PropertiesPanelProps
                     className="w-16 px-2 py-1 text-xs border border-gray-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
                   />
                 </div>
+                <input
+                  type="range"
+                  min="-50"
+                  max="50"
+                  value={selectedShape.shadowOffsetX || 0}
+                  onChange={(e) => handleBatchPropertyChange('shadowOffsetX', parseFloat(e.target.value))}
+                  className="w-full"
+                />
               </div>
               <div>
-                <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">Offset Y</label>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="range"
-                    min="-50"
-                    max="50"
-                    value={selectedShape.shadowOffsetY || 0}
-                    onChange={(e) => handleBatchPropertyChange('shadowOffsetY', parseFloat(e.target.value))}
-                    className="flex-1"
-                  />
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-xs text-gray-600 dark:text-gray-400">Offset Y</label>
                   <input
                     type="number"
                     value={selectedShape.shadowOffsetY || 0}
@@ -447,6 +439,14 @@ export default function PropertiesPanel({ className = '' }: PropertiesPanelProps
                     className="w-16 px-2 py-1 text-xs border border-gray-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
                   />
                 </div>
+                <input
+                  type="range"
+                  min="-50"
+                  max="50"
+                  value={selectedShape.shadowOffsetY || 0}
+                  onChange={(e) => handleBatchPropertyChange('shadowOffsetY', parseFloat(e.target.value))}
+                  className="w-full"
+                />
               </div>
             </div>
           </div>
@@ -456,17 +456,8 @@ export default function PropertiesPanel({ className = '' }: PropertiesPanelProps
             <h5 className="text-xs font-medium text-gray-600 dark:text-gray-400">Opacity & Blend Mode</h5>
             
             <div>
-              <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">Opacity</label>
-              <div className="flex items-center gap-2">
-                <input
-                  type="range"
-                  min="0"
-                  max="1"
-                  step="0.1"
-                  value={selectedShape.opacity || 1}
-                  onChange={(e) => handleBatchPropertyChange('opacity', parseFloat(e.target.value))}
-                  className="flex-1"
-                />
+              <div className="flex items-center justify-between mb-1">
+                <label className="text-xs text-gray-600 dark:text-gray-400">Opacity</label>
                 <input
                   type="number"
                   min="0"
@@ -477,6 +468,15 @@ export default function PropertiesPanel({ className = '' }: PropertiesPanelProps
                   className="w-16 px-2 py-1 text-xs border border-gray-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
                 />
               </div>
+              <input
+                type="range"
+                min="0"
+                max="1"
+                step="0.1"
+                value={selectedShape.opacity || 1}
+                onChange={(e) => handleBatchPropertyChange('opacity', parseFloat(e.target.value))}
+                className="w-full"
+              />
             </div>
 
             <div>
@@ -509,17 +509,8 @@ export default function PropertiesPanel({ className = '' }: PropertiesPanelProps
           
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">Scale X</label>
-              <div className="flex items-center gap-2">
-                <input
-                  type="range"
-                  min="0.1"
-                  max="3"
-                  step="0.1"
-                  value={selectedShape.scaleX || 1}
-                  onChange={(e) => handlePropertyChange('scaleX', parseFloat(e.target.value))}
-                  className="flex-1"
-                />
+              <div className="flex items-center justify-between mb-1">
+                <label className="text-xs text-gray-600 dark:text-gray-400">Scale X</label>
                 <input
                   type="number"
                   value={Math.round((selectedShape.scaleX || 1) * 100) / 100}
@@ -527,19 +518,19 @@ export default function PropertiesPanel({ className = '' }: PropertiesPanelProps
                   className="w-16 px-2 py-1 text-xs border border-gray-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
                 />
               </div>
+              <input
+                type="range"
+                min="0.1"
+                max="3"
+                step="0.1"
+                value={selectedShape.scaleX || 1}
+                onChange={(e) => handlePropertyChange('scaleX', parseFloat(e.target.value))}
+                className="w-full"
+              />
             </div>
             <div>
-              <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">Scale Y</label>
-              <div className="flex items-center gap-2">
-                <input
-                  type="range"
-                  min="0.1"
-                  max="3"
-                  step="0.1"
-                  value={selectedShape.scaleY || 1}
-                  onChange={(e) => handlePropertyChange('scaleY', parseFloat(e.target.value))}
-                  className="flex-1"
-                />
+              <div className="flex items-center justify-between mb-1">
+                <label className="text-xs text-gray-600 dark:text-gray-400">Scale Y</label>
                 <input
                   type="number"
                   value={Math.round((selectedShape.scaleY || 1) * 100) / 100}
@@ -547,6 +538,15 @@ export default function PropertiesPanel({ className = '' }: PropertiesPanelProps
                   className="w-16 px-2 py-1 text-xs border border-gray-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
                 />
               </div>
+              <input
+                type="range"
+                min="0.1"
+                max="3"
+                step="0.1"
+                value={selectedShape.scaleY || 1}
+                onChange={(e) => handlePropertyChange('scaleY', parseFloat(e.target.value))}
+                className="w-full"
+              />
             </div>
           </div>
         </div>
@@ -643,17 +643,8 @@ export default function PropertiesPanel({ className = '' }: PropertiesPanelProps
             </div>
 
             <div>
-              <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">Inner Radius</label>
-              <div className="flex items-center gap-2">
-                <input
-                  type="range"
-                  min="0.1"
-                  max="0.9"
-                  step="0.1"
-                  value={selectedShape.innerRadius || 0.4}
-                  onChange={(e) => handlePropertyChange('innerRadius', parseFloat(e.target.value))}
-                  className="flex-1"
-                />
+              <div className="flex items-center justify-between mb-1">
+                <label className="text-xs text-gray-600 dark:text-gray-400">Inner Radius</label>
                 <input
                   type="number"
                   value={Math.round((selectedShape.innerRadius || 0.4) * 100) / 100}
@@ -661,6 +652,15 @@ export default function PropertiesPanel({ className = '' }: PropertiesPanelProps
                   className="w-16 px-2 py-1 text-xs border border-gray-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
                 />
               </div>
+              <input
+                type="range"
+                min="0.1"
+                max="0.9"
+                step="0.1"
+                value={selectedShape.innerRadius || 0.4}
+                onChange={(e) => handlePropertyChange('innerRadius', parseFloat(e.target.value))}
+                className="w-full"
+              />
             </div>
           </div>
         )}

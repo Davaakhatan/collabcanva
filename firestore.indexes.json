@@ -395,16 +395,6 @@
       ]
     },
     {
-      "collectionGroup": "userProjects",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "projects",
-          "arrayConfig": "CONTAINS"
-        }
-      ]
-    },
-    {
       "collectionGroup": "migrationStatus",
       "queryScope": "COLLECTION",
       "fields": [
