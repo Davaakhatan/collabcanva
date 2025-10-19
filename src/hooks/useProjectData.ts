@@ -536,10 +536,20 @@ export const useProjectData = (): UseProjectDataReturn => {
       setState(prev => ({
         ...prev,
         projects: prev.projects.map(p => 
-          p.id === projectId ? { ...p, ...data, updatedAt: Date.now() } : p
+          p.id === projectId ? { 
+            ...p, 
+            ...data, 
+            updatedAt: Date.now(),
+            settings: data.settings ? { ...p.settings, ...data.settings } : p.settings
+          } : p
         ),
         currentProject: prev.currentProject?.id === projectId 
-          ? { ...prev.currentProject, ...data, updatedAt: Date.now() }
+          ? { 
+              ...prev.currentProject, 
+              ...data, 
+              updatedAt: Date.now(),
+              settings: data.settings ? { ...prev.currentProject.settings, ...data.settings } : prev.currentProject.settings
+            }
           : prev.currentProject
       }));
 

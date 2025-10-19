@@ -188,15 +188,16 @@ export const useProjectMembers = ({
       const invitation: ProjectInvitation = {
         id: `invitation_${Date.now()}`,
         projectId,
+        projectName: 'Unknown Project', // TODO: Get project name from projectId
         email,
+        inviteeEmail: email,
         role,
         message: message || '',
         inviterId: user.uid,
         inviterName: user.displayName || user.email || 'Unknown',
         status: 'pending',
         createdAt: Date.now(),
-        expiresAt: Date.now() + (7 * 24 * 60 * 60 * 1000), // 7 days
-        updatedAt: Date.now()
+        expiresAt: Date.now() + (7 * 24 * 60 * 60 * 1000) // 7 days
       };
 
       // TODO: Save invitation to Firebase
@@ -323,7 +324,7 @@ export const useProjectMembers = ({
       // Update invitation status
       const updatedInvitations = invitations.map(inv =>
         inv.id === invitationId
-          ? { ...inv, status: 'pending', updatedAt: Date.now() }
+          ? { ...inv, status: 'pending' as const }
           : inv
       );
 
@@ -478,8 +479,7 @@ export const useProjectMembers = ({
 
       // Update project in Firebase
       await updateProject(projectId, {
-        members: updatedMembers,
-        ownerId: newOwnerId
+        members: updatedMembers
       });
 
       // Update local state

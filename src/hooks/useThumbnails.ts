@@ -251,7 +251,7 @@ export const useThumbnails = (): UseThumbnailsReturn => {
       updateCacheStats();
       return result;
     } catch (error) {
-      const errorMessage = error instanceof ThumbnailError 
+      const errorMessage = error instanceof Error 
         ? error.message 
         : 'Failed to generate canvas thumbnail';
 
@@ -327,10 +327,8 @@ export const useThumbnails = (): UseThumbnailsReturn => {
       updateCacheStats();
       return result;
     } catch (error) {
-      throw error instanceof ThumbnailError ? error : new ThumbnailError(
-        'Failed to generate placeholder thumbnail',
-        'PLACEHOLDER_FAILED',
-        error instanceof Error ? error : new Error(String(error))
+      throw error instanceof Error ? error : new Error(
+        'Failed to generate placeholder thumbnail'
       );
     }
   }, [updateCacheStats]);
@@ -397,7 +395,7 @@ export const useThumbnails = (): UseThumbnailsReturn => {
       ? state.projectThumbnails.get(id)
       : state.canvasThumbnails.get(id);
     
-    return thumbnail?.dataUrl || null;
+    return thumbnail?.thumbnailUrl || null;
   }, [state.projectThumbnails, state.canvasThumbnails]);
 
   // Download thumbnail
