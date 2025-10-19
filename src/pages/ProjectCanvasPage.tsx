@@ -228,6 +228,11 @@ function ProjectCanvasContent() {
                     <CanvasControls onShowHelp={() => setShowHelp(true)} />
                     <PropertiesPanel />
                     
+                    {/* Debug: Always visible test panel */}
+                    <div className="fixed top-4 right-4 bg-red-500 text-white p-2 rounded z-[10000] text-xs">
+                      PropertiesPanel Test - Always Visible
+                    </div>
+                    
                     <Suspense fallback={<div />}>
                       <AICommandPanel />
                     </Suspense>

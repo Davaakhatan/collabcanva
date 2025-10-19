@@ -92,7 +92,8 @@ export default function PropertiesPanel({ className = '' }: PropertiesPanelProps
   console.log('🔧 [PropertiesPanel] Render check:', { 
     selectedIds, 
     selectedShape: selectedShape?.id, 
-    shapesCount: shapes.length 
+    shapesCount: shapes.length,
+    allShapes: shapes.map(s => ({ id: s.id, type: s.type }))
   });
 
   // Don't render if no shape is selected
