@@ -210,7 +210,7 @@ export const AnalyticsProvider: React.FC<AnalyticsProviderProps> = ({
       identify(user.uid, {
         email: user.email,
         displayName: user.displayName,
-        createdAt: user.createdAt
+        createdAt: user.createdAt instanceof Date ? user.createdAt.getTime() : user.createdAt
       });
     }
   }, [user, isEnabled, identify]);

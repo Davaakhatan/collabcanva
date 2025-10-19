@@ -963,22 +963,6 @@ export function ProjectCanvasProvider({ children }: { children: ReactNode }) {
     clearCurrentCanvas,
     refreshCanvas,
     clearError,
-    
-    // Canvas management operations
-    projectCanvases: [], // TODO: Implement canvas list
-    createCanvas: async (name: string) => {
-      console.log('createCanvas not implemented yet:', name);
-      // TODO: Implement actual canvas creation
-    },
-    updateCanvas: async (id: string, updates: any) => {
-      console.log('updateCanvas not implemented yet:', id, updates);
-    },
-    deleteCanvas: async (id: string) => {
-      console.log('deleteCanvas not implemented yet:', id);
-    },
-    duplicateCanvas: async (id: string) => {
-      console.log('duplicateCanvas not implemented yet:', id);
-    },
   };
 
   return (

@@ -379,11 +379,13 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
             id: 'mock-1',
             name: 'My First Project',
             description: 'A sample project to demonstrate the interface',
-            color: '#3b82f6',
             ownerId: user.uid,
             createdAt: new Date('2024-01-15').getTime(),
             updatedAt: new Date('2024-01-20').getTime(),
             isArchived: false,
+            metadata: {
+              color: '#3b82f6'
+            },
             settings: {
               allowComments: true,
               allowViewing: true,
@@ -412,13 +414,17 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
             ],
             members: [
               {
+                id: user.uid,
                 userId: user.uid,
+                email: user.email || '',
+                name: user.displayName || 'User',
                 role: 'owner' as const,
+                status: 'active' as const,
                 joinedAt: Date.now(),
+                isOnline: true,
                 permissions: ['edit', 'delete', 'invite', 'manage']
               }
             ],
-            invitations: [],
             tags: ['design', 'prototype'],
             stats: {
               totalCanvases: 1,
@@ -451,11 +457,13 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
           id: 'mock-1',
           name: 'My First Project',
           description: 'A sample project to demonstrate the interface',
-          color: '#3b82f6',
           ownerId: user.uid,
           createdAt: Date.now(),
           updatedAt: Date.now(),
           isArchived: false,
+          metadata: {
+            color: '#3b82f6'
+          },
           settings: {
             allowComments: true,
             allowViewing: true,
@@ -495,7 +503,6 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
               permissions: ['edit', 'delete', 'invite', 'manage']
             }
           ],
-          invitations: [],
           tags: ['design', 'prototype'],
           stats: {
             totalCanvases: 1,
@@ -508,11 +515,13 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
           id: 'mock-2',
           name: 'Team Collaboration',
           description: 'Working together on a new design system',
-          color: '#10b981',
           ownerId: user.uid,
           createdAt: Date.now(),
           updatedAt: Date.now(),
           isArchived: false,
+          metadata: {
+            color: '#10b981'
+          },
           settings: {
             allowComments: true,
             allowViewing: true,
@@ -525,33 +534,33 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
           canvases: [
             {
               id: 'canvas-2a',
+              projectId: 'mock-2',
               name: 'Design System',
               description: 'Core design components',
               createdAt: Date.now(),
               updatedAt: Date.now(),
+              createdBy: user.uid,
               thumbnail: null,
-              settings: {
-                width: 1920,
-                height: 1080,
-                backgroundColor: '#f8fafc',
-                gridEnabled: true,
-                snapToGrid: true
-              }
+              width: 1920,
+              height: 1080,
+              backgroundColor: '#f8fafc',
+              isArchived: false,
+              order: 0
             },
             {
               id: 'canvas-2b',
+              projectId: 'mock-2',
               name: 'User Flows',
               description: 'User journey mapping',
               createdAt: Date.now(),
               updatedAt: Date.now(),
+              createdBy: user.uid,
               thumbnail: null,
-              settings: {
-                width: 1920,
-                height: 1080,
-                backgroundColor: '#ffffff',
-                gridEnabled: false,
-                snapToGrid: false
-              }
+              width: 1920,
+              height: 1080,
+              backgroundColor: '#ffffff',
+              isArchived: false,
+              order: 1
             }
           ],
           members: [
@@ -567,7 +576,6 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
               permissions: ['edit', 'delete', 'invite', 'manage']
             }
           ],
-          invitations: [],
           tags: ['collaboration', 'design-system', 'ux'],
           stats: {
             totalCanvases: 2,
@@ -580,11 +588,13 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
           id: 'mock-3',
           name: 'Archived Project',
           description: 'This project has been archived',
-          color: '#6b7280',
           ownerId: user.uid,
           createdAt: Date.now(),
           updatedAt: Date.now(),
           isArchived: true,
+          metadata: {
+            color: '#6b7280'
+          },
           settings: {
             allowComments: false,
             allowViewing: true,
@@ -597,18 +607,18 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
           canvases: [
             {
               id: 'canvas-3',
+              projectId: 'mock-3',
               name: 'Old Design',
               description: 'Previous version',
               createdAt: Date.now(),
               updatedAt: Date.now(),
+              createdBy: user.uid,
               thumbnail: null,
-              settings: {
-                width: 1920,
-                height: 1080,
-                backgroundColor: '#ffffff',
-                gridEnabled: true,
-                snapToGrid: true
-              }
+              width: 1920,
+              height: 1080,
+              backgroundColor: '#ffffff',
+              isArchived: false,
+              order: 0
             }
           ],
           members: [
@@ -624,7 +634,6 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
               permissions: ['edit', 'delete', 'invite', 'manage']
             }
           ],
-          invitations: [],
           tags: ['archived', 'old'],
           stats: {
             totalCanvases: 1,
@@ -716,6 +725,8 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
           settings: {
             allowComments: true,
             allowViewing: true,
+            allowDownloads: true,
+            isPublic: false,
             defaultCanvasWidth: 1920,
             defaultCanvasHeight: 1080,
             theme: 'light'
@@ -847,11 +858,13 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
             id: projectId,
             name: 'Demo Project',
             description: 'A demo project created on demand',
-            color: '#3b82f6',
             ownerId: user?.uid || 'demo-user',
             createdAt: Date.now(),
             updatedAt: Date.now(),
             isArchived: false,
+            metadata: {
+              color: '#3b82f6'
+            },
             settings: {
               allowComments: true,
               allowViewing: true,
@@ -864,29 +877,33 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
             canvases: [
               {
                 id: 'canvas-1',
+                projectId: projectId,
                 name: 'Main Canvas',
                 description: 'Primary canvas for this project',
                 createdAt: Date.now(),
                 updatedAt: Date.now(),
+                createdBy: user?.uid || 'demo-user',
                 thumbnail: null,
-                settings: {
-                  width: 1920,
-                  height: 1080,
-                  backgroundColor: '#ffffff',
-                  gridEnabled: true,
-                  snapToGrid: true
-                }
+                width: 1920,
+                height: 1080,
+                backgroundColor: '#ffffff',
+                isArchived: false,
+                order: 0
               }
             ],
             members: [
               {
+                id: user?.uid || 'demo-user',
                 userId: user?.uid || 'demo-user',
+                email: user?.email || 'demo@demo.com',
+                name: user?.displayName || 'Demo User',
                 role: 'owner' as const,
+                status: 'active' as const,
                 joinedAt: Date.now(),
+                isOnline: true,
                 permissions: ['edit', 'delete', 'invite', 'manage']
               }
             ],
-            invitations: [],
             tags: ['demo'],
             stats: {
               totalCanvases: 1,

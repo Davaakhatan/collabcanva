@@ -192,7 +192,11 @@ export type ActivityType =
   | 'selecting'
   | 'drawing'
   | 'typing'
-  | 'navigating';
+  | 'navigating'
+  | 'collaborating'
+  | 'chatting'
+  | 'presenting'
+  | 'away';
 
 // Utility types
 export type ProjectWithMembers = Project & {
