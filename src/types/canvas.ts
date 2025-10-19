@@ -7,6 +7,10 @@ export interface Shape {
   height: number;
   rotation?: number; // Rotation in degrees
   fill: string;
+  stroke?: string;
+  strokeWidth?: number;
+  scaleX?: number;
+  scaleY?: number;
   zIndex?: number; // Layer order (higher = on top)
   // Text-specific properties
   text?: string;

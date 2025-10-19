@@ -93,6 +93,8 @@ interface ProjectCanvasContextType {
   redo: () => void;
   canUndo: boolean;
   canRedo: boolean;
+  pushState: () => void;
+  forceSave: () => void;
   
   // Alignment operations (work on all selected shapes)
   alignLeft: () => void;

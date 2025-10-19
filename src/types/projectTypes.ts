@@ -9,26 +9,36 @@ export interface Project {
   createdAt: Date;
   updatedAt: Date;
   isArchived: boolean;
+  isDeleted?: boolean;
   settings: ProjectSettings;
+  members?: ProjectMember[];
+  canvases?: ProjectCanvas[];
+  metadata?: ProjectMetadata;
 }
 
 export interface ProjectSettings {
   allowComments: boolean;
   allowViewing: boolean;
+  allowDownloads: boolean;
+  isPublic: boolean;
   defaultCanvasWidth: number;
   defaultCanvasHeight: number;
   theme: 'light' | 'dark' | 'auto';
 }
 
 export interface ProjectMember {
+  id: string;
   userId: string;
   email: string;
+  name: string;
   displayName?: string;
   avatar?: string;
   role: ProjectRole;
+  status: 'active' | 'pending' | 'inactive';
   joinedAt: Date;
   lastActiveAt?: Date;
   isOnline: boolean;
+  permissions?: string[];
 }
 
 export type ProjectRole = 'owner' | 'admin' | 'editor' | 'viewer';
@@ -40,11 +50,16 @@ export interface ProjectInvitation {
   inviterId: string;
   inviterName: string;
   inviteeEmail: string;
+  email: string;
   role: ProjectRole;
-  status: 'pending' | 'accepted' | 'declined' | 'expired';
+  status: 'pending' | 'accepted' | 'declined' | 'expired' | 'cancelled';
   createdAt: Date;
   expiresAt: Date;
   acceptedAt?: Date;
+  declinedAt?: Date;
+  cancelledAt?: Date;
+  message?: string;
+  metadata?: Record<string, any>;
 }
 
 export interface ProjectCanvas {
@@ -61,6 +76,8 @@ export interface ProjectCanvas {
   createdBy: string; // User ID
   isArchived: boolean;
   order: number; // For canvas ordering within a project
+  shapeCount?: number;
+  size?: number;
 }
 
 export interface ProjectActivity {
@@ -75,9 +92,15 @@ export interface ProjectActivity {
   targetName?: string;
   metadata?: Record<string, any>;
   createdAt: Date;
+  timestamp: number;
 }
 
 export type ProjectActivityAction =
+  | 'project_created'
+  | 'project_updated'
+  | 'project_deleted'
+  | 'project_archived'
+  | 'project_unarchived'
   | 'created'
   | 'updated'
   | 'deleted'
@@ -214,11 +237,47 @@ export interface InviteMemberData {
 }
 
 export interface TransferRequest {
+  id: string;
   projectId: string;
   newOwnerId: string;
   newOwnerEmail: string;
   requesterId: string;
-  status: 'pending' | 'accepted' | 'declined';
+  fromUserName: string;
+  toUserName: string;
+  status: 'pending' | 'accepted' | 'declined' | 'cancelled';
+  createdAt: Date;
+  expiresAt: Date;
+  acceptedAt?: Date;
+  declinedAt?: Date;
+  cancelledAt?: Date;
+  message?: string;
+  metadata?: Record<string, any>;
+}
+
+export interface ProjectMetadata {
+  tags?: string[];
+  color?: string;
+  lastAccessed?: Date;
+  [key: string]: any;
+}
+
+export interface ThumbnailResult {
+  dataUrl: string;
+  width: number;
+  height: number;
+  size: number;
+}
+
+export interface FormErrors {
+  [key: string]: string;
+}
+
+export interface ProjectTransfer {
+  id: string;
+  projectId: string;
+  fromUserId: string;
+  toUserId: string;
+  status: 'pending' | 'accepted' | 'declined' | 'cancelled';
   createdAt: Date;
   expiresAt: Date;
 }

@@ -34,53 +34,9 @@ export function useHistory(
         selectedIdsCount: initialState.selectedIds.length 
       });
     }
-  }, [currentShapes, selectedIds]);
+  }, [currentShapes, selectedIds]); // Add dependencies to ensure proper initialization
 
-  // Force initialization if not done yet (fallback)
-  useEffect(() => {
-    if (!hasInitializedRef.current) {
-      console.log('🔄 [useHistory] Force initializing history...');
-      const initialState: HistoryState = {
-        shapes: JSON.parse(JSON.stringify(currentShapes)),
-        selectedIds: [...selectedIds],
-      };
-      setHistory([initialState]);
-      setCurrentIndex(0);
-      hasInitializedRef.current = true;
-    }
-  }, []);
-
-  // Re-initialize history when shapes change significantly (e.g., when sync becomes enabled)
-  useEffect(() => {
-    if (hasInitializedRef.current && history.length === 1 && currentIndex === 0) {
-      const currentState = history[0];
-      if (currentState && currentState.shapes.length === 0 && currentShapes.length > 0) {
-        console.log('🔄 [useHistory] Re-initializing history due to significant shape change');
-        const newInitialState: HistoryState = {
-          shapes: JSON.parse(JSON.stringify(currentShapes)),
-          selectedIds: [...selectedIds],
-        };
-        setHistory([newInitialState]);
-        setCurrentIndex(0);
-      }
-    }
-  }, [currentShapes, selectedIds, history, currentIndex]);
-
-  // Reset history when shapes become available (sync enabled)
-  useEffect(() => {
-    if (hasInitializedRef.current && currentShapes.length > 0) {
-      const currentState = history[currentIndex];
-      if (!currentState || currentState.shapes.length === 0) {
-        console.log('🔄 [useHistory] Resetting history with current shapes');
-        const newInitialState: HistoryState = {
-          shapes: JSON.parse(JSON.stringify(currentShapes)),
-          selectedIds: [...selectedIds],
-        };
-        setHistory([newInitialState]);
-        setCurrentIndex(0);
-      }
-    }
-  }, [currentShapes, selectedIds, history, currentIndex]);
+  // Removed problematic useEffect hooks that were causing re-initialization
 
   // Removed problematic useEffect that was causing infinite re-renders
 
@@ -117,8 +73,7 @@ export function useHistory(
     
     console.log('✅ [useHistory] Saving state to history', { 
       newStateShapeCount: newState.shapes.length,
-      newStateSelectedIdsCount: newState.selectedIds.length,
-      shapes: newState.shapes.map(s => ({ id: s.id, x: s.x, y: s.y, fill: s.fill }))
+      newStateSelectedIdsCount: newState.selectedIds.length
     });
     
     setHistory((prev) => {

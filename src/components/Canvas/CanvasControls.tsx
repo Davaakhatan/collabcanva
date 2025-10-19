@@ -626,34 +626,6 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
               </svg>
             </TButton>
 
-            {/* Debug Test Button */}
-            <TButton 
-              onClick={() => {
-                console.log('🧪 [Debug] Test button clicked');
-                addShape('rectangle', { x: 100, y: 100, width: 100, height: 100, fill: '#ff0000' });
-              }} 
-              title="Test Add Shape" 
-              aria-label="Test Add Shape"
-            >
-              <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
-                <path d="M12 4v16m8-8H4" />
-              </svg>
-            </TButton>
-
-            {/* Debug History Button */}
-            <TButton 
-              onClick={() => {
-                console.log('🧪 [Debug] Test Add Shape button clicked');
-                // Add a test shape to trigger history
-                addShape('rect', { x: 100, y: 100, width: 50, height: 50, fill: '#ff0000' });
-              }} 
-              title="Test Add Shape" 
-              aria-label="Test Add Shape"
-            >
-              <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
-                <path d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-              </svg>
-            </TButton>
           </div>
         </div>
       )}
@@ -793,34 +765,6 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
               </svg>
             </TButton>
 
-            {/* Debug Test Button */}
-            <TButton 
-              onClick={() => {
-                console.log('🧪 [Debug] Test button clicked');
-                addShape('rectangle', { x: 100, y: 100, width: 100, height: 100, fill: '#ff0000' });
-              }} 
-              title="Test Add Shape" 
-              aria-label="Test Add Shape"
-            >
-              <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
-                <path d="M12 4v16m8-8H4" />
-              </svg>
-            </TButton>
-
-            {/* Debug History Button */}
-            <TButton 
-              onClick={() => {
-                console.log('🧪 [Debug] Test Add Shape button clicked');
-                // Add a test shape to trigger history
-                addShape('rect', { x: 100, y: 100, width: 50, height: 50, fill: '#ff0000' });
-              }} 
-              title="Test Add Shape" 
-              aria-label="Test Add Shape"
-            >
-              <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
-                <path d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-              </svg>
-            </TButton>
           </div>
         </div>
       )}

@@ -23,3 +23,5 @@ export const MIGRATION_CONFIG: MigrationConfig = {
   timeout: 30000,
   enableCleanup: true
 };
+
+export const BATCH_SIZE = 50;
