@@ -12,9 +12,7 @@ import {
   FolderIcon, 
   DocumentIcon,
   ClockIcon,
-  StarIcon,
-  PlusIcon,
-  EllipsisHorizontalIcon
+  StarIcon
 } from '@heroicons/react/24/outline';
 import { 
   HomeIcon as HomeIconSolid,
@@ -75,10 +73,8 @@ export const ProjectBreadcrumb: React.FC<ProjectBreadcrumbProps> = ({
   const { currentProjectCanvases } = useProjectData();
   
   const [isRecentOpen, setIsRecentOpen] = useState(false);
-  const [isQuickActionsOpen, setIsQuickActionsOpen] = useState(false);
   const [recentItems, setRecentItems] = useState<RecentItem[]>([]);
   const recentRef = useRef<HTMLDivElement>(null);
-  const quickActionsRef = useRef<HTMLDivElement>(null);
 
   // Generate breadcrumb items based on current route
   const generateBreadcrumbItems = (): BreadcrumbItem[] => {
@@ -203,9 +199,6 @@ export const ProjectBreadcrumb: React.FC<ProjectBreadcrumbProps> = ({
     const handleClickOutside = (event: MouseEvent) => {
       if (recentRef.current && !recentRef.current.contains(event.target as Node)) {
         setIsRecentOpen(false);
-      }
-      if (quickActionsRef.current && !quickActionsRef.current.contains(event.target as Node)) {
-        setIsQuickActionsOpen(false);
       }
     };
 
@@ -340,58 +333,6 @@ export const ProjectBreadcrumb: React.FC<ProjectBreadcrumbProps> = ({
           </div>
         )}
 
-        {/* Quick actions dropdown */}
-        {showQuickActions && (
-          <div className="relative" ref={quickActionsRef}>
-            <button
-              onClick={() => setIsQuickActionsOpen(!isQuickActionsOpen)}
-              className="flex items-center space-x-1 px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800 rounded-lg transition-colors"
-            >
-              <EllipsisHorizontalIcon className="w-4 h-4" />
-            </button>
-
-            {isQuickActionsOpen && (
-              <div className="absolute top-full right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50">
-                <div className="py-2">
-                  <button
-                    onClick={() => {
-                      handleNavigate('/projects');
-                      setIsQuickActionsOpen(false);
-                    }}
-                    className="w-full flex items-center space-x-3 px-3 py-2 text-left hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                  >
-                    <FolderIcon className="w-4 h-4 text-gray-500" />
-                    <span className="text-sm text-gray-900 dark:text-gray-100">All Projects</span>
-                  </button>
-                  
-                  {currentProject && (
-                    <button
-                      onClick={() => {
-                        handleNavigate(`/projects/${currentProject.id}`);
-                        setIsQuickActionsOpen(false);
-                      }}
-                      className="w-full flex items-center space-x-3 px-3 py-2 text-left hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                    >
-                      <PlusIcon className="w-4 h-4 text-gray-500" />
-                      <span className="text-sm text-gray-900 dark:text-gray-100">New Canvas</span>
-                    </button>
-                  )}
-                  
-                  <button
-                    onClick={() => {
-                      handleNavigate('/');
-                      setIsQuickActionsOpen(false);
-                    }}
-                    className="w-full flex items-center space-x-3 px-3 py-2 text-left hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                  >
-                    <HomeIcon className="w-4 h-4 text-gray-500" />
-                    <span className="text-sm text-gray-900 dark:text-gray-100">Home</span>
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
       </nav>
     </div>
   );
