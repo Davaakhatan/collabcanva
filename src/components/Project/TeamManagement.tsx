@@ -301,7 +301,7 @@ export const TeamManagement: React.FC<TeamManagementProps> = ({
                   {roleConfig.label}
                 </span>
                 <span className="text-xs text-gray-500 dark:text-gray-400">
-                  {projectHelpers.formatRelativeTime(member.joinedAt)}
+                  {projectHelpers.dateHelpers.formatRelativeTime(member.joinedAt)}
                 </span>
               </div>
             </div>
@@ -385,7 +385,7 @@ export const TeamManagement: React.FC<TeamManagementProps> = ({
                   {isExpired ? 'Expired' : statusConfig.label}
                 </span>
                 <span className="text-xs text-gray-500 dark:text-gray-400">
-                  {projectHelpers.formatRelativeTime(invitation.createdAt)}
+                  {projectHelpers.dateHelpers.formatRelativeTime(invitation.createdAt)}
                 </span>
               </div>
             </div>

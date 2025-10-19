@@ -1,7 +1,7 @@
 // usePermissions hook for role-based access control
 // Comprehensive permission checking throughout the application
 
-import { useMemo, useCallback } from 'react';
+import React, { useMemo, useCallback } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useProjectMembers } from './useProjectMembers';
 import { ProjectRole } from '../types';
@@ -469,11 +469,11 @@ export const withPermissions = <P extends object>(
     const { hasAllPermissions } = usePermissions({ projectId: props.projectId });
     
     if (hasAllPermissions(requiredPermissions)) {
-      return Component(props);
+      return React.createElement(Component, props);
     }
     
     if (fallback) {
-      return fallback(props);
+      return React.createElement(fallback, props);
     }
     
     return null;

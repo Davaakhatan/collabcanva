@@ -254,7 +254,7 @@ export default function ProjectDashboardPage() {
   return (
     <NavigationProvider>
       <ProjectProvider>
-        <PermissionProvider>
+        <PermissionProvider projectId={projectId}>
           <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
             {/* Enhanced navigation bar */}
             <NavigationBar 
@@ -300,7 +300,6 @@ export default function ProjectDashboardPage() {
             <div className={showFixButton ? "" : "pt-20"}>
               <div className="w-full px-6 py-8">
                 <ProjectDashboard
-                  onViewProject={handleViewProject}
                   onEditProject={handleEditProject}
                   onDeleteProject={handleDeleteProject}
                   onArchiveProject={handleArchiveProject}

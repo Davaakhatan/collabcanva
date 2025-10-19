@@ -185,8 +185,8 @@ const TransferRequestItem: React.FC<TransferRequestItemProps> = ({
 
   const statusColor = getTransferStatusColor(transfer.status);
   const statusText = formatTransferStatus(transfer.status);
-  const expiryText = formatTransferExpiry(transfer.expiresAt);
-  const isExpired = isTransferExpired(transfer.expiresAt);
+  const expiryText = formatTransferExpiry(transfer.expiresAt instanceof Date ? transfer.expiresAt.getTime() : transfer.expiresAt);
+  const isExpired = isTransferExpired(transfer.expiresAt instanceof Date ? transfer.expiresAt.getTime() : transfer.expiresAt);
 
   const handleDecline = () => {
     if (showDeclineForm) {

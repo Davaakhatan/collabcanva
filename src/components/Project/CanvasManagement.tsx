@@ -4,7 +4,7 @@
 import React, { useState, useCallback } from 'react';
 import { useProjectCanvas } from '../../contexts/ProjectCanvasContext';
 import { useProjects } from '../../hooks/useProjects';
-import { usePermissions } from '../../hooks/usePermissions';
+import { usePermissions, Permission } from '../../hooks/usePermissions';
 import type { ProjectCanvas } from "../../types"
 
 // Canvas management props
@@ -51,14 +51,14 @@ const CanvasCard: React.FC<CanvasCardProps> = ({
     setShowActions(false);
   };
 
-  const formatDate = (date: Date) => {
+  const formatDate = (timestamp: number) => {
     return new Intl.DateTimeFormat('en-US', {
       month: 'short',
       day: 'numeric',
       year: 'numeric',
       hour: '2-digit',
       minute: '2-digit'
-    }).format(date);
+    }).format(new Date(timestamp));
   };
 
   return (
@@ -195,11 +195,11 @@ export const CanvasManagement: React.FC<CanvasManagementProps> = ({
       setIsLoading(true);
       setError(null);
       
-      const newCanvas = await createCanvas(name);
+      await createCanvas(name);
       setShowCreateModal(false);
       
-      // Auto-select the new canvas
-      handleCanvasSelect(newCanvas.id);
+      // Canvas will be automatically added to the list via context
+      // No need to auto-select since we don't have the canvas ID
     } catch (err: any) {
       setError(err.message || 'Failed to create canvas');
     } finally {
@@ -231,10 +231,13 @@ export const CanvasManagement: React.FC<CanvasManagementProps> = ({
       setIsLoading(true);
       setError(null);
       
-      const duplicatedCanvas = await duplicateCanvas(canvas.id);
+      await duplicateCanvas(canvas.id);
       
-      // Auto-select the duplicated canvas
-      handleCanvasSelect(duplicatedCanvas.id);
+      // Auto-select the duplicated canvas (it will be the last one in the list)
+      const duplicatedCanvas = projectCanvases[projectCanvases.length - 1];
+      if (duplicatedCanvas) {
+        handleCanvasSelect(duplicatedCanvas.id);
+      }
     } catch (err: any) {
       setError(err.message || 'Failed to duplicate canvas');
     } finally {

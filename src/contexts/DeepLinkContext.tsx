@@ -312,12 +312,12 @@ export const DeepLinkProvider: React.FC<DeepLinkProviderProps> = ({
 
     // Set current project if loaded
     if (project && setCurrentProject) {
-      setCurrentProject(project);
+      setCurrentProject(project.id);
     }
 
     // Set current canvas if loaded
     if (canvas && setCurrentCanvas) {
-      setCurrentCanvas(canvas);
+      setCurrentCanvas(project.id, canvas.id);
     }
   }, [state.currentResult, user, setCurrentProject, setCurrentCanvas]);
 

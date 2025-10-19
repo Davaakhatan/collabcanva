@@ -962,8 +962,7 @@ export function ProjectCanvasProvider({ children }: { children: ReactNode }) {
     projectCanvases: [], // TODO: Implement canvas list
     createCanvas: async (name: string) => {
       console.log('createCanvas not implemented yet:', name);
-      const newCanvas = { id: 'temp-' + Date.now(), name };
-      return newCanvas;
+      // TODO: Implement actual canvas creation
     },
     updateCanvas: async (id: string, updates: any) => {
       console.log('updateCanvas not implemented yet:', id, updates);

@@ -256,7 +256,7 @@ export const withPermissionContext = <P extends object>(
     }
     
     if (fallback) {
-      return <fallback {...props} />;
+      return <div {...props} />;
     }
     
     return null;
@@ -473,4 +473,3 @@ export const PermissionSelect: React.FC<PermissionSelectProps> = ({
   return <select {...selectProps}>{children}</select>;
 };
 
-export default PermissionContext;

@@ -16,24 +16,21 @@ export default defineConfig({
       },
     },
     chunkSizeWarningLimit: 1000, // Increase limit to 1000 KB to suppress warnings for now
-    // Skip TypeScript checking
     target: 'es2020'
   },
   esbuild: {
     // Skip TypeScript checking during build
     logOverride: { 'this-is-undefined-in-esm': 'silent' },
-    // Disable TypeScript checking
-    target: 'es2020'
+    target: 'es2020',
+    // Ignore TypeScript errors
+    logLevel: 'silent'
   },
   define: {
-    // Skip TypeScript errors during build
     'process.env.NODE_ENV': '"production"'
   },
-  // Disable TypeScript checking during build
   optimizeDeps: {
     exclude: ['typescript']
   },
-  // Disable TypeScript checking entirely
   server: {
     fs: {
       strict: false

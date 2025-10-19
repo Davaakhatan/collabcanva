@@ -23,7 +23,7 @@ export default function PropertiesPanel({ className = '' }: PropertiesPanelProps
   const [position, setPosition] = useState({ x: 20, y: 20 });
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [showAdvancedColorPicker, setShowAdvancedColorPicker] = useState(false);
-  const [colorPickerProperty, setColorPickerProperty] = useState<'fill' | 'stroke'>('fill');
+  const [colorPickerProperty, setColorPickerProperty] = useState<'fill' | 'stroke' | 'shadowColor'>('fill');
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Get the first selected shape for property editing
@@ -695,16 +695,22 @@ export default function PropertiesPanel({ className = '' }: PropertiesPanelProps
             }
           }}
         >
-          <AdvancedColorPicker
-            selectedShape={selectedShape}
-            targetProperty={colorPickerProperty}
-            onColorChange={(property, value) => {
-              // Apply the color change to the correct property
-              handleBatchPropertyChange(property, value);
-            }}
-            onClose={() => setShowAdvancedColorPicker(false)}
-            className="relative"
-          />
+          {colorPickerProperty === 'fill' || colorPickerProperty === 'stroke' ? (
+            <AdvancedColorPicker
+              selectedShape={selectedShape}
+              targetProperty={colorPickerProperty}
+              onColorChange={(property, value) => {
+                // Apply the color change to the correct property
+                handleBatchPropertyChange(property, value);
+              }}
+              onClose={() => setShowAdvancedColorPicker(false)}
+              className="relative"
+            />
+          ) : (
+            <div className="p-4 text-center text-gray-500">
+              Color picker not available for {colorPickerProperty}
+            </div>
+          )}
         </div>
       )}
     </div>

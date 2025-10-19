@@ -173,7 +173,7 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({
   }, [navigate]);
 
   // Add item to recent
-  const addToRecent = useCallback((item: Omit<NavigationItem, 'lastAccessed'>) => {
+  const addToRecent = useCallback((item: NavigationItem) => {
     const newItem: NavigationItem = {
       ...item,
       lastAccessed: new Date()

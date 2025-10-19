@@ -13,17 +13,21 @@ import {
   ProjectRole 
 } from '../types';
 
-// Simplified project interface for UI components
+// ProjectSummary type for simplified project display
 export interface ProjectSummary {
   id: string;
   name: string;
-  description?: string;
-  thumbnailUrl?: string;
+  description: string;
+  thumbnailUrl: string;
   memberCount: number;
   canvasCount: number;
   lastUpdated: number;
   isArchived: boolean;
-  userRole: ProjectRole;
+  userRole: string;
+  ownerId: string;
+  metadata?: {
+    tags?: string[];
+  };
 }
 
 // Hook return type
@@ -137,7 +141,9 @@ export const useProjects = (): UseProjectsReturn => {
       canvasCount: (project as any).canvases?.length || 1, // Default to 1 (main canvas)
       lastUpdated: project.updatedAt instanceof Date ? project.updatedAt.getTime() : new Date(project.updatedAt).getTime(),
       isArchived: project.isArchived,
-      userRole: state.userRole || 'owner' // Default to owner for projects in the list
+      userRole: state.userRole || 'owner', // Default to owner for projects in the list
+      ownerId: project.ownerId,
+      metadata: project.metadata
     }));
   }, [state.projects, state.userRole]);
 

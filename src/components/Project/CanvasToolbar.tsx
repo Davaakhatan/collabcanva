@@ -59,8 +59,8 @@ export const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
         width: 1920,
         height: 1080,
         backgroundColor: '#ffffff',
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
         createdBy: user?.uid || 'anonymous',
         isArchived: false,
         order: 0
@@ -96,8 +96,8 @@ export const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
         ...currentCanvas,
         id: `canvas-${Date.now()}`,
         name: `${currentCanvas.name} (Copy)`,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
         createdBy: user?.uid || 'anonymous'
       };
       

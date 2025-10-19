@@ -405,7 +405,7 @@ interface BreadcrumbContextType {
 
 const BreadcrumbContext = React.createContext<BreadcrumbContextType | null>(null);
 
-export const useBreadcrumb = () => {
+export const useBreadcrumb = (): BreadcrumbContextType => {
   const context = React.useContext(BreadcrumbContext);
   if (!context) {
     throw new Error('useBreadcrumb must be used within a BreadcrumbProvider');

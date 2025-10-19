@@ -124,10 +124,10 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
         setThumbnailLoading(true);
         const existingThumbnail = getProjectThumbnail(project.id);
         if (existingThumbnail) {
-          setThumbnail(existingThumbnail.dataUrl);
+          setThumbnail(existingThumbnail.thumbnailUrl || null);
         } else {
           const placeholder = await generatePlaceholderThumbnail('project');
-          setThumbnail(placeholder.dataUrl);
+          setThumbnail(placeholder.thumbnailUrl || null);
         }
       } catch (error) {
         console.error('Failed to load thumbnail:', error);

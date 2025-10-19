@@ -39,14 +39,27 @@ export default function PresenceList({ cursors, onUserClick, projectId, canvasId
     };
   });
 
-  const userCount = cursorUsers.length;
+  // TEMPORARY: Add test user for debugging
+  const testUser = {
+    userId: 'test-user-123',
+    displayName: 'Test User',
+    color: '#FF6B6B',
+    cursorX: 100,
+    cursorY: 100,
+    isOnline: true
+  };
+  
+  // Always include test user for debugging
+  const allUsers = [...cursorUsers, testUser];
+
+  const userCount = allUsers.length;
 
   console.log('🔍 [PresenceList] Rendering with:', {
     projectId,
     canvasId,
     userCount,
     cursorsCount: Object.keys(cursors).length,
-    users: cursorUsers.map(u => u.displayName),
+    users: allUsers.map(u => u.displayName),
     rawCursors: cursors
   });
 
@@ -169,8 +182,8 @@ export default function PresenceList({ cursors, onUserClick, projectId, canvasId
       {/* User List */}
       {isExpanded && (
         <div className="px-2 pb-2 space-y-1 max-h-64 overflow-y-auto">
-          {cursorUsers.length > 0 ? (
-            cursorUsers.map((user) => (
+          {allUsers.length > 0 ? (
+            allUsers.map((user) => (
             <button
               key={user.userId}
               onClick={(e) => {

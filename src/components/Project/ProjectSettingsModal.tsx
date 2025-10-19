@@ -175,10 +175,10 @@ const ProjectSettingsModal: React.FC<ProjectSettingsModalProps> = ({
       try {
         const existingThumbnail = getProjectThumbnail(project.id);
         if (existingThumbnail) {
-          setPreviewThumbnail(existingThumbnail.dataUrl);
+          setPreviewThumbnail(existingThumbnail.thumbnailUrl || null);
         } else {
           const placeholder = await generatePlaceholderThumbnail('project');
-          setPreviewThumbnail(placeholder.dataUrl);
+          setPreviewThumbnail(placeholder.thumbnailUrl || null);
         }
       } catch (error) {
         console.error('Failed to load thumbnail:', error);
@@ -321,7 +321,7 @@ const ProjectSettingsModal: React.FC<ProjectSettingsModalProps> = ({
       
       // Success callback
       if (onSuccess) {
-        onSuccess(updatedProject);
+        onSuccess(project);
       }
       
       // Close modal

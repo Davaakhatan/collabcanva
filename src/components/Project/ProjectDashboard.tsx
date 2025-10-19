@@ -9,6 +9,7 @@ import { useProjects } from '../../hooks/useProjects';
 // import { useThumbnails } from '../../hooks/useThumbnails'; // TEMPORARILY DISABLED FOR FRONTEND DEMO
 import { projectHelpers } from '../../utils/projectHelpers';
 import { Project, ProjectRole } from "../../types"
+import { ProjectSummary } from "../../hooks/useProjects"
 import CreateProjectModal from './CreateProjectModal';
 import { 
   MagnifyingGlassIcon, 
@@ -52,13 +53,13 @@ interface ProjectDashboardProps {
 
 // Project card props
 interface ProjectCardProps {
-  project: Project;
+  project: ProjectSummary;
   viewMode: ViewMode;
-  onEdit: (project: Project) => void;
-  onDelete: (project: Project) => void;
-  onArchive: (project: Project) => void;
-  onShare: (project: Project) => void;
-  onView: (project: Project) => void;
+  onEdit: (project: ProjectSummary) => void;
+  onDelete: (project: ProjectSummary) => void;
+  onArchive: (project: ProjectSummary) => void;
+  onShare: (project: ProjectSummary) => void;
+  onView: (project: ProjectSummary) => void;
 }
 
 // Sort options configuration
@@ -93,15 +94,22 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
   const { user } = useAuth();
   // TEMPORARY: Mock thumbnail functionality for frontend demo
   const getProjectThumbnail = (projectId: string) => null;
-  const generatePlaceholderThumbnail = (project: Project) => null;
+  const generatePlaceholderThumbnail = (project: ProjectSummary) => null;
   const [showActions, setShowActions] = useState(false);
   const [thumbnail, setThumbnail] = useState<string | null>(null);
 
   // Get project display data
-  const displayProject = useMemo(() => 
-    projectHelpers.projectTransformers.toDisplayFormat(project), 
-    [project]
-  );
+  const displayProject = useMemo(() => ({
+    displayName: project.name || 'Untitled Project',
+    displayDescription: project.description || 'No description',
+    displayUpdatedAt: new Intl.DateTimeFormat('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    }).format(new Date(project.lastUpdated))
+  }), [project]);
 
   // Load thumbnail
   useEffect(() => {
@@ -111,7 +119,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
         if (existingThumbnail && existingThumbnail.dataUrl) {
           setThumbnail(existingThumbnail.dataUrl);
         } else {
-          const placeholder = await generatePlaceholderThumbnail('project');
+          const placeholder = await generatePlaceholderThumbnail(project);
           if (placeholder && placeholder.dataUrl) {
             setThumbnail(placeholder.dataUrl);
           }
@@ -381,7 +389,7 @@ const ProjectDashboard: React.FC<ProjectDashboardProps> = ({ className = '' }) =
   const [showCreateModal, setShowCreateModal] = useState(false);
   
   // TEMPORARY: Mock search functionality for frontend demo
-  const searchState = { query: '', results: [], loading: false, error: null };
+  const searchState = { query: '', results: [], loading: false, error: null, isSearching: false };
   const searchWithQuery = (query: string) => console.log('Search:', query);
   const updateFilters = (filters: any) => console.log('Update filters:', filters);
   const updateSort = (sort: any) => console.log('Update sort:', sort);
@@ -438,26 +446,26 @@ const ProjectDashboard: React.FC<ProjectDashboardProps> = ({ className = '' }) =
   };
 
   // Handle project actions
-  const handleViewProject = (project: Project) => {
+  const handleViewProject = (project: ProjectSummary) => {
     // Navigate to the first canvas of the project
     navigate(`/projects/${project.id}/canvases/canvas-1`);
   };
 
-  const handleEditProject = (project: Project) => {
+  const handleEditProject = (project: ProjectSummary) => {
     navigate(`/projects/${project.id}/settings`);
   };
 
-  const handleDeleteProject = (project: Project) => {
+  const handleDeleteProject = (project: ProjectSummary) => {
     // Implement delete functionality
     console.log('Delete project:', project.id);
   };
 
-  const handleArchiveProject = (project: Project) => {
+  const handleArchiveProject = (project: ProjectSummary) => {
     // Implement archive functionality
     console.log('Archive project:', project.id);
   };
 
-  const handleShareProject = (project: Project) => {
+  const handleShareProject = (project: ProjectSummary) => {
     // Implement share functionality
     console.log('Share project:', project.id);
   };

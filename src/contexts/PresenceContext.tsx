@@ -4,7 +4,8 @@
 import React, { createContext, useContext, useEffect, ReactNode } from 'react';
 import { useAuth } from './AuthContext';
 import { usePresence } from '../hooks/usePresence';
-import { PresenceData, ActivityType } from '../types';
+import { PresenceData } from '../types';
+import { ActivityType } from '../services/presenceService';
 
 // Presence context interface
 interface PresenceContextType {

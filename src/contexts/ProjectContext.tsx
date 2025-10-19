@@ -386,8 +386,12 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
             isArchived: false,
             settings: {
               allowComments: true,
+              allowViewing: true,
               allowDownloads: true,
-              isPublic: false
+              isPublic: false,
+              defaultCanvasWidth: 1920,
+              defaultCanvasHeight: 1080,
+              theme: 'light'
             },
             canvases: [
               {
@@ -396,7 +400,7 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
                 description: 'Primary canvas for this project',
                 createdAt: new Date('2024-01-15'),
                 updatedAt: new Date('2024-01-20'),
-                thumbnailUrl: null,
+                thumbnail: null,
                 settings: {
                   width: 1920,
                   height: 1080,
@@ -410,9 +414,9 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
               {
                 userId: user.uid,
                 role: 'owner' as const,
-                joinedAt: new Date('2024-01-15'),
+                joinedAt: Date.now(),
                 permissions: {
-                  canEdit: true,
+                  permissions: ['edit'],
                   canDelete: true,
                   canInvite: true,
                   canManageMembers: true
@@ -439,7 +443,7 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
   }, [user]);
 
   // Load user's projects
-  const loadProjects = useCallback((refresh = false) => {
+  const loadProjects = useCallback(async (refresh = false): Promise<void> => {
     if (!user) return;
 
     try {
@@ -454,22 +458,26 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
           description: 'A sample project to demonstrate the interface',
           color: '#3b82f6',
           ownerId: user.uid,
-          createdAt: new Date('2024-01-15'),
-          updatedAt: new Date('2024-01-20'),
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
           isArchived: false,
           settings: {
             allowComments: true,
+            allowViewing: true,
             allowDownloads: true,
-            isPublic: false
+            isPublic: false,
+            defaultCanvasWidth: 1920,
+            defaultCanvasHeight: 1080,
+            theme: 'light'
           },
           canvases: [
             {
               id: 'canvas-1',
               name: 'Main Canvas',
               description: 'Primary canvas for this project',
-              createdAt: new Date('2024-01-15'),
-              updatedAt: new Date('2024-01-20'),
-              thumbnailUrl: null,
+              createdAt: Date.now(),
+              updatedAt: Date.now(),
+              thumbnail: null,
               settings: {
                 width: 1920,
                 height: 1080,
@@ -481,15 +489,15 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
           ],
           members: [
             {
+              id: user.uid,
               userId: user.uid,
+              email: user.email || 'demo@demo.com',
+              name: user.displayName || 'Demo User',
               role: 'owner' as const,
-              joinedAt: new Date('2024-01-15'),
-              permissions: {
-                canEdit: true,
-                canDelete: true,
-                canInvite: true,
-                canManageMembers: true
-              }
+              status: 'active' as const,
+              isOnline: true,
+              joinedAt: Date.now(),
+              permissions: ['edit', 'delete', 'invite', 'manage']
             }
           ],
           invitations: [],
@@ -507,22 +515,26 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
           description: 'Working together on a new design system',
           color: '#10b981',
           ownerId: user.uid,
-          createdAt: new Date('2024-01-10'),
-          updatedAt: new Date('2024-01-18'),
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
           isArchived: false,
           settings: {
             allowComments: true,
+            allowViewing: true,
             allowDownloads: false,
-            isPublic: false
+            isPublic: false,
+            defaultCanvasWidth: 1920,
+            defaultCanvasHeight: 1080,
+            theme: 'light'
           },
           canvases: [
             {
               id: 'canvas-2a',
               name: 'Design System',
               description: 'Core design components',
-              createdAt: new Date('2024-01-10'),
-              updatedAt: new Date('2024-01-18'),
-              thumbnailUrl: null,
+              createdAt: Date.now(),
+              updatedAt: Date.now(),
+              thumbnail: null,
               settings: {
                 width: 1920,
                 height: 1080,
@@ -535,9 +547,9 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
               id: 'canvas-2b',
               name: 'User Flows',
               description: 'User journey mapping',
-              createdAt: new Date('2024-01-12'),
-              updatedAt: new Date('2024-01-16'),
-              thumbnailUrl: null,
+              createdAt: Date.now(),
+              updatedAt: Date.now(),
+              thumbnail: null,
               settings: {
                 width: 1920,
                 height: 1080,
@@ -549,15 +561,15 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
           ],
           members: [
             {
+              id: user.uid,
               userId: user.uid,
+              email: user.email || 'demo@demo.com',
+              name: user.displayName || 'Demo User',
               role: 'owner' as const,
-              joinedAt: new Date('2024-01-10'),
-              permissions: {
-                canEdit: true,
-                canDelete: true,
-                canInvite: true,
-                canManageMembers: true
-              }
+              status: 'active' as const,
+              isOnline: true,
+              joinedAt: Date.now(),
+              permissions: ['edit', 'delete', 'invite', 'manage']
             }
           ],
           invitations: [],
@@ -575,22 +587,26 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
           description: 'This project has been archived',
           color: '#6b7280',
           ownerId: user.uid,
-          createdAt: new Date('2023-12-01'),
-          updatedAt: new Date('2023-12-15'),
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
           isArchived: true,
           settings: {
             allowComments: false,
+            allowViewing: true,
             allowDownloads: false,
-            isPublic: false
+            isPublic: false,
+            defaultCanvasWidth: 1920,
+            defaultCanvasHeight: 1080,
+            theme: 'light'
           },
           canvases: [
             {
               id: 'canvas-3',
               name: 'Old Design',
               description: 'Previous version',
-              createdAt: new Date('2023-12-01'),
-              updatedAt: new Date('2023-12-15'),
-              thumbnailUrl: null,
+              createdAt: Date.now(),
+              updatedAt: Date.now(),
+              thumbnail: null,
               settings: {
                 width: 1920,
                 height: 1080,
@@ -602,15 +618,15 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
           ],
           members: [
             {
+              id: user.uid,
               userId: user.uid,
+              email: user.email || 'demo@demo.com',
+              name: user.displayName || 'Demo User',
               role: 'owner' as const,
-              joinedAt: new Date('2023-12-01'),
-              permissions: {
-                canEdit: true,
-                canDelete: true,
-                canInvite: true,
-                canManageMembers: true
-              }
+              status: 'active' as const,
+              isOnline: true,
+              joinedAt: Date.now(),
+              permissions: ['edit', 'delete', 'invite', 'manage']
             }
           ],
           invitations: [],
@@ -699,8 +715,8 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
           name: data.name,
           description: data.description,
           ownerId: user.uid,
-          createdAt: new Date(),
-          updatedAt: new Date(),
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
           isArchived: false,
           settings: {
             allowComments: true,
@@ -722,8 +738,8 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
             width: 1920,
             height: 1080,
             backgroundColor: '#ffffff',
-            createdAt: new Date(),
-            updatedAt: new Date(),
+            createdAt: Date.now(),
+            updatedAt: Date.now(),
             createdBy: user.uid,
             isArchived: false,
             order: 0
@@ -838,22 +854,26 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
             description: 'A demo project created on demand',
             color: '#3b82f6',
             ownerId: user?.uid || 'demo-user',
-            createdAt: new Date(),
-            updatedAt: new Date(),
+            createdAt: Date.now(),
+            updatedAt: Date.now(),
             isArchived: false,
             settings: {
               allowComments: true,
+              allowViewing: true,
               allowDownloads: true,
-              isPublic: false
+              isPublic: false,
+              defaultCanvasWidth: 1920,
+              defaultCanvasHeight: 1080,
+              theme: 'light'
             },
             canvases: [
               {
                 id: 'canvas-1',
                 name: 'Main Canvas',
                 description: 'Primary canvas for this project',
-                createdAt: new Date(),
-                updatedAt: new Date(),
-                thumbnailUrl: null,
+                createdAt: Date.now(),
+                updatedAt: Date.now(),
+                thumbnail: null,
                 settings: {
                   width: 1920,
                   height: 1080,
@@ -867,9 +887,9 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
               {
                 userId: user?.uid || 'demo-user',
                 role: 'owner' as const,
-                joinedAt: new Date(),
+                joinedAt: Date.now(),
                 permissions: {
-                  canEdit: true,
+                  permissions: ['edit'],
                   canDelete: true,
                   canInvite: true,
                   canManageMembers: true
@@ -891,9 +911,14 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
       // Mock project details for demo
       const mockMembers: ProjectMember[] = [
         {
+          id: user?.uid || 'demo-user',
           userId: user?.uid || 'demo-user',
+          email: user?.email || 'demo@demo.com',
+          name: user?.displayName || 'Demo User',
           role: 'owner',
-          joinedAt: new Date(),
+          status: 'active',
+          isOnline: true,
+          joinedAt: Date.now(),
           permissions: ['project.view', 'project.edit', 'project.delete', 'project.settings']
         }
       ];
@@ -907,8 +932,8 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
           width: 1920,
           height: 1080,
           backgroundColor: '#ffffff',
-          createdAt: new Date(),
-          updatedAt: new Date(),
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
           createdBy: user?.uid || 'demo-user',
           isArchived: false,
           order: 0
@@ -918,7 +943,13 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
       const projectWithDetails: ProjectWithDetails = {
         ...project,
         members: mockMembers,
-        canvases: mockCanvases
+        canvases: mockCanvases,
+        recentActivity: [],
+        stats: {
+          memberCount: mockMembers.length,
+          canvasCount: mockCanvases.length,
+          lastActivityAt: new Date()
+        }
       };
 
       dispatch({ 
@@ -960,9 +991,14 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
       // Mock members data for demo
       const mockMembers: ProjectMember[] = [
         {
+          id: user?.uid || 'demo-user',
           userId: user?.uid || 'demo-user',
+          email: user?.email || 'demo@demo.com',
+          name: user?.displayName || 'Demo User',
           role: 'owner',
-          joinedAt: new Date(),
+          status: 'active',
+          isOnline: true,
+          joinedAt: Date.now(),
           permissions: ['project.view', 'project.edit', 'project.delete', 'project.settings']
         }
       ];
@@ -1030,8 +1066,8 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
           width: 1920,
           height: 1080,
           backgroundColor: '#ffffff',
-          createdAt: new Date(),
-          updatedAt: new Date(),
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
           createdBy: user?.uid || 'demo-user',
           isArchived: false,
           order: 0
