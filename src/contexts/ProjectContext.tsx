@@ -425,7 +425,10 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
                 permissions: ['edit', 'delete', 'invite', 'manage']
               }
             ],
-            tags: ['design', 'prototype'],
+            metadata: {
+              color: '#3b82f6',
+              tags: ['design', 'prototype']
+            },
             stats: {
               totalCanvases: 1,
               totalMembers: 1,
@@ -503,7 +506,10 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
               permissions: ['edit', 'delete', 'invite', 'manage']
             }
           ],
-          tags: ['design', 'prototype'],
+          metadata: {
+            color: '#3b82f6',
+            tags: ['design', 'prototype']
+          },
           stats: {
             totalCanvases: 1,
             totalMembers: 1,
@@ -576,7 +582,10 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
               permissions: ['edit', 'delete', 'invite', 'manage']
             }
           ],
-          tags: ['collaboration', 'design-system', 'ux'],
+          metadata: {
+            color: '#10b981',
+            tags: ['collaboration', 'design-system', 'ux']
+          },
           stats: {
             totalCanvases: 2,
             totalMembers: 1,
@@ -634,7 +643,10 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
               permissions: ['edit', 'delete', 'invite', 'manage']
             }
           ],
-          tags: ['archived', 'old'],
+          metadata: {
+            color: '#6b7280',
+            tags: ['archived', 'old']
+          },
           stats: {
             totalCanvases: 1,
             totalMembers: 1,
@@ -904,7 +916,10 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
                 permissions: ['edit', 'delete', 'invite', 'manage']
               }
             ],
-            tags: ['demo'],
+            metadata: {
+              color: '#3b82f6',
+              tags: ['demo']
+            },
             stats: {
               totalCanvases: 1,
               totalMembers: 1,
