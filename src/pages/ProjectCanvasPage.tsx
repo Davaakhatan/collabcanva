@@ -48,10 +48,10 @@ function PresenceListWrapper({ cursors, projectId, canvasId }: { cursors: any; p
 
 // Loading component
 const LoadingSpinner: React.FC<{ message?: string }> = ({ message = "Loading..." }) => (
-  <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 flex items-center justify-center">
+  <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center">
     <div className="text-center space-y-4">
       <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
-      <p className="text-gray-600 font-medium">{message}</p>
+      <p className="text-gray-600 dark:text-gray-300 font-medium">{message}</p>
     </div>
   </div>
 );
@@ -147,16 +147,16 @@ function ProjectCanvasContent() {
   // If no projects after loading, show error
   if (projects.length === 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center">
         <div className="text-center space-y-6 max-w-md mx-auto px-6">
-          <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto">
-            <svg className="w-10 h-10 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="w-20 h-20 bg-red-100 dark:bg-red-900 rounded-full flex items-center justify-center mx-auto">
+            <svg className="w-10 h-10 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 19.5c-.77.833.192 2.5 1.732 2.5z" />
             </svg>
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">No Projects Found</h1>
-            <p className="text-gray-600 mb-6">Please create a project first.</p>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">No Projects Found</h1>
+            <p className="text-gray-600 dark:text-gray-300 mb-6">Please create a project first.</p>
             <button
               onClick={() => navigate('/projects')}
               className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
@@ -172,16 +172,16 @@ function ProjectCanvasContent() {
   // Show error state
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center">
         <div className="text-center space-y-6 max-w-md mx-auto px-6">
-          <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto">
-            <svg className="w-10 h-10 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="w-20 h-20 bg-red-100 dark:bg-red-900 rounded-full flex items-center justify-center mx-auto">
+            <svg className="w-10 h-10 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">Something went wrong</h1>
-            <p className="text-gray-600 mb-6">{error}</p>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Something went wrong</h1>
+            <p className="text-gray-600 dark:text-gray-300 mb-6">{error}</p>
             <button
               onClick={() => window.location.reload()}
               className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"

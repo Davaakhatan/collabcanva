@@ -19,10 +19,10 @@ import { db } from "../services/firebase";
 
 // Loading component
 const LoadingSpinner: React.FC<{ message?: string }> = ({ message = "Loading..." }) => (
-  <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 flex items-center justify-center">
+  <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center">
     <div className="text-center space-y-4">
       <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
-      <p className="text-gray-600 font-medium">{message}</p>
+      <p className="text-gray-600 dark:text-gray-300 font-medium">{message}</p>
     </div>
   </div>
 );
@@ -36,16 +36,16 @@ const ErrorPage: React.FC<{
   const navigate = useNavigate();
   
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 flex items-center justify-center">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center">
       <div className="max-w-md mx-auto text-center space-y-6 p-8">
-        <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto">
-          <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="w-16 h-16 bg-red-100 dark:bg-red-900 rounded-full flex items-center justify-center mx-auto">
+          <svg className="w-8 h-8 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         </div>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">{title}</h1>
-          <p className="text-gray-600">{message}</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">{title}</h1>
+          <p className="text-gray-600 dark:text-gray-300">{message}</p>
         </div>
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           {onRetry && (
@@ -254,7 +254,7 @@ export default function ProjectDashboardPage() {
   return (
     <NavigationProvider>
       <ProjectProvider>
-          <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
+          <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
             {/* Enhanced navigation bar */}
             <NavigationBar 
               showBreadcrumb={true}
@@ -269,16 +269,16 @@ export default function ProjectDashboardPage() {
             {/* Fix button for corrupted data */}
             {showFixButton && (
               <div className="pt-20 px-6">
-                <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
+                <div className="bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-400 dark:border-yellow-500 p-4 mb-4">
                   <div className="flex items-center justify-between">
                     <div className="flex">
                       <div className="flex-shrink-0">
-                        <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                        <svg className="h-5 w-5 text-yellow-400 dark:text-yellow-500" viewBox="0 0 20 20" fill="currentColor">
                           <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                         </svg>
                       </div>
                       <div className="ml-3">
-                        <p className="text-sm text-yellow-700">
+                        <p className="text-sm text-yellow-700 dark:text-yellow-300">
                           Your project data needs to be updated to the new format. Click the button to fix it automatically.
                         </p>
                       </div>
