@@ -5,7 +5,6 @@ import { ProjectProvider } from "../contexts/ProjectContext";
 import { PermissionProvider } from "../contexts/PermissionContext";
 import { PresenceProvider } from "../contexts/PresenceContext";
 import { NavigationProvider } from "../contexts/NavigationContext";
-import { CanvasProvider } from "../contexts/CanvasContext";
 import { useProject } from "../contexts/ProjectContext";
 import { useAuth } from "../contexts/AuthContext";
 // import { usePresence } from "../hooks/usePresence"; // Not used
@@ -187,8 +186,7 @@ function ProjectCanvasContent() {
     <PermissionProvider projectId={projectId!}>
       <PresenceProvider projectId={projectId!} canvasId={canvasId}>
         <ProjectCanvasProvider>
-          <CanvasProvider>
-            <CanvasInitializer projectId={projectId!} canvasId={canvasId!}>
+          <CanvasInitializer projectId={projectId!} canvasId={canvasId!}>
                 <div className="relative w-full h-screen overflow-hidden bg-gray-50 dark:bg-slate-900">
                   {/* Enhanced navigation bar with breadcrumb */}
                   <NavigationBar 
@@ -242,8 +240,7 @@ function ProjectCanvasContent() {
                     </Suspense>
                   )}
                 </div>
-            </CanvasInitializer>
-          </CanvasProvider>
+          </CanvasInitializer>
         </ProjectCanvasProvider>
       </PresenceProvider>
     </PermissionProvider>
