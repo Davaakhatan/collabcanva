@@ -1,7 +1,7 @@
 // Utility functions for creating Konva gradients
 // Converts CSS gradient strings to Konva gradient objects
 
-import type Konva from "konva";
+import Konva from "konva";
 
 export interface GradientStop {
   color: string;
@@ -54,7 +54,7 @@ export function createLinearGradient(
     const endY = centerY + (Math.sin(angleRad) * shape.height / 2);
     
     // Create Konva gradient
-    const gradient = new Konva.Gradient({
+    const gradient = new Konva.LinearGradient({
       start: { x: startX, y: startY },
       end: { x: endX, y: endY },
       colorStops: stops.map(stop => ({
