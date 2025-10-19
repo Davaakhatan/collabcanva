@@ -88,8 +88,16 @@ export default function PropertiesPanel({ className = '' }: PropertiesPanelProps
     pushState();
   };
 
+  // Debug logging
+  console.log('🔧 [PropertiesPanel] Render check:', { 
+    selectedIds, 
+    selectedShape: selectedShape?.id, 
+    shapesCount: shapes.length 
+  });
+
   // Don't render if no shape is selected
   if (!selectedShape) {
+    console.log('🔧 [PropertiesPanel] No shape selected, not rendering');
     return null;
   }
 

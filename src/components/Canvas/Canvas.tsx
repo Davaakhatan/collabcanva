@@ -569,7 +569,7 @@ export default function Canvas({ onShowHelp, projectId: propProjectId, canvasId:
                 onSelect={(e?: any) => {
                   // Check for Cmd/Ctrl key for multi-select
                   const addToSelection = e?.evt?.metaKey || e?.evt?.ctrlKey || false;
-                  console.log('[Canvas] Shape clicked:', { shapeId: shape.id, addToSelection, currentSelectedIds: selectedIds });
+                  console.log('🎯 [Canvas] Shape clicked:', { shapeId: shape.id, addToSelection, currentSelectedIds: selectedIds });
                   selectShape(shape.id, addToSelection);
                 }}
                 onChange={(updates) => {
