@@ -1,7 +1,7 @@
 // Utility functions for creating Konva gradients
 // Converts CSS gradient strings to Konva gradient objects
 
-import * as Konva from "konva";
+import Konva from "konva";
 
 export interface GradientStop {
   color: string;
@@ -34,10 +34,10 @@ export type GradientConfig = LinearGradientConfig | RadialGradientConfig | Conic
 
 // Convert CSS linear gradient to Konva gradient
 export function createLinearGradient(
-  stage: Konva.Stage,
+  stage: any,
   shape: { x: number; y: number; width: number; height: number },
   config: LinearGradientConfig
-): Konva.Gradient | null {
+): any | null {
   try {
     const { angle, stops } = config;
     
@@ -54,7 +54,7 @@ export function createLinearGradient(
     const endY = centerY + (Math.sin(angleRad) * shape.height / 2);
     
     // Create Konva gradient
-    const gradient = new Konva.LinearGradient({
+    const gradient = new (Konva as any).LinearGradient({
       start: { x: startX, y: startY },
       end: { x: endX, y: endY },
       colorStops: stops.map(stop => ({
@@ -72,10 +72,10 @@ export function createLinearGradient(
 
 // Convert CSS radial gradient to Konva gradient
 export function createRadialGradient(
-  stage: Konva.Stage,
+  stage: any,
   shape: { x: number; y: number; width: number; height: number },
   config: RadialGradientConfig
-): Konva.Gradient | null {
+): any | null {
   try {
     const { centerX, centerY, radius, stops } = config;
     
@@ -87,7 +87,7 @@ export function createRadialGradient(
     const radiusPx = Math.max(shape.width, shape.height) * radius;
     
     // Create Konva gradient
-    const gradient = new Konva.RadialGradient({
+    const gradient = new (Konva as any).RadialGradient({
       x: centerPosX,
       y: centerPosY,
       radius: radiusPx,
@@ -197,7 +197,7 @@ export function parseGradientString(gradientString: string): GradientConfig | nu
 
 // Create Konva gradient from shape properties
 export function createGradientFromShape(
-  stage: Konva.Stage,
+  stage: any,
   shape: { 
     x: number; 
     y: number; 
@@ -211,7 +211,7 @@ export function createGradientFromShape(
     gradientCenterY?: number;
     gradientRadius?: number;
   }
-): Konva.Gradient | null {
+): any | null {
   if (!shape.gradientType || !shape.gradientColors || !shape.gradientStops) {
     return null;
   }

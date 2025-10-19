@@ -480,7 +480,7 @@ class ProjectService {
    */
   async updateProjectMember(projectId: string, userId: string, updates: Partial<ProjectMember>): Promise<void> {
     try {
-      const memberDoc = await getDoc(doc(db, ...getProjectMemberPath(projectId, userId).split('/')));
+      const memberDoc = await getDoc(doc(db, getProjectMemberPath(projectId, userId)));
       
       if (!memberDoc.exists()) {
         throw new Error('Member not found');
@@ -512,7 +512,7 @@ class ProjectService {
    */
   async removeProjectMember(projectId: string, userId: string): Promise<void> {
     try {
-      await deleteDoc(doc(db, ...getProjectMemberPath(projectId, userId).split('/')));
+      await deleteDoc(doc(db, getProjectMemberPath(projectId, userId)));
       await this.removeUserProjectMembership(userId, projectId);
     } catch (error) {
       throw new ProjectServiceError(
@@ -528,7 +528,7 @@ class ProjectService {
    */
   async getProjectMembers(projectId: string): Promise<ProjectMember[]> {
     try {
-      const membersSnapshot = await getDocs(collection(db, ...getProjectMembersPath(projectId).split('/')));
+      const membersSnapshot = await getDocs(collection(db, getProjectMembersPath(projectId)));
       return membersSnapshot.docs.map(doc => ({ ...doc.data() } as ProjectMember));
     } catch (error) {
       throw new ProjectServiceError(
@@ -588,7 +588,7 @@ class ProjectService {
    */
   async updateProjectCanvas(projectId: string, canvasId: string, updates: Partial<ProjectCanvas>): Promise<void> {
     try {
-      const canvasDoc = await getDoc(doc(db, ...getProjectCanvasPath(projectId, canvasId).split('/')));
+      const canvasDoc = await getDoc(doc(db, getProjectCanvasPath(projectId, canvasId)));
       
       if (!canvasDoc.exists()) {
         throw new Error('Canvas not found');
@@ -597,7 +597,7 @@ class ProjectService {
       const updatedCanvas = {
         ...canvasDoc.data(),
         ...updates,
-        updatedAt: new Date()
+        updatedAt: Date.now()
       };
 
       await this.setProjectCanvas(projectId, canvasId, updatedCanvas as ProjectCanvas);
@@ -615,7 +615,7 @@ class ProjectService {
    */
   async removeProjectCanvas(projectId: string, canvasId: string): Promise<void> {
     try {
-      await deleteDoc(doc(db, ...getProjectCanvasPath(projectId, canvasId).split('/')));
+      await deleteDoc(doc(db, getProjectCanvasPath(projectId, canvasId)));
       
       // Create activity
       await this.createProjectActivity(projectId, {
@@ -645,7 +645,7 @@ class ProjectService {
    */
   async getProjectCanvases(projectId: string): Promise<ProjectCanvas[]> {
     try {
-      const canvasesSnapshot = await getDocs(collection(db, ...getProjectCanvasesPath(projectId).split('/')));
+      const canvasesSnapshot = await getDocs(collection(db, getProjectCanvasesPath(projectId)));
       return canvasesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as ProjectCanvas));
     } catch (error) {
       throw new ProjectServiceError(
@@ -670,7 +670,7 @@ class ProjectService {
       const { limit: limitCount = 50, startAfter: startAfterDoc } = options;
       
       let q = query(
-        collection(db, ...getProjectActivitiesPath(projectId).split('/')),
+        collection(db, getProjectActivitiesPath(projectId)),
         orderBy('createdAt', 'desc'),
         limit(limitCount)
       );
