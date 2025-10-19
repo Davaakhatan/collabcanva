@@ -614,6 +614,14 @@ export class ProductionEmailService implements EmailService {
     const template = EmailTemplateGenerator.generateWelcomeTemplate(userEmail, project, role);
     throw new EmailServiceError('Production email service not implemented', 'NOT_IMPLEMENTED');
   }
+
+  async sendTransferRequestEmail(transfer: any, project: Project): Promise<void> {
+    throw new EmailServiceError('Production email service not implemented', 'NOT_IMPLEMENTED');
+  }
+
+  async sendTransferStatusEmail(transfer: any, status: string): Promise<void> {
+    throw new EmailServiceError('Production email service not implemented', 'NOT_IMPLEMENTED');
+  }
 }
 
 // Export singleton instance

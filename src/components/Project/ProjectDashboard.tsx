@@ -49,6 +49,11 @@ interface FilterOption {
 // Dashboard props
 interface ProjectDashboardProps {
   className?: string;
+  onEditProject?: (projectId: string) => void;
+  onDeleteProject?: (projectId: string) => void;
+  onArchiveProject?: (projectId: string) => void;
+  onShareProject?: (projectId: string) => void;
+  onCreateProject?: () => void;
 }
 
 // Project card props

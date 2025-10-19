@@ -281,7 +281,7 @@ class CanvasThumbnailService {
   } | null> {
     try {
       // Fetch canvas info
-      const canvasRef = doc(db, FIREBASE_STRUCTURE.getCanvasPath(projectId, canvasId));
+      const canvasRef = doc(db, 'projects', projectId, 'canvases', canvasId);
       const canvasSnap = await getDoc(canvasRef);
       
       if (!canvasSnap.exists()) {
@@ -291,7 +291,7 @@ class CanvasThumbnailService {
       const canvas = { id: canvasSnap.id, ...canvasSnap.data() } as ProjectCanvas;
       
       // Fetch shapes
-      const shapesRef = collection(db, FIREBASE_STRUCTURE.getShapesCollectionPath(projectId, canvasId));
+      const shapesRef = collection(db, 'projects', projectId, 'canvases', canvasId, 'shapes');
       const shapesQuery = query(
         shapesRef,
         orderBy('createdAt', 'asc'),
@@ -500,5 +500,4 @@ class CanvasThumbnailService {
 // Export singleton instance
 export const canvasThumbnailService = new CanvasThumbnailService();
 
-// Export types
-export type { CanvasThumbnailResult, ThumbnailGenerationRequest };
+// Types are already exported as interfaces above

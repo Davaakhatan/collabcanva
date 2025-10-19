@@ -254,7 +254,6 @@ export default function ProjectDashboardPage() {
   return (
     <NavigationProvider>
       <ProjectProvider>
-        <PermissionProvider projectId={projectId}>
           <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
             {/* Enhanced navigation bar */}
             <NavigationBar 
@@ -318,7 +317,6 @@ export default function ProjectDashboardPage() {
               />
             )}
           </div>
-        </PermissionProvider>
       </ProjectProvider>
     </NavigationProvider>
   );

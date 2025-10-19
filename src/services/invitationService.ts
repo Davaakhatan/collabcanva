@@ -109,7 +109,9 @@ export class InvitationService {
       const invitation: ProjectInvitation = {
         id: docRef.id,
         projectId,
+        projectName: project?.name || 'Unknown Project',
         email: email.toLowerCase().trim(),
+        inviteeEmail: email.toLowerCase().trim(),
         role,
         message: message || '',
         inviterId,
@@ -530,7 +532,9 @@ export class InvitationService {
       return {
         id,
         projectId: data.projectId,
+        projectName: data.projectName || 'Unknown Project',
         email: data.email,
+        inviteeEmail: data.email,
         role: data.role,
         message: data.message || '',
         inviterId: data.inviterId,
