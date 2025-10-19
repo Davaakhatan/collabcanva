@@ -116,8 +116,7 @@ export class InvitationService {
         inviterName,
         status: 'pending',
         createdAt: Date.now(),
-        expiresAt: Date.now() + (INVITATION_CONFIG.EXPIRY_DAYS * 24 * 60 * 60 * 1000),
-        updatedAt: Date.now()
+        expiresAt: Date.now() + (INVITATION_CONFIG.EXPIRY_DAYS * 24 * 60 * 60 * 1000)
       };
 
       // Send email notification
@@ -538,8 +537,7 @@ export class InvitationService {
         inviterName: data.inviterName,
         status: data.status,
         createdAt: data.createdAt?.toMillis() || Date.now(),
-        expiresAt: data.expiresAt?.toMillis() || Date.now(),
-        updatedAt: data.updatedAt?.toMillis() || Date.now()
+        expiresAt: data.expiresAt?.toMillis() || Date.now()
       };
     } catch (error) {
       console.error('Failed to convert Firestore invitation:', error);

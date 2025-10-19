@@ -25,6 +25,7 @@ import {
 } from '../types';
 import { Shape } from '../types/canvas';
 import { MigrationStatus, MIGRATION_CONFIG } from '../types/migration';
+import { generateId } from '../utils/helpers';
 
 
 
@@ -112,7 +113,7 @@ class MigrationService {
   async createDefaultProject(userId: string, projectData?: Partial<CreateProjectData>): Promise<string> {
     try {
       const projectId = `project_${userId}_${Date.now()}`;
-      const now = new Date();
+      const now = Date.now();
       
       const project: Project = {
         id: projectId,
@@ -173,7 +174,7 @@ class MigrationService {
   async createDefaultCanvas(projectId: string, userId: string, canvasData?: Partial<ProjectCanvas>): Promise<string> {
     try {
       const canvasId = `canvas_${projectId}_${Date.now()}`;
-      const now = new Date();
+      const now = Date.now();
       
       const canvas: ProjectCanvas = {
         id: canvasId,

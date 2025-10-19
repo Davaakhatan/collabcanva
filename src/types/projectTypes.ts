@@ -176,7 +176,7 @@ export type Permission =
 export interface PresenceData {
   userId: string;
   isOnline: boolean;
-  lastSeen: Date;
+  lastSeen: number;
   currentActivity?: ActivityType;
   cursorPosition?: {
     x: number;

@@ -898,6 +898,12 @@ export function ProjectCanvasProvider({ children }: { children: ReactNode }) {
     // Project info
     projectId,
     canvasId,
+    currentCanvas: null, // TODO: Implement currentCanvas state
+    projectCanvases: [], // TODO: Implement projectCanvases state
+    createCanvas: async (name: string) => { console.log('createCanvas not implemented:', name); },
+    updateCanvas: async (id: string, updates: any) => { console.log('updateCanvas not implemented:', id, updates); },
+    deleteCanvas: async (id: string) => { console.log('deleteCanvas not implemented:', id); },
+    duplicateCanvas: async (id: string) => { console.log('duplicateCanvas not implemented:', id); },
     
     // Zoom and pan state
     scale,

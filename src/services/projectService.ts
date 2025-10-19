@@ -31,6 +31,7 @@ import {
   ProjectRole,
   PROJECT_COLLECTIONS 
 } from '../types';
+import { generateId } from '../utils/helpers';
 import { 
   getProjectPath,
   getProjectMetadataPath,
@@ -83,8 +84,8 @@ class ProjectService {
         name: data.name,
         description: data.description || '', // Ensure it's never undefined
         ownerId,
-        createdAt: new Date(now),
-        updatedAt: new Date(now),
+        createdAt: now,
+        updatedAt: now,
         isArchived: false,
         settings: {
           allowComments: true,
@@ -113,8 +114,8 @@ class ProjectService {
         avatar: '', // Will be populated by Firebase Auth
         role: 'owner',
         status: 'active',
-        joinedAt: new Date(now),
-        lastActiveAt: new Date(now),
+        joinedAt: now,
+        lastActiveAt: now,
         isOnline: true
       });
       console.log('Project member added successfully');
@@ -133,8 +134,8 @@ class ProjectService {
         width: 1920,
         height: 1080,
         backgroundColor: '#ffffff',
-        createdAt: new Date(now),
-        updatedAt: new Date(now),
+        createdAt: now,
+        updatedAt: now,
         createdBy: ownerId,
         isArchived: false,
         order: 0
@@ -262,9 +263,7 @@ class ProjectService {
 
       // Soft delete by marking as deleted
       await this.updateProject(projectId, {
-        isDeleted: true,
-        deletedAt: new Date(),
-        deletedBy: userId
+        isDeleted: true
       });
 
       // Create activity
@@ -298,9 +297,7 @@ class ProjectService {
   async archiveProject(projectId: string, userId: string): Promise<void> {
     try {
       await this.updateProject(projectId, {
-        isArchived: true,
-        archivedAt: new Date(),
-        archivedBy: userId
+        isArchived: true
       });
 
       // Create activity
@@ -332,9 +329,7 @@ class ProjectService {
   async unarchiveProject(projectId: string, userId: string): Promise<void> {
     try {
       await this.updateProject(projectId, {
-        isArchived: false,
-        unarchivedAt: new Date(),
-        unarchivedBy: userId
+        isArchived: false
       });
 
       // Create activity
@@ -726,7 +721,7 @@ class ProjectService {
         id: activityId,
         projectId,
         ...activity,
-        createdAt: new Date()
+        createdAt: Date.now()
       };
 
       const path = getProjectActivityPath(projectId, activityId);

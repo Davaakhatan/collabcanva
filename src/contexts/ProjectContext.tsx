@@ -381,8 +381,8 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
             description: 'A sample project to demonstrate the interface',
             color: '#3b82f6',
             ownerId: user.uid,
-            createdAt: new Date('2024-01-15'),
-            updatedAt: new Date('2024-01-20'),
+            createdAt: new Date('2024-01-15').getTime(),
+            updatedAt: new Date('2024-01-20').getTime(),
             isArchived: false,
             settings: {
               allowComments: true,
@@ -396,18 +396,18 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
             canvases: [
               {
                 id: 'canvas-1',
+                projectId: 'mock-1',
                 name: 'Main Canvas',
                 description: 'Primary canvas for this project',
-                createdAt: new Date('2024-01-15'),
-                updatedAt: new Date('2024-01-20'),
+                createdAt: new Date('2024-01-15').getTime(),
+                updatedAt: new Date('2024-01-20').getTime(),
+                createdBy: user.uid,
                 thumbnail: null,
-                settings: {
-                  width: 1920,
-                  height: 1080,
-                  backgroundColor: '#ffffff',
-                  gridEnabled: true,
-                  snapToGrid: true
-                }
+                width: 1920,
+                height: 1080,
+                backgroundColor: '#ffffff',
+                isArchived: false,
+                order: 0
               }
             ],
             members: [
@@ -415,12 +415,7 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
                 userId: user.uid,
                 role: 'owner' as const,
                 joinedAt: Date.now(),
-                permissions: {
-                  permissions: ['edit'],
-                  canDelete: true,
-                  canInvite: true,
-                  canManageMembers: true
-                }
+                permissions: ['edit', 'delete', 'invite', 'manage']
               }
             ],
             invitations: [],
@@ -473,18 +468,18 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
           canvases: [
             {
               id: 'canvas-1',
+              projectId: 'mock-1',
               name: 'Main Canvas',
               description: 'Primary canvas for this project',
               createdAt: Date.now(),
               updatedAt: Date.now(),
+              createdBy: user.uid,
               thumbnail: null,
-              settings: {
-                width: 1920,
-                height: 1080,
-                backgroundColor: '#ffffff',
-                gridEnabled: true,
-                snapToGrid: true
-              }
+              width: 1920,
+              height: 1080,
+              backgroundColor: '#ffffff',
+              isArchived: false,
+              order: 0
             }
           ],
           members: [
@@ -888,12 +883,7 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
                 userId: user?.uid || 'demo-user',
                 role: 'owner' as const,
                 joinedAt: Date.now(),
-                permissions: {
-                  permissions: ['edit'],
-                  canDelete: true,
-                  canInvite: true,
-                  canManageMembers: true
-                }
+                permissions: ['edit', 'delete', 'invite', 'manage']
               }
             ],
             invitations: [],

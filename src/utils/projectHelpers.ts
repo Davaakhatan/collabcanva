@@ -98,7 +98,7 @@ export const projectTransformers = {
       updatedAt: project.updatedAt,
       memberCount: 0, // Will be populated by the calling code
       canvasCount: 0, // Will be populated by the calling code
-      thumbnailUrl: null, // Will be populated by the calling code
+      thumbnail: null, // Will be populated by the calling code
       lastActivity: null // Will be populated by the calling code
     };
   },
