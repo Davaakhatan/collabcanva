@@ -6,8 +6,8 @@ export interface Project {
   description?: string;
   thumbnail?: string; // URL or base64 data
   ownerId: string; // User ID of the project owner
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: number;
+  updatedAt: number;
   isArchived: boolean;
   isDeleted?: boolean;
   settings: ProjectSettings;
@@ -35,8 +35,8 @@ export interface ProjectMember {
   avatar?: string;
   role: ProjectRole;
   status: 'active' | 'pending' | 'inactive';
-  joinedAt: Date;
-  lastActiveAt?: Date;
+  joinedAt: number;
+  lastActiveAt?: number;
   isOnline: boolean;
   permissions?: string[];
 }
@@ -53,11 +53,11 @@ export interface ProjectInvitation {
   email: string;
   role: ProjectRole;
   status: 'pending' | 'accepted' | 'declined' | 'expired' | 'cancelled';
-  createdAt: Date;
-  expiresAt: Date;
-  acceptedAt?: Date;
-  declinedAt?: Date;
-  cancelledAt?: Date;
+  createdAt: number;
+  expiresAt: number;
+  acceptedAt?: number;
+  declinedAt?: number;
+  cancelledAt?: number;
   message?: string;
   metadata?: Record<string, any>;
 }
@@ -71,8 +71,8 @@ export interface ProjectCanvas {
   width: number;
   height: number;
   backgroundColor: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: number;
+  updatedAt: number;
   createdBy: string; // User ID
   isArchived: boolean;
   order: number; // For canvas ordering within a project
@@ -91,7 +91,7 @@ export interface ProjectActivity {
   targetId?: string;
   targetName?: string;
   metadata?: Record<string, any>;
-  createdAt: Date;
+  createdAt: number;
   timestamp: number;
 }
 
@@ -221,6 +221,7 @@ export interface CreateProjectData {
   name: string;
   description?: string;
   settings?: Partial<ProjectSettings>;
+  color?: string;
 }
 
 export interface UpdateProjectData {
@@ -228,6 +229,10 @@ export interface UpdateProjectData {
   description?: string;
   thumbnail?: string;
   settings?: Partial<ProjectSettings>;
+  isArchived?: boolean;
+  isDeleted?: boolean;
+  members?: ProjectMember[];
+  updatedBy?: string;
 }
 
 export interface InviteMemberData {

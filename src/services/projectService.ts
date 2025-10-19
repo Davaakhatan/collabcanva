@@ -89,6 +89,8 @@ class ProjectService {
         settings: {
           allowComments: true,
           allowViewing: true,
+          allowDownloads: true,
+          isPublic: false,
           defaultCanvasWidth: 1920,
           defaultCanvasHeight: 1080,
           theme: 'light'
@@ -103,11 +105,14 @@ class ProjectService {
       console.log('About to add project member...');
       // Add owner as project member
       await this.addProjectMember(projectId, {
+        id: generateId(),
         userId: ownerId,
         email: '', // Will be populated by Firebase Auth
+        name: '', // Will be populated by Firebase Auth
         displayName: '', // Will be populated by Firebase Auth
         avatar: '', // Will be populated by Firebase Auth
         role: 'owner',
+        status: 'active',
         joinedAt: new Date(now),
         lastActiveAt: new Date(now),
         isOnline: true
@@ -150,7 +155,10 @@ class ProjectService {
         metadata: {
           projectName: data.name,
           projectDescription: data.description
-        }
+        },
+        createdAt: now,
+        projectId: projectId,
+        timestamp: now
       });
       console.log('Project activity created successfully');
       
@@ -214,13 +222,18 @@ class ProjectService {
       if (data.name || data.description) {
         await this.createProjectActivity(projectId, {
           userId: data.updatedBy || 'system',
+          userName: '', // Will be populated later
+          userAvatar: '', // Will be populated later
           action: 'project_updated',
           targetType: 'project',
           targetId: projectId,
           targetName: data.name || 'Project',
           metadata: {
             changes: Object.keys(data).filter(key => key !== 'updatedAt' && key !== 'updatedBy')
-          }
+          },
+          createdAt: Date.now(),
+          projectId: projectId,
+          timestamp: Date.now()
         });
       }
     } catch (error) {
@@ -257,13 +270,18 @@ class ProjectService {
       // Create activity
       await this.createProjectActivity(projectId, {
         userId,
+        userName: '', // Will be populated later
+        userAvatar: '', // Will be populated later
         action: 'project_deleted',
         targetType: 'project',
         targetId: projectId,
         targetName: project.name,
         metadata: {
           projectName: project.name
-        }
+        },
+        createdAt: Date.now(),
+        projectId: projectId,
+        timestamp: Date.now()
       });
     } catch (error) {
       throw new ProjectServiceError(
@@ -288,11 +306,16 @@ class ProjectService {
       // Create activity
       await this.createProjectActivity(projectId, {
         userId,
+        userName: '', // Will be populated later
+        userAvatar: '', // Will be populated later
         action: 'project_archived',
         targetType: 'project',
         targetId: projectId,
         targetName: 'Project',
-        metadata: {}
+        metadata: {},
+        createdAt: Date.now(),
+        projectId: projectId,
+        timestamp: Date.now()
       });
     } catch (error) {
       throw new ProjectServiceError(
@@ -317,11 +340,16 @@ class ProjectService {
       // Create activity
       await this.createProjectActivity(projectId, {
         userId,
+        userName: '', // Will be populated later
+        userAvatar: '', // Will be populated later
         action: 'project_unarchived',
         targetType: 'project',
         targetId: projectId,
         targetName: 'Project',
-        metadata: {}
+        metadata: {},
+        createdAt: Date.now(),
+        projectId: projectId,
+        timestamp: Date.now()
       });
     } catch (error) {
       throw new ProjectServiceError(
@@ -538,7 +566,10 @@ class ProjectService {
         metadata: {
           canvasWidth: canvas.width,
           canvasHeight: canvas.height
-        }
+        },
+        createdAt: Date.now(),
+        projectId: projectId,
+        timestamp: Date.now()
       });
       console.log('Canvas activity created successfully');
     } catch (error) {
@@ -594,11 +625,16 @@ class ProjectService {
       // Create activity
       await this.createProjectActivity(projectId, {
         userId: 'system',
+        userName: 'System',
+        userAvatar: '',
         action: 'canvas_deleted',
         targetType: 'canvas',
         targetId: canvasId,
         targetName: 'Canvas',
-        metadata: {}
+        metadata: {},
+        createdAt: Date.now(),
+        projectId: projectId,
+        timestamp: Date.now()
       });
     } catch (error) {
       throw new ProjectServiceError(

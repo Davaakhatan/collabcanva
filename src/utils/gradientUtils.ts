@@ -1,7 +1,7 @@
 // Utility functions for creating Konva gradients
 // Converts CSS gradient strings to Konva gradient objects
 
-import Konva from "konva";
+import * as Konva from "konva";
 
 export interface GradientStop {
   color: string;

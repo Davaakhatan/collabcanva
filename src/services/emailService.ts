@@ -25,6 +25,8 @@ export interface EmailService {
   sendReminderEmail: (invitation: ProjectInvitation, project: Project) => Promise<void>;
   sendExpiredEmail: (invitation: ProjectInvitation, project: Project) => Promise<void>;
   sendWelcomeEmail: (userEmail: string, project: Project, role: string) => Promise<void>;
+  sendTransferRequestEmail: (transfer: any, project: Project) => Promise<void>;
+  sendTransferStatusEmail: (transfer: any, status: string) => Promise<void>;
 }
 
 // Custom error class
@@ -563,6 +565,24 @@ export class MockEmailService implements EmailService {
     });
     
     console.log('Email template:', template);
+  }
+
+  async sendTransferRequestEmail(transfer: any, project: Project): Promise<void> {
+    console.log('📧 Sending transfer request email:', {
+      to: transfer.toUserEmail,
+      subject: `Project Transfer Request: ${project.name}`,
+      project: project.name,
+      fromUser: transfer.fromUserName
+    });
+  }
+
+  async sendTransferStatusEmail(transfer: any, status: string): Promise<void> {
+    console.log('📧 Sending transfer status email:', {
+      to: transfer.fromUserEmail,
+      subject: `Project Transfer ${status}`,
+      status: status,
+      project: transfer.projectName
+    });
   }
 }
 

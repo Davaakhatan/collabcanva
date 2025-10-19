@@ -7,6 +7,7 @@ import { PresenceProvider } from "../contexts/PresenceContext";
 import { NavigationProvider } from "../contexts/NavigationContext";
 import { useProject } from "../contexts/ProjectContext";
 import { useAuth } from "../contexts/AuthContext";
+import { useProjectCanvas } from "../contexts/ProjectCanvasContext";
 // import { usePresence } from "../hooks/usePresence"; // Not used
 import { NavigationBar } from "../components/Navigation/NavigationBar";
 import Canvas from "../components/Canvas/Canvas";
@@ -15,10 +16,35 @@ import PropertiesPanel from "../components/Canvas/PropertiesPanel";
 import { CanvasSwitcher, CanvasInfo } from "../components/Project/CanvasSwitcher";
 import { CanvasToolbar } from "../components/Project/CanvasToolbar";
 import { CanvasInitializer } from "../components/Canvas/CanvasInitializer";
+import PresenceList from "../components/Collaboration/PresenceList";
+import { useCursors } from "../hooks/useCursors";
 
 // Lazy load heavy components
 const HelpOverlay = lazy(() => import("../components/Canvas/HelpOverlay"));
 const AICommandPanel = lazy(() => import("../components/AI/AICommandPanel"));
+
+// Component that handles PresenceList with ProjectCanvasContext
+function PresenceListWrapper({ cursors, projectId, canvasId }: { cursors: any; projectId: string; canvasId: string }) {
+  const { panToPosition } = useProjectCanvas();
+  
+  // Handle clicking on a user in the presence list to jump to their cursor
+  const handleUserClick = React.useCallback(
+    (userId: string, cursorX: number, cursorY: number) => {
+      console.log(`🎯 [PresenceListWrapper] Panning to user ${userId} at canvas position:`, cursorX, cursorY);
+      panToPosition(cursorX, cursorY);
+    },
+    [panToPosition]
+  );
+
+  return (
+    <PresenceList 
+      cursors={cursors}
+      onUserClick={handleUserClick}
+      projectId={projectId}
+      canvasId={canvasId}
+    />
+  );
+}
 
 // Loading component
 const LoadingSpinner: React.FC<{ message?: string }> = ({ message = "Loading..." }) => (
@@ -45,6 +71,9 @@ function ProjectCanvasContent() {
   const [isInitializing, setIsInitializing] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const projectLoadedRef = React.useRef<string | null>(null);
+  
+  // Get cursor data for PresenceList
+  const { cursors } = useCursors(projectId, canvasId);
 
   // Get project data
   const { 
@@ -228,6 +257,12 @@ function ProjectCanvasContent() {
                     <CanvasControls onShowHelp={() => setShowHelp(true)} />
                     <PropertiesPanel />
                     
+                    {/* PresenceList - Draggable online users */}
+                    <PresenceListWrapper 
+                      cursors={cursors}
+                      projectId={projectId}
+                      canvasId={canvasId}
+                    />
                     
                     <Suspense fallback={<div />}>
                       <AICommandPanel />

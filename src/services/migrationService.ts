@@ -124,8 +124,12 @@ class MigrationService {
         isArchived: false,
         settings: {
           allowComments: true,
+          allowViewing: true,
           allowDownloads: true,
-          isPublic: false
+          isPublic: false,
+          defaultCanvasWidth: 800,
+          defaultCanvasHeight: 600,
+          theme: 'light' as const
         }
       };
       
@@ -137,9 +141,12 @@ class MigrationService {
       
       // Add user as project owner
       const member: ProjectMember = {
+        id: generateId(),
         userId,
         email: '', // Will be populated from user data
+        name: '', // Will be populated from user data
         role: 'owner',
+        status: 'active',
         joinedAt: now,
         lastActiveAt: now,
         isOnline: false
@@ -208,9 +215,9 @@ class MigrationService {
     
     try {
       // Process shapes in batches
-      for (let i = 0; i < shapes.length; i += MIGRATION_CONFIG.BATCH_SIZE) {
+      for (let i = 0; i < shapes.length; i += MIGRATION_CONFIG.batchSize) {
         const batch = writeBatch(db);
-        const batchShapes = shapes.slice(i, i + MIGRATION_CONFIG.BATCH_SIZE);
+        const batchShapes = shapes.slice(i, i + MIGRATION_CONFIG.batchSize);
         
         for (const shape of batchShapes) {
           try {
@@ -245,7 +252,7 @@ class MigrationService {
         await batch.commit();
         
         // Add delay between batches to avoid rate limiting
-        if (i + MIGRATION_CONFIG.BATCH_SIZE < shapes.length) {
+        if (i + MIGRATION_CONFIG.batchSize < shapes.length) {
           await new Promise(resolve => setTimeout(resolve, 100));
         }
       }

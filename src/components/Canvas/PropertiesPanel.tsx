@@ -264,6 +264,243 @@ export default function PropertiesPanel({ className = '' }: PropertiesPanelProps
               />
             </div>
           </div>
+
+          {/* Border Style Controls */}
+          <div className="space-y-2">
+            <h5 className="text-xs font-medium text-gray-600 dark:text-gray-400">Border Style</h5>
+            
+            <div>
+              <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">Line Cap</label>
+              <select
+                value={selectedShape.strokeLineCap || 'butt'}
+                onChange={(e) => handleBatchPropertyChange('strokeLineCap', e.target.value as 'butt' | 'round' | 'square')}
+                className="w-full px-2 py-1 text-xs border border-gray-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
+              >
+                <option value="butt">Butt</option>
+                <option value="round">Round</option>
+                <option value="square">Square</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">Line Join</label>
+              <select
+                value={selectedShape.strokeLineJoin || 'miter'}
+                onChange={(e) => handleBatchPropertyChange('strokeLineJoin', e.target.value as 'miter' | 'round' | 'bevel')}
+                className="w-full px-2 py-1 text-xs border border-gray-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
+              >
+                <option value="miter">Miter</option>
+                <option value="round">Round</option>
+                <option value="bevel">Bevel</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">Dash Pattern</label>
+              <input
+                type="text"
+                value={selectedShape.strokeDashArray?.join(',') || ''}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (value === '') {
+                    handleBatchPropertyChange('strokeDashArray', undefined);
+                  } else {
+                    const dashArray = value.split(',').map(v => parseInt(v.trim())).filter(v => !isNaN(v));
+                    handleBatchPropertyChange('strokeDashArray', dashArray);
+                  }
+                }}
+                placeholder="5,5 (comma-separated)"
+                className="w-full px-2 py-1 text-xs border border-gray-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 font-mono"
+              />
+            </div>
+          </div>
+
+          {/* Corner Radius for Rectangles */}
+          {selectedShape.type === 'rectangle' && (
+            <div>
+              <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">Corner Radius</label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="range"
+                  min="0"
+                  max="50"
+                  value={selectedShape.cornerRadius || 0}
+                  onChange={(e) => handleBatchPropertyChange('cornerRadius', parseFloat(e.target.value))}
+                  className="flex-1"
+                />
+                <input
+                  type="number"
+                  value={selectedShape.cornerRadius || 0}
+                  onChange={(e) => handleBatchPropertyChange('cornerRadius', parseFloat(e.target.value) || 0)}
+                  className="w-16 px-2 py-1 text-xs border border-gray-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Shadow Controls */}
+          <div className="space-y-2">
+            <h5 className="text-xs font-medium text-gray-600 dark:text-gray-400">Shadow</h5>
+            
+            <div>
+              <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">Shadow Color</label>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => {
+                    setColorPickerProperty('shadowColor');
+                    setShowAdvancedColorPicker(true);
+                  }}
+                  className="w-8 h-8 border border-gray-300 dark:border-slate-600 rounded cursor-pointer hover:scale-110 transition-transform"
+                  style={{ backgroundColor: selectedShape.shadowColor || '#000000' }}
+                  title="Open advanced color picker"
+                />
+                <input
+                  type="text"
+                  value={selectedShape.shadowColor || ''}
+                  onChange={(e) => handleBatchPropertyChange('shadowColor', e.target.value)}
+                  placeholder="No shadow"
+                  className="flex-1 px-2 py-1 text-xs border border-gray-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 font-mono"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">Blur</label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="range"
+                    min="0"
+                    max="50"
+                    value={selectedShape.shadowBlur || 0}
+                    onChange={(e) => handleBatchPropertyChange('shadowBlur', parseFloat(e.target.value))}
+                    className="flex-1"
+                  />
+                  <input
+                    type="number"
+                    value={selectedShape.shadowBlur || 0}
+                    onChange={(e) => handleBatchPropertyChange('shadowBlur', parseFloat(e.target.value) || 0)}
+                    className="w-16 px-2 py-1 text-xs border border-gray-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">Opacity</label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="range"
+                    min="0"
+                    max="1"
+                    step="0.1"
+                    value={selectedShape.shadowOpacity || 0.5}
+                    onChange={(e) => handleBatchPropertyChange('shadowOpacity', parseFloat(e.target.value))}
+                    className="flex-1"
+                  />
+                  <input
+                    type="number"
+                    min="0"
+                    max="1"
+                    step="0.1"
+                    value={selectedShape.shadowOpacity || 0.5}
+                    onChange={(e) => handleBatchPropertyChange('shadowOpacity', parseFloat(e.target.value) || 0.5)}
+                    className="w-16 px-2 py-1 text-xs border border-gray-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">Offset X</label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="range"
+                    min="-50"
+                    max="50"
+                    value={selectedShape.shadowOffsetX || 0}
+                    onChange={(e) => handleBatchPropertyChange('shadowOffsetX', parseFloat(e.target.value))}
+                    className="flex-1"
+                  />
+                  <input
+                    type="number"
+                    value={selectedShape.shadowOffsetX || 0}
+                    onChange={(e) => handleBatchPropertyChange('shadowOffsetX', parseFloat(e.target.value) || 0)}
+                    className="w-16 px-2 py-1 text-xs border border-gray-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">Offset Y</label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="range"
+                    min="-50"
+                    max="50"
+                    value={selectedShape.shadowOffsetY || 0}
+                    onChange={(e) => handleBatchPropertyChange('shadowOffsetY', parseFloat(e.target.value))}
+                    className="flex-1"
+                  />
+                  <input
+                    type="number"
+                    value={selectedShape.shadowOffsetY || 0}
+                    onChange={(e) => handleBatchPropertyChange('shadowOffsetY', parseFloat(e.target.value) || 0)}
+                    className="w-16 px-2 py-1 text-xs border border-gray-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Opacity and Blend Mode Controls */}
+          <div className="space-y-2">
+            <h5 className="text-xs font-medium text-gray-600 dark:text-gray-400">Opacity & Blend Mode</h5>
+            
+            <div>
+              <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">Opacity</label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.1"
+                  value={selectedShape.opacity || 1}
+                  onChange={(e) => handleBatchPropertyChange('opacity', parseFloat(e.target.value))}
+                  className="flex-1"
+                />
+                <input
+                  type="number"
+                  min="0"
+                  max="1"
+                  step="0.1"
+                  value={Math.round((selectedShape.opacity || 1) * 100) / 100}
+                  onChange={(e) => handleBatchPropertyChange('opacity', parseFloat(e.target.value) || 1)}
+                  className="w-16 px-2 py-1 text-xs border border-gray-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">Blend Mode</label>
+              <select
+                value={selectedShape.blendMode || 'normal'}
+                onChange={(e) => handleBatchPropertyChange('blendMode', e.target.value as any)}
+                className="w-full px-2 py-1 text-xs border border-gray-300 dark:border-slate-600 rounded bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
+              >
+                <option value="normal">Normal</option>
+                <option value="multiply">Multiply</option>
+                <option value="screen">Screen</option>
+                <option value="overlay">Overlay</option>
+                <option value="soft-light">Soft Light</option>
+                <option value="hard-light">Hard Light</option>
+                <option value="color-dodge">Color Dodge</option>
+                <option value="color-burn">Color Burn</option>
+                <option value="darken">Darken</option>
+                <option value="lighten">Lighten</option>
+                <option value="difference">Difference</option>
+                <option value="exclusion">Exclusion</option>
+              </select>
+            </div>
+          </div>
         </div>
 
         {/* Transform Properties */}

@@ -165,7 +165,8 @@ export const useMigration = () => {
     resetMigration,
     isReady: !state.isChecking && !state.isMigrating,
     canMigrate: state.needsMigration && !state.isMigrating,
-    hasError: !!state.error
+    hasError: !!state.error,
+    migrationError: state.error
   };
 };
 

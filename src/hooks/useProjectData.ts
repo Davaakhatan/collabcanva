@@ -144,6 +144,8 @@ interface ProjectDataState {
   projectsError: string | null;
   hasMoreProjects: boolean;
   lastProjectDoc: any;
+  loading: boolean;
+  error: string | null;
 
   // Current project details
   currentProject: Project | null;
@@ -739,6 +741,8 @@ export const useProjectData = (): UseProjectDataReturn => {
 
   return {
     ...state,
+    loading: state.projectsLoading,
+    error: state.projectsError,
     fetchProjects,
     fetchMoreProjects,
     fetchProject,

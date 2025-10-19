@@ -5,7 +5,7 @@ import { MIN_ZOOM, MAX_ZOOM, ZOOM_SPEED, CANVAS_WIDTH, CANVAS_HEIGHT } from "../
 import { clamp } from "../../utils/helpers";
 import { FPSMonitor, generateRandomPosition } from "../../utils/performance";
 import { exportAsPNG } from "../../utils/export";
-// import GroupingControls from "./GroupingControls"; // Temporarily commented out
+import { canGroupShapes, canUngroupGroup } from "../../utils/groupingUtils";
 
 interface CanvasControlsProps {
   onShowHelp: () => void;
@@ -274,9 +274,9 @@ const ShapeMenu = ({ isOpen, onClose, onSelectShape, anchorRef, mode }: ShapeMen
 
 export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
   const { 
-    scale, setScale, resetView, addShape, addImageShape, stageRef, shapes, /* groups, */ selectedIds, 
-    batchUpdateShapes, undo, redo, canUndo, canRedo, projectId, canvasId, pushState
-    // groupShapes, ungroupShapes, renameGroup // Temporarily commented out
+    scale, setScale, resetView, addShape, addImageShape, stageRef, shapes, groups, selectedIds, 
+    batchUpdateShapes, undo, redo, canUndo, canRedo, projectId, canvasId, pushState,
+    groupShapes, ungroupShapes, renameGroup
   } = useProjectCanvas();
   
   // Debug logging for undo/redo state (reduced frequency)
@@ -557,18 +557,6 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
 
             <div className="w-full h-px bg-gray-200/70 dark:bg-slate-600/70" />
 
-            {/* Grouping Controls - Temporarily commented out */}
-            {/* <div className="flex flex-col items-center gap-2">
-              <GroupingControls
-                selectedShapeIds={selectedIds}
-                shapes={shapes}
-                groups={groups}
-                onGroupShapes={groupShapes}
-                onUngroupShapes={ungroupShapes}
-                onRenameGroup={renameGroup}
-                className="w-full"
-              />
-            </div> */}
 
             <div className="w-full h-px bg-gray-200/70 dark:bg-slate-600/70" />
 
@@ -744,6 +732,39 @@ export default function CanvasControls({ onShowHelp }: CanvasControlsProps) {
                 <path  d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
             </TButton>
+
+            {/* Grouping Controls - only show when shapes are selected */}
+            {selectedIds.length > 0 && (
+              <>
+                <div className="w-px h-6 bg-gray-200/70 dark:bg-slate-600/70" />
+                
+                {/* Group Button */}
+                <TButton
+                  onClick={groupShapes}
+                  disabled={!canGroupShapes(selectedIds, shapes)}
+                  title={canGroupShapes(selectedIds, shapes) ? 'Group selected shapes' : 'Select 2 or more shapes to group'}
+                  aria-label="Group selected shapes"
+                >
+                  <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                </TButton>
+
+                {/* Ungroup Button - only show when a group is selected */}
+                {selectedIds.length === 1 && groups.find(g => g.id === selectedIds[0]) && (
+                  <TButton
+                    onClick={ungroupShapes}
+                    disabled={!canUngroupGroup(selectedIds[0], groups)}
+                    title={canUngroupGroup(selectedIds[0], groups) ? 'Ungroup selected group' : 'Cannot ungroup this group'}
+                    aria-label="Ungroup selected group"
+                  >
+                    <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                    </svg>
+                  </TButton>
+                )}
+              </>
+            )}
 
             {selectedIds.length > 0 && (
               <>

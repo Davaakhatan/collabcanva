@@ -689,8 +689,9 @@ export interface ProjectSummary {
   updatedAt: number;
   memberCount: number;
   canvasCount: number;
-  thumbnailUrl: string | null;
+  thumbnail: string | null;
   lastActivity: number | null;
+  canvases?: ProjectCanvas[];
 }
 
 export interface ProjectDisplay extends Project {

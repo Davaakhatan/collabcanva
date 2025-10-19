@@ -253,7 +253,17 @@ export default function Shape({ shape, isSelected, onSelect, onChange, onStartEd
     onTransformEnd: handleTransformEnd,
     stroke: strokeColor,
     strokeWidth: strokeWidth,
-    opacity: isLockedByOther ? 0.6 : 1,
+    strokeDashArray: shape.strokeDashArray,
+    strokeLineCap: shape.strokeLineCap,
+    strokeLineJoin: shape.strokeLineJoin,
+    cornerRadius: shape.cornerRadius,
+    shadowColor: shape.shadowColor,
+    shadowBlur: shape.shadowBlur,
+    shadowOffsetX: shape.shadowOffsetX,
+    shadowOffsetY: shape.shadowOffsetY,
+    shadowOpacity: shape.shadowOpacity,
+    opacity: isLockedByOther ? 0.6 : (shape.opacity || 1),
+    blendMode: shape.blendMode || 'normal',
     fill: gradient || shape.fill, // Use gradient if available, otherwise use solid color
   };
 

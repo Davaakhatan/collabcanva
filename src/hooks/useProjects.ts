@@ -32,6 +32,8 @@ export interface UseProjectsReturn {
   projects: ProjectSummary[];
   projectsLoading: boolean;
   projectsError: string | null;
+  loading: boolean;
+  error: string | null;
   
   // Current project
   currentProject: Project | null;
@@ -350,6 +352,8 @@ export const useProjects = (): UseProjectsReturn => {
     projects: visibleProjects,
     projectsLoading: state.projectsLoading,
     projectsError: state.projectsError,
+    loading: state.projectsLoading,
+    error: state.projectsError,
     
     // Current project
     currentProject: state.currentProject,

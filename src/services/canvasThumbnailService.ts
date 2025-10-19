@@ -4,9 +4,9 @@
 import { thumbnailService, ThumbnailResult, ThumbnailOptions, ThumbnailError } from './thumbnailService';
 import { Shape } from '../types';
 import { ProjectCanvas } from '../types';
-import { db } from '../lib/firebase';
-import { collection, query, where, getDocs, orderBy, limit } from 'firebase/firestore';
-import { firebaseProjectStructure } from './firebaseProjectStructure';
+import { db } from './firebase';
+import { collection, query, where, getDocs, orderBy, limit, doc, getDoc } from 'firebase/firestore';
+import { FIREBASE_STRUCTURE } from './firebaseProjectStructure';
 
 // Canvas thumbnail generation options
 export interface CanvasThumbnailOptions extends ThumbnailOptions {
@@ -21,6 +21,7 @@ export interface CanvasThumbnailOptions extends ThumbnailOptions {
   includeBorders?: boolean;
   borderColor?: string;
   borderWidth?: number;
+  forceRegenerate?: boolean;
 }
 
 // Thumbnail generation result with metadata
@@ -280,7 +281,7 @@ class CanvasThumbnailService {
   } | null> {
     try {
       // Fetch canvas info
-      const canvasRef = doc(db, firebaseProjectStructure.getCanvasPath(projectId, canvasId));
+      const canvasRef = doc(db, FIREBASE_STRUCTURE.getCanvasPath(projectId, canvasId));
       const canvasSnap = await getDoc(canvasRef);
       
       if (!canvasSnap.exists()) {
@@ -290,7 +291,7 @@ class CanvasThumbnailService {
       const canvas = { id: canvasSnap.id, ...canvasSnap.data() } as ProjectCanvas;
       
       // Fetch shapes
-      const shapesRef = collection(db, firebaseProjectStructure.getShapesCollectionPath(projectId, canvasId));
+      const shapesRef = collection(db, FIREBASE_STRUCTURE.getShapesCollectionPath(projectId, canvasId));
       const shapesQuery = query(
         shapesRef,
         orderBy('createdAt', 'asc'),
@@ -500,4 +501,4 @@ class CanvasThumbnailService {
 export const canvasThumbnailService = new CanvasThumbnailService();
 
 // Export types
-export type { CanvasThumbnailOptions, CanvasThumbnailResult, ThumbnailGenerationRequest };
+export type { CanvasThumbnailResult, ThumbnailGenerationRequest };

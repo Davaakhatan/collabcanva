@@ -7,7 +7,7 @@ import { generateId } from "../utils/helpers";
 import { DEFAULT_SHAPE_WIDTH, DEFAULT_SHAPE_HEIGHT, DEFAULT_SHAPE_COLOR } from "../utils/constants";
 import { useProjectCanvasSync } from "../hooks/useProjectCanvasSync";
 import { useHistory } from "../hooks/useHistory";
-// import { createGroup, ungroupGroup } from "../utils/groupingUtils"; // Temporarily commented out
+import { createGroup, ungroupGroup } from "../utils/groupingUtils";
 
 export interface Shape {
   id: string;
@@ -20,9 +20,22 @@ export interface Shape {
   fill: string;
   stroke?: string; // Stroke color
   strokeWidth?: number; // Stroke width
+  strokeDashArray?: number[]; // Stroke dash pattern
+  strokeLineCap?: 'butt' | 'round' | 'square'; // Stroke line cap
+  strokeLineJoin?: 'miter' | 'round' | 'bevel'; // Stroke line join
+  cornerRadius?: number; // Border radius for rectangles
   scaleX?: number; // Horizontal scale
   scaleY?: number; // Vertical scale
   zIndex?: number; // Layer order (higher = on top)
+  // Shadow properties
+  shadowColor?: string; // Shadow color
+  shadowBlur?: number; // Shadow blur radius
+  shadowOffsetX?: number; // Shadow horizontal offset
+  shadowOffsetY?: number; // Shadow vertical offset
+  shadowOpacity?: number; // Shadow opacity (0-1)
+  // Advanced color properties
+  opacity?: number; // 0-1
+  blendMode?: 'normal' | 'multiply' | 'screen' | 'overlay' | 'soft-light' | 'hard-light' | 'color-dodge' | 'color-burn' | 'darken' | 'lighten' | 'difference' | 'exclusion';
   // Text-specific properties
   text?: string;
   fontSize?: number;
@@ -52,32 +65,31 @@ export interface Shape {
   lockedAt?: number | null; // Timestamp when lock was acquired (null when unlocked)
 }
 
-// Temporarily commented out - Group interface
-// export interface Group {
-//   id: string;
-//   name: string;
-//   children: string[]; // Array of child shape IDs
-//   x: number;
-//   y: number;
-//   width: number;
-//   height: number;
-//   rotation?: number;
-//   scaleX?: number;
-//   scaleY?: number;
-//   zIndex?: number;
-//   createdBy?: string;
-//   createdAt?: number;
-//   lastModifiedBy?: string;
-//   lastModifiedAt?: number;
-//   isLocked?: boolean;
-//   lockedBy?: string | null;
-//   lockedAt?: number | null;
-// }
+export interface Group {
+  id: string;
+  name: string;
+  children: string[]; // Array of child shape IDs
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  rotation?: number;
+  scaleX?: number;
+  scaleY?: number;
+  zIndex?: number;
+  createdBy?: string;
+  createdAt?: number;
+  lastModifiedBy?: string;
+  lastModifiedAt?: number;
+  isLocked?: boolean;
+  lockedBy?: string | null;
+  lockedAt?: number | null;
+}
 
 interface ProjectCanvasContextType {
   // Canvas state
   shapes: Shape[];
-  // groups: Group[]; // Temporarily commented out
+  groups: Group[];
   selectedIds: string[];
   stageRef: React.MutableRefObject<Konva.Stage | null>;
   loading: boolean;
@@ -142,9 +154,9 @@ interface ProjectCanvasContextType {
   alignMiddle: () => void;
   
   // Grouping operations
-  // groupShapes: (groupName?: string) => void; // Temporarily commented out
-  // ungroupShapes: () => void; // Temporarily commented out
-  // renameGroup: (groupId: string, newName: string) => void; // Temporarily commented out
+  groupShapes: (groupName?: string) => void;
+  ungroupShapes: () => void;
+  renameGroup: (groupId: string, newName: string) => void;
   
   // Project canvas operations
   setCurrentCanvas: (projectId: string, canvasId: string) => void;
@@ -157,7 +169,7 @@ const ProjectCanvasContext = createContext<ProjectCanvasContextType | null>(null
 
 export function ProjectCanvasProvider({ children }: { children: ReactNode }) {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  // const [groups, setGroups] = useState<Group[]>([]); // Temporarily commented out
+  const [groups, setGroups] = useState<Group[]>([]);
   const [scale, setScaleState] = useState(1);
   const [position, setPositionState] = useState({ x: 0, y: 0 });
   const [projectId, setProjectId] = useState<string | null>(null);
@@ -798,79 +810,86 @@ export function ProjectCanvasProvider({ children }: { children: ReactNode }) {
     batchUpdateShapes(updates);
   };
 
-  // Grouping operations - Temporarily commented out
-  // const groupShapes = (groupName?: string) => {
-  //   if (selectedIds.length < 2) return;
+  // Grouping operations
+  const groupShapes = (groupName?: string) => {
+    if (selectedIds.length < 2) return;
 
-  //   try {
-  //     const { group, updatedShapes } = createGroup(selectedIds, shapes, groupName);
+    try {
+      // First, unlock all selected shapes to allow grouping
+      const unlockedShapes = shapes.map(shape => 
+        selectedIds.includes(shape.id) 
+          ? { ...shape, isLocked: false, lockedBy: null, lockedAt: null }
+          : shape
+      );
       
-  //     // Update shapes
-  //     updateShapesSync(updatedShapes);
+      const { group, updatedShapes } = createGroup(selectedIds, unlockedShapes, groupName);
       
-  //     // Add group to groups array
-  //     setGroups(prev => [...prev, group]);
+      // Update shapes with unlocked versions
+      updateShapesSync(updatedShapes);
       
-  //     // Select the new group
-  //     setSelectedIds([group.id]);
+      // Add group to groups array
+      setGroups(prev => [...prev, group]);
       
-  //     // Save to history
-  //     setTimeout(() => pushState(), 10);
+      // Select the new group
+      setSelectedIds([group.id]);
       
-  //     console.log('✅ [ProjectCanvasContext] Shapes grouped successfully', { 
-  //       groupId: group.id, 
-  //       groupName: group.name, 
-  //       childCount: group.children.length 
-  //     });
-  //   } catch (error) {
-  //     console.error('❌ [ProjectCanvasContext] Failed to group shapes:', error);
-  //   }
-  // };
+      // Save to history
+      setTimeout(() => pushState(), 10);
+      
+      console.log('✅ [ProjectCanvasContext] Shapes grouped successfully', { 
+        groupId: group.id, 
+        groupName: group.name, 
+        childCount: group.children.length 
+      });
+    } catch (error) {
+      console.error('❌ [ProjectCanvasContext] Failed to group shapes:', error);
+    }
+  };
 
-  // const ungroupShapes = () => {
-  //   if (selectedIds.length !== 1) return;
+  const ungroupShapes = () => {
+    if (selectedIds.length !== 1) return;
     
-  //   const selectedGroup = groups.find(g => g.id === selectedIds[0]);
-  //   if (!selectedGroup) return;
+    const selectedGroup = groups.find(g => g.id === selectedIds[0]);
+    if (!selectedGroup) return;
 
-  //   try {
-  //     const { updatedShapes, remainingGroups } = ungroupGroup(selectedGroup.id, groups, shapes);
+    try {
+      const { updatedShapes, remainingGroups } = ungroupGroup(selectedGroup.id, groups, shapes);
       
-  //     // Update shapes
-  //     updateShapesSync(updatedShapes);
+      // Update shapes
+      updateShapesSync(updatedShapes);
       
-  //     // Update groups array
-  //     setGroups(remainingGroups);
+      // Update groups array
+      setGroups(remainingGroups);
       
-  //     // Select the ungrouped shapes
-  //     setSelectedIds(selectedGroup.children);
+      // Select the ungrouped shapes
+      setSelectedIds(selectedGroup.children);
       
-  //     // Save to history
-  //     setTimeout(() => pushState(), 10);
+      // Save to history
+      setTimeout(() => pushState(), 10);
       
-  //     console.log('✅ [ProjectCanvasContext] Group ungrouped successfully', { 
-  //       groupId: selectedGroup.id, 
-  //       ungroupedShapes: selectedGroup.children.length 
-  //     });
-  //   } catch (error) {
-  //     console.error('❌ [ProjectCanvasContext] Failed to ungroup shapes:', error);
-  //   }
-  // };
+      console.log('✅ [ProjectCanvasContext] Group ungrouped successfully', { 
+        groupId: selectedGroup.id, 
+        ungroupedShapes: selectedGroup.children.length 
+      });
+    } catch (error) {
+      console.error('❌ [ProjectCanvasContext] Failed to ungroup shapes:', error);
+    }
+  };
 
-  // const renameGroup = (groupId: string, newName: string) => {
-  //   setGroups(prev => prev.map(group => 
-  //     group.id === groupId 
-  //       ? { ...group, name: newName, lastModifiedAt: Date.now() }
-  //       : group
-  //   ));
+  const renameGroup = (groupId: string, newName: string) => {
+    setGroups(prev => prev.map(group => 
+      group.id === groupId 
+        ? { ...group, name: newName, lastModifiedAt: Date.now() }
+        : group
+    ));
     
-  //   console.log('✅ [ProjectCanvasContext] Group renamed', { groupId, newName });
-  // };
+    console.log('✅ [ProjectCanvasContext] Group renamed', { groupId, newName });
+  };
 
   const value: ProjectCanvasContextType = {
     // Canvas state
     shapes,
-    // groups, // Temporarily commented out
+    groups,
     selectedIds,
     stageRef,
     loading,
@@ -928,10 +947,10 @@ export function ProjectCanvasProvider({ children }: { children: ReactNode }) {
     alignBottom,
     alignMiddle,
     
-    // Grouping operations - Temporarily commented out
-    // groupShapes,
-    // ungroupShapes,
-    // renameGroup,
+    // Grouping operations
+    groupShapes,
+    ungroupShapes,
+    renameGroup,
     
     // Project canvas operations
     setCurrentCanvas,

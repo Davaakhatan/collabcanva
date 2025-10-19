@@ -28,6 +28,7 @@ interface UseProjectMembersReturn {
   isLoading: boolean;
   isInviting: boolean;
   isUpdating: boolean;
+  loading: boolean;
   isDeleting: boolean;
   
   // Error states
@@ -550,6 +551,7 @@ export const useProjectMembers = ({
     isInviting,
     isUpdating,
     isDeleting,
+    loading: isLoading,
     
     // Error states
     error,

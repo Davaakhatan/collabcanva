@@ -16,9 +16,19 @@ export interface Shape {
   fill: string;
   stroke?: string;
   strokeWidth?: number;
+  strokeDashArray?: number[]; // Stroke dash pattern
+  strokeLineCap?: 'butt' | 'round' | 'square'; // Stroke line cap
+  strokeLineJoin?: 'miter' | 'round' | 'bevel'; // Stroke line join
+  cornerRadius?: number; // Border radius for rectangles
   scaleX?: number;
   scaleY?: number;
   zIndex?: number; // Layer order (higher = on top)
+  // Shadow properties
+  shadowColor?: string; // Shadow color
+  shadowBlur?: number; // Shadow blur radius
+  shadowOffsetX?: number; // Shadow horizontal offset
+  shadowOffsetY?: number; // Shadow vertical offset
+  shadowOpacity?: number; // Shadow opacity (0-1)
   // Advanced color properties
   opacity?: number; // 0-1
   blendMode?: 'normal' | 'multiply' | 'screen' | 'overlay' | 'soft-light' | 'hard-light' | 'color-dodge' | 'color-burn' | 'darken' | 'lighten' | 'difference' | 'exclusion';
