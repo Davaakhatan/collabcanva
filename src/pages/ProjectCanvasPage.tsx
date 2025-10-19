@@ -11,7 +11,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { NavigationBar } from "../components/Navigation/NavigationBar";
 import Canvas from "../components/Canvas/Canvas";
 import CanvasControls from "../components/Canvas/CanvasControls";
-import PropertiesPanel from "../components/Canvas/PropertiesPanel";
+import SimplePropertiesPanel from "../components/Canvas/SimplePropertiesPanel";
 import { CanvasSwitcher, CanvasInfo } from "../components/Project/CanvasSwitcher";
 import { CanvasToolbar } from "../components/Project/CanvasToolbar";
 import { CanvasInitializer } from "../components/Canvas/CanvasInitializer";
@@ -226,7 +226,7 @@ function ProjectCanvasContent() {
                       canvasId={canvasId}
                     />
                     <CanvasControls onShowHelp={() => setShowHelp(true)} />
-                    <PropertiesPanel />
+                    <SimplePropertiesPanel />
                     
                     {/* Debug: Always visible test panel */}
                     <div className="fixed top-4 right-4 bg-red-500 text-white p-2 rounded z-[10000] text-xs">

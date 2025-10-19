@@ -4,7 +4,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useProjectCanvas } from '../../contexts/ProjectCanvasContext';
 import AdvancedColorPicker from './AdvancedColorPicker';
-import type { Shape } from '../../contexts/CanvasContext';
+import type { Shape } from '../../contexts/ProjectCanvasContext';
 
 interface PropertiesPanelProps {
   className?: string;

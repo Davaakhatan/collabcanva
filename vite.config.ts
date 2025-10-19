@@ -16,6 +16,8 @@ export default defineConfig({
       },
     },
     chunkSizeWarningLimit: 1000, // Increase limit to 1000 KB to suppress warnings for now
+    // Skip TypeScript checking
+    target: 'es2020'
   },
   esbuild: {
     // Skip TypeScript checking during build
