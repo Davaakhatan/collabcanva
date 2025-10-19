@@ -15,6 +15,9 @@ export interface AuthUser {
   email: string | null;
   displayName: string | null;
   photoURL: string | null;
+  createdAt: Date;
+  lastLoginAt?: Date;
+  isOnline: boolean;
 }
 
 type Ctx = {
@@ -42,6 +45,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             email: firebaseUser.email,
             displayName: firebaseUser.displayName,
             photoURL: firebaseUser.photoURL,
+            createdAt: firebaseUser.metadata?.creationTime ? new Date(firebaseUser.metadata.creationTime) : new Date(),
+            lastLoginAt: firebaseUser.metadata?.lastSignInTime ? new Date(firebaseUser.metadata.lastSignInTime) : undefined,
+            isOnline: true
           };
           console.log('[AuthContext] Setting user:', authUser);
           console.log('[AuthContext] User UID:', authUser.uid);

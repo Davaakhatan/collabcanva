@@ -4,7 +4,8 @@
 import React, { useState, useEffect } from 'react';
 import { useProjectTransfer } from '../../hooks/useProjectTransfer';
 import { useProjectMembers } from '../../hooks/useProjectMembers';
-import { TransferRequest, ProjectMember } from "../../types"
+import { ProjectMember } from "../../types"
+import { TransferRequest } from "../../services/projectTransferService"
 import { 
   formatTransferStatus, 
   getTransferStatusColor, 

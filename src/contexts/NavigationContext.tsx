@@ -176,7 +176,10 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({
   const addToRecent = useCallback((item: NavigationItem) => {
     const newItem: NavigationItem = {
       ...item,
-      lastAccessed: new Date()
+      metadata: {
+        ...item.metadata,
+        lastAccessed: new Date()
+      }
     };
 
     setState(prev => {
