@@ -136,10 +136,10 @@ export const useProjects = (): UseProjectsReturn => {
       id: project.id,
       name: project.name,
       description: project.description,
-      thumbnailUrl: project.thumbnailUrl,
+      thumbnailUrl: project.thumbnail,
       memberCount: (project as any).members?.length || 1, // Default to 1 (owner)
       canvasCount: (project as any).canvases?.length || 1, // Default to 1 (main canvas)
-      lastUpdated: project.updatedAt instanceof Date ? project.updatedAt.getTime() : new Date(project.updatedAt).getTime(),
+      lastUpdated: typeof project.updatedAt === 'number' ? project.updatedAt : new Date(project.updatedAt).getTime(),
       isArchived: project.isArchived,
       userRole: state.userRole || 'owner', // Default to owner for projects in the list
       ownerId: project.ownerId,

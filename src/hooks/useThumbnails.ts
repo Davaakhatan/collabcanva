@@ -15,6 +15,7 @@ type ThumbnailOptions = { width?: number; height?: number; quality?: number };
 
 // Mock thumbnail service for frontend demo
 const thumbnailService = {
+  getCacheStats: () => ({ size: 0, entries: [] }),
   generateThumbnail: async (canvasId: string, options?: ThumbnailOptions): Promise<ThumbnailResult> => {
     console.log('Mock: Generate thumbnail for canvas', canvasId, options);
     return { success: true, thumbnailUrl: null };
@@ -25,7 +26,17 @@ const thumbnailService = {
   },
   deleteThumbnail: async (canvasId: string): Promise<void> => {
     console.log('Mock: Delete thumbnail for canvas', canvasId);
-  }
+  },
+  generateProjectThumbnail: async (projectId: string, shapes: any[], canvasInfo: any, options?: ThumbnailOptions): Promise<ThumbnailResult> => {
+    return { success: true, thumbnailUrl: `mock-project-${projectId}.png` };
+  },
+  generateCanvasThumbnail: async (canvasId: string, shapes: any[], canvasInfo: any, options?: ThumbnailOptions): Promise<ThumbnailResult> => {
+    return { success: true, thumbnailUrl: `mock-canvas-${canvasId}.png` };
+  },
+  generatePlaceholderThumbnail: async (type: 'project' | 'canvas', options?: ThumbnailOptions): Promise<ThumbnailResult> => {
+    return { success: true, thumbnailUrl: `mock-${type}-placeholder.png` };
+  },
+  clearCache: () => {}
 };
 
 // Thumbnail state interface
@@ -179,7 +190,7 @@ export const useThumbnails = (): UseThumbnailsReturn => {
       updateCacheStats();
       return result;
     } catch (error) {
-      const errorMessage = error instanceof ThumbnailError 
+      const errorMessage = error instanceof Error 
         ? error.message 
         : 'Failed to generate project thumbnail';
 

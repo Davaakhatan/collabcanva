@@ -383,9 +383,6 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
             createdAt: new Date('2024-01-15').getTime(),
             updatedAt: new Date('2024-01-20').getTime(),
             isArchived: false,
-            metadata: {
-              color: '#3b82f6'
-            },
             settings: {
               allowComments: true,
               allowViewing: true,
@@ -427,9 +424,7 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
             ],
             metadata: {
               color: '#3b82f6',
-              tags: ['design', 'prototype']
-            },
-            stats: {
+              tags: ['design', 'prototype'],
               totalCanvases: 1,
               totalMembers: 1,
               totalViews: 0,
@@ -464,9 +459,6 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
           createdAt: Date.now(),
           updatedAt: Date.now(),
           isArchived: false,
-          metadata: {
-            color: '#3b82f6'
-          },
           settings: {
             allowComments: true,
             allowViewing: true,
@@ -508,9 +500,7 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
           ],
           metadata: {
             color: '#3b82f6',
-            tags: ['design', 'prototype']
-          },
-          stats: {
+            tags: ['design', 'prototype'],
             totalCanvases: 1,
             totalMembers: 1,
             totalViews: 0,
@@ -525,9 +515,6 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
           createdAt: Date.now(),
           updatedAt: Date.now(),
           isArchived: false,
-          metadata: {
-            color: '#10b981'
-          },
           settings: {
             allowComments: true,
             allowViewing: true,
@@ -584,9 +571,7 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
           ],
           metadata: {
             color: '#10b981',
-            tags: ['collaboration', 'design-system', 'ux']
-          },
-          stats: {
+            tags: ['collaboration', 'design-system', 'ux'],
             totalCanvases: 2,
             totalMembers: 1,
             totalViews: 0,
@@ -601,9 +586,6 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
           createdAt: Date.now(),
           updatedAt: Date.now(),
           isArchived: true,
-          metadata: {
-            color: '#6b7280'
-          },
           settings: {
             allowComments: false,
             allowViewing: true,
@@ -645,9 +627,7 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
           ],
           metadata: {
             color: '#6b7280',
-            tags: ['archived', 'old']
-          },
-          stats: {
+            tags: ['archived', 'old'],
             totalCanvases: 1,
             totalMembers: 1,
             totalViews: 0,
@@ -874,9 +854,6 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
             createdAt: Date.now(),
             updatedAt: Date.now(),
             isArchived: false,
-            metadata: {
-              color: '#3b82f6'
-            },
             settings: {
               allowComments: true,
               allowViewing: true,
@@ -918,9 +895,7 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
             ],
             metadata: {
               color: '#3b82f6',
-              tags: ['demo']
-            },
-            stats: {
+              tags: ['demo'],
               totalCanvases: 1,
               totalMembers: 1,
               totalViews: 0,
