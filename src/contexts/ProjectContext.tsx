@@ -767,7 +767,15 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
       // For now, update local state
       const updatedProject = state.projects.find(p => p.id === projectId);
       if (updatedProject) {
-        const newProject = { ...updatedProject, ...data, updatedAt: Date.now() };
+        const newProject = { 
+          ...updatedProject, 
+          ...data, 
+          updatedAt: Date.now(),
+          settings: {
+            ...updatedProject.settings,
+            ...data.settings
+          }
+        };
         dispatch({ type: 'UPDATE_PROJECT', payload: newProject });
       }
     } catch (error) {

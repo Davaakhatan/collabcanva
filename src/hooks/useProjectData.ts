@@ -208,6 +208,8 @@ export const useProjectData = (): UseProjectDataReturn => {
     projectsError: null,
     hasMoreProjects: true,
     lastProjectDoc: null,
+    loading: false,
+    error: null,
     currentProject: null,
     currentProjectMembers: [],
     currentProjectCanvases: [],
