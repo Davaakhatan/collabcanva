@@ -11,7 +11,7 @@ import {
   formatLastSeen,
   isUserRecentlyActive
 } from '../services/presenceService';
-import { ActivityType, PresenceData } from '../types';
+import { ActivityType, PresenceData } from '../services/presenceService';
 
 // Hook props
 interface UsePresenceProps {

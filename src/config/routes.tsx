@@ -57,7 +57,7 @@ const ProjectCanvasPageWrapper = () => (
 const Home = lazy(() => import('../pages/Home'));
 const Login = lazy(() => import('../components/Auth/Login'));
 const Signup = lazy(() => import('../components/Auth/Signup'));
-const CanvasPage = lazy(() => import('../components/Canvas/CanvasPage'));
+const CanvasPage = lazy(() => import('../pages/CanvasPage'));
 const ProjectDashboardPage = lazy(() => import('../pages/ProjectDashboardPage'));
 const ProjectCanvasPage = lazy(() => import('../pages/ProjectCanvasPage'));
 

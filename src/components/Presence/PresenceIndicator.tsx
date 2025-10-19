@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { usePresence } from '../../hooks/usePresence';
-import { PresenceData, ActivityType } from "../../types"
+import { PresenceData, ActivityType } from "../../services/presenceService"
 import { 
   getActivityDisplayName, 
   getActivityColor, 

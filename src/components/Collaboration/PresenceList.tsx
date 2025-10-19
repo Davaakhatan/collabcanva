@@ -25,8 +25,8 @@ export default function PresenceList({ cursors, onUserClick, projectId, canvasId
       allCursorKeys: Object.keys(cursor)
     });
     
-    // Try different color properties
-    const color = cursor.cursorColor || cursor.color || '#3B82F6';
+    // Use cursorColor from CursorData type
+    const color = cursor.cursorColor || '#3B82F6';
     console.log('🎨 [PresenceList] Final color for', userId, ':', color);
     
     return {

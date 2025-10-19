@@ -30,6 +30,7 @@ interface NavigationState {
   favorites: NavigationItem[];
   isNavigating: boolean;
   navigationHistory: string[];
+  historyIndex: number;
 }
 
 // Navigation actions interface
@@ -74,7 +75,8 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({
     recentItems: [],
     favorites: [],
     isNavigating: false,
-    navigationHistory: [location.pathname]
+    navigationHistory: [location.pathname],
+    historyIndex: 0
   });
 
   // Load data from localStorage on mount
@@ -130,7 +132,8 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({
       return {
         ...prev,
         currentPath: location.pathname,
-        navigationHistory: newHistory
+        navigationHistory: newHistory,
+        historyIndex: newHistory.length - 1
       };
     });
   }, [location.pathname, maxHistoryItems]);

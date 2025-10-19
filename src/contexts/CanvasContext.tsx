@@ -7,7 +7,7 @@ import { useHistory } from "../hooks/useHistory";
 
 export interface Shape {
   id: string;
-  type: 'rectangle' | 'circle' | 'triangle' | 'text' | 'ellipse' | 'star' | 'polygon' | 'path' | 'image';
+  type: 'rectangle' | 'circle' | 'triangle' | 'text' | 'ellipse' | 'star' | 'polygon' | 'path' | 'image' | 'group';
   x: number;
   y: number;
   width: number;
@@ -68,7 +68,7 @@ interface CanvasContextType {
   position: { x: number; y: number };
   
   // Shape operations
-  addShape: (type: 'rectangle' | 'circle' | 'triangle' | 'text' | 'ellipse' | 'star' | 'polygon' | 'path' | 'image', overrides?: Partial<Shape>) => void;
+  addShape: (type: 'rectangle' | 'circle' | 'triangle' | 'text' | 'ellipse' | 'star' | 'polygon' | 'path' | 'image' | 'group', overrides?: Partial<Shape>) => void;
   addImageShape: (file: File, overrides?: Partial<Shape>) => Promise<void>;
   updateShape: (id: string, updates: Partial<Shape>) => void;
   updateSelectedShapes: (updates: Partial<Shape>) => void; // Batch update all selected shapes with same updates
@@ -204,7 +204,7 @@ export function CanvasProvider({ children }: { children: ReactNode }) {
   };
 
   const addShape = (
-    type: 'rectangle' | 'circle' | 'triangle' | 'text' | 'ellipse' | 'star' | 'polygon' | 'path' | 'image',
+    type: 'rectangle' | 'circle' | 'triangle' | 'text' | 'ellipse' | 'star' | 'polygon' | 'path' | 'image' | 'group',
     overrides?: Partial<Shape>
   ) => {
     // Default dimensions based on shape type

@@ -18,6 +18,10 @@ export interface Shape {
   height: number;
   rotation?: number; // Rotation in degrees
   fill: string;
+  stroke?: string; // Stroke color
+  strokeWidth?: number; // Stroke width
+  scaleX?: number; // Horizontal scale
+  scaleY?: number; // Vertical scale
   zIndex?: number; // Layer order (higher = on top)
   // Text-specific properties
   text?: string;
@@ -82,13 +86,19 @@ interface ProjectCanvasContextType {
   // Project info
   projectId: string | null;
   canvasId: string | null;
+  currentCanvas: any | null; // Current canvas object
+  projectCanvases: any[]; // List of canvases in the project
+  createCanvas: (name: string) => Promise<void>;
+  updateCanvas: (id: string, updates: any) => Promise<void>;
+  deleteCanvas: (id: string) => Promise<void>;
+  duplicateCanvas: (id: string) => Promise<void>;
   
   // Zoom and pan state
   scale: number;
   position: { x: number; y: number };
   
   // Shape operations
-  addShape: (type: 'rectangle' | 'circle' | 'triangle' | 'text' | 'ellipse' | 'star' | 'polygon' | 'path' | 'image', overrides?: Partial<Shape>) => void;
+  addShape: (type: 'rectangle' | 'circle' | 'triangle' | 'text' | 'ellipse' | 'star' | 'polygon' | 'path' | 'image' | 'group', overrides?: Partial<Shape>) => void;
   addImageShape: (file: File, overrides?: Partial<Shape>) => Promise<void>;
   updateShape: (id: string, updates: Partial<Shape>) => void;
   updateSelectedShapes: (updates: Partial<Shape>) => void; // Batch update all selected shapes with same updates
@@ -317,7 +327,7 @@ export function ProjectCanvasProvider({ children }: { children: ReactNode }) {
   };
 
   const addShape = (
-    type: 'rectangle' | 'circle' | 'triangle' | 'text' | 'ellipse' | 'star' | 'polygon' | 'path' | 'image',
+    type: 'rectangle' | 'circle' | 'triangle' | 'text' | 'ellipse' | 'star' | 'polygon' | 'path' | 'image' | 'group',
     overrides?: Partial<Shape>
   ) => {
     if (!projectId || !canvasId) {
@@ -928,6 +938,23 @@ export function ProjectCanvasProvider({ children }: { children: ReactNode }) {
     clearCurrentCanvas,
     refreshCanvas,
     clearError,
+    
+    // Canvas management operations
+    projectCanvases: [], // TODO: Implement canvas list
+    createCanvas: async (name: string) => {
+      console.log('createCanvas not implemented yet:', name);
+      const newCanvas = { id: 'temp-' + Date.now(), name };
+      return newCanvas;
+    },
+    updateCanvas: async (id: string, updates: any) => {
+      console.log('updateCanvas not implemented yet:', id, updates);
+    },
+    deleteCanvas: async (id: string) => {
+      console.log('deleteCanvas not implemented yet:', id);
+    },
+    duplicateCanvas: async (id: string) => {
+      console.log('duplicateCanvas not implemented yet:', id);
+    },
   };
 
   return (

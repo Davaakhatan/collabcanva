@@ -169,7 +169,9 @@ export const CanvasManagement: React.FC<CanvasManagementProps> = ({
 }) => {
   const { projectCanvases, createCanvas, updateCanvas, deleteCanvas, duplicateCanvas } = useProjectCanvas();
   const { currentProject } = useProjects();
-  const { canEdit, canDelete } = usePermissions({ projectId });
+  const { hasPermission } = usePermissions({ projectId });
+  const canEdit = hasPermission('canvas.edit');
+  const canDelete = hasPermission('canvas.delete');
 
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showRenameModal, setShowRenameModal] = useState(false);
@@ -193,7 +195,7 @@ export const CanvasManagement: React.FC<CanvasManagementProps> = ({
       setIsLoading(true);
       setError(null);
       
-      const newCanvas = await createCanvas(name, description);
+      const newCanvas = await createCanvas(name);
       setShowCreateModal(false);
       
       // Auto-select the new canvas

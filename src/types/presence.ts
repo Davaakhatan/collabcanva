@@ -6,8 +6,9 @@ export interface PresenceData {
   displayName?: string;
   avatar?: string;
   isOnline: boolean;
-  lastSeen: Date;
+  lastSeen: number;
   activity: ActivityType;
+  currentActivity?: ActivityType; // For compatibility
   selectedShapeIds?: string[];
   selectedShapes?: string[];
   isTyping?: boolean;
@@ -16,6 +17,17 @@ export interface PresenceData {
     y: number;
   };
   cursorColor?: string;
+  // Additional properties for compatibility
+  userEmail?: string;
+  currentCanvas?: string;
+  currentProject?: string;
+  connectionId?: string;
+  metadata?: {
+    userAgent: string;
+    platform: string;
+    browser: string;
+    version: string;
+  };
 }
 
 export type ActivityType = 

@@ -88,34 +88,15 @@ export default function PropertiesPanel({ className = '' }: PropertiesPanelProps
     pushState();
   };
 
-  // Debug logging
-  console.log('🔧 [PropertiesPanel] Render check:', { 
-    selectedIds, 
-    selectedShape: selectedShape?.id, 
-    shapesCount: shapes.length,
-    allShapes: shapes.map(s => ({ id: s.id, type: s.type }))
-  });
-
   // Don't render if no shape is selected
   if (!selectedShape) {
-    console.log('🔧 [PropertiesPanel] No shape selected, not rendering');
-    // For debugging: show a placeholder when no shape is selected
-    return (
-      <div className="absolute bg-white dark:bg-slate-800 shadow-lg rounded-lg p-4 w-72 z-50" style={{ left: position.x, top: position.y }}>
-        <div className="text-center text-gray-500 dark:text-gray-400">
-          <p className="text-sm">No shape selected</p>
-          <p className="text-xs mt-1">Click on a shape to edit its properties</p>
-        </div>
-      </div>
-    );
+    return null;
   }
-
-  console.log('🔧 [PropertiesPanel] Rendering panel for shape:', selectedShape.id);
 
   return (
     <div
       ref={containerRef}
-      className={`fixed bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border-2 border-blue-500 p-4 z-[9999] w-[320px] max-h-[calc(100vh-120px)] overflow-y-auto ${className}`}
+      className={`fixed bg-white dark:bg-slate-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 p-4 z-[9999] w-[320px] max-h-[calc(100vh-120px)] overflow-y-auto transition-all duration-200 ${className}`}
       style={{
         left: `${position.x}px`,
         top: `${position.y}px`,
@@ -124,23 +105,29 @@ export default function PropertiesPanel({ className = '' }: PropertiesPanelProps
     >
       {/* Header - Draggable area */}
       <div 
-        className="flex items-center gap-2 mb-4 pb-3 border-b border-gray-200 dark:border-slate-600 cursor-grab active:cursor-grabbing select-none drag-handle"
+        className="flex items-center gap-2 mb-4 pb-3 border-b border-gray-200 dark:border-slate-600 cursor-grab active:cursor-grabbing select-none drag-handle hover:bg-gray-50 dark:hover:bg-slate-700 rounded-t-lg px-2 -mx-2 pt-2 -mt-2"
         onMouseDown={handleMouseDown}
       >
-        <svg className="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-        </svg>
-        <h3 className="text-sm font-bold text-gray-900 dark:text-gray-100">Properties</h3>
+        {/* Drag handle icon */}
+        <div className="flex gap-1 opacity-60 hover:opacity-100 transition-opacity">
+          <div className="flex flex-col gap-0.5">
+            <div className="w-1 h-1 bg-gray-500 dark:bg-gray-400 rounded-full"></div>
+            <div className="w-1 h-1 bg-gray-500 dark:bg-gray-400 rounded-full"></div>
+            <div className="w-1 h-1 bg-gray-500 dark:bg-gray-400 rounded-full"></div>
+          </div>
+          <div className="flex flex-col gap-0.5">
+            <div className="w-1 h-1 bg-gray-500 dark:bg-gray-400 rounded-full"></div>
+            <div className="w-1 h-1 bg-gray-500 dark:bg-gray-400 rounded-full"></div>
+            <div className="w-1 h-1 bg-gray-500 dark:bg-gray-400 rounded-full"></div>
+          </div>
+        </div>
+        
+        <h3 className="text-sm font-bold text-gray-900 dark:text-gray-100 ml-2">Properties</h3>
         <div className="ml-auto text-xs text-gray-500 dark:text-gray-400">
           {selectedIds.length > 1 ? `${selectedIds.length} selected` : selectedShape.type}
         </div>
       </div>
 
-      {/* Debug indicator */}
-      <div className="mb-2 p-2 bg-green-100 dark:bg-green-900 rounded text-xs">
-        ✅ PropertiesPanel is working! Shape: {selectedShape.id}
-      </div>
 
       {/* Properties Content */}
       <div className="space-y-4">

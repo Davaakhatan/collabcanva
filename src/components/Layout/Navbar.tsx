@@ -263,7 +263,6 @@ export default function Navbar({
           variant={variant === 'compact' ? 'compact' : 'default'}
           showQuickActions={showQuickActions}
           showRecentItems={true}
-          showMetadata={true}
         />
       </div>
     );
