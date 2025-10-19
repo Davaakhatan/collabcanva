@@ -98,7 +98,15 @@ export default function PropertiesPanel({ className = '' }: PropertiesPanelProps
   // Don't render if no shape is selected
   if (!selectedShape) {
     console.log('🔧 [PropertiesPanel] No shape selected, not rendering');
-    return null;
+    // For debugging: show a placeholder when no shape is selected
+    return (
+      <div className="absolute bg-white dark:bg-slate-800 shadow-lg rounded-lg p-4 w-72 z-50" style={{ left: position.x, top: position.y }}>
+        <div className="text-center text-gray-500 dark:text-gray-400">
+          <p className="text-sm">No shape selected</p>
+          <p className="text-xs mt-1">Click on a shape to edit its properties</p>
+        </div>
+      </div>
+    );
   }
 
   console.log('🔧 [PropertiesPanel] Rendering panel for shape:', selectedShape.id);
