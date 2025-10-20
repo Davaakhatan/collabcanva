@@ -2,6 +2,7 @@
 // Provides comprehensive navigation with project context and user actions
 
 import React, { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useProjects } from '../../hooks/useProjects';
@@ -78,16 +79,19 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
   // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
-        setShowUserDropdown(false);
-      }
-      if (notificationsRef.current && !notificationsRef.current.contains(event.target as Node)) {
-        setShowNotificationsDropdown(false);
-      }
+      // Add a small delay to allow button clicks to be processed first
+      setTimeout(() => {
+        if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+          setShowUserDropdown(false);
+        }
+        if (notificationsRef.current && !notificationsRef.current.contains(event.target as Node)) {
+          setShowNotificationsDropdown(false);
+        }
+      }, 100);
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
   }, []);
 
   // Update dropdown position when window resizes or scrolls
@@ -156,8 +160,10 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
 
   // Handle sign out
   const handleSignOut = async () => {
+    console.log('handleSignOut called!');
     try {
       await logout();
+      console.log('logout successful, navigating to home');
       navigate('/');
     } catch (error) {
       console.error('Failed to sign out:', error);
@@ -250,7 +256,7 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
                     <UserCircleIcon className="w-5 h-5" />
                   </button>
 
-                  {showUserDropdown && (
+                  {showUserDropdown && createPortal(
                     <div className="fixed w-56 rounded-lg shadow-xl border z-[99999] ring-1 ring-black ring-opacity-5 dark:ring-white dark:ring-opacity-10 bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-600" style={{ 
                       top: userMenuRef.current ? userMenuRef.current.getBoundingClientRect().bottom + 8 : 0,
                       right: userMenuRef.current ? window.innerWidth - userMenuRef.current.getBoundingClientRect().right : 0,
@@ -291,13 +297,19 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
                         <div className="border-t border-gray-200 dark:border-gray-700 my-1" />
                         
                         <button
-                          onClick={handleSignOut}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            console.log('Sign out button clicked in portal');
+                            handleSignOut();
+                          }}
                           className="w-full flex items-center space-x-3 px-4 py-2 text-left hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                         >
                           <span className="text-sm text-red-600 dark:text-red-400">Sign out</span>
                         </button>
                       </div>
-                    </div>
+                    </div>,
+                    document.body
                   )}
                 </div>
               )}
@@ -447,7 +459,7 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
                   </span>
                 </button>
 
-                {showUserDropdown && (
+                {showUserDropdown && createPortal(
                   <div className="fixed w-56 rounded-lg shadow-xl border z-[99999] ring-1 ring-black ring-opacity-5 dark:ring-white dark:ring-opacity-10 bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-600" style={{ 
                     top: userMenuRef.current ? userMenuRef.current.getBoundingClientRect().bottom + 8 : 0,
                     right: userMenuRef.current ? window.innerWidth - userMenuRef.current.getBoundingClientRect().right : 0,
@@ -482,13 +494,19 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
                       <div className="border-t border-gray-200 dark:border-gray-700 my-1" />
                       
                       <button
-                        onClick={handleSignOut}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          console.log('Sign out button clicked in portal');
+                          handleSignOut();
+                        }}
                         className="w-full flex items-center space-x-3 px-4 py-2 text-left hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                       >
                         <span className="text-sm text-red-600 dark:text-red-400">Sign out</span>
                       </button>
                     </div>
-                  </div>
+                  </div>,
+                  document.body
                 )}
               </div>
             )}

@@ -6,6 +6,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigation } from '../contexts/NavigationContext';
+import { useProjects } from '../hooks/useProjects';
 import { ThemeToggle } from '../contexts/ThemeContext';
 import CreateProjectModal from '../components/Project/CreateProjectModal';
 
@@ -23,20 +24,21 @@ export default function Home({
 }: HomeProps) {
   const { user, logout, loading } = useAuth();
   const { navigateTo } = useNavigation();
+  const { projects, projectsLoading } = useProjects();
   const navigate = useNavigate();
   const location = useLocation();
   
   const [showCreateModal, setShowCreateModal] = useState(false);
+
+  // Calculate stats from projects data
+  const activeProjectsCount = projects?.filter(p => !p.isArchived).length || 0;
+  const totalCanvasesCount = projects?.reduce((total, project) => total + (project.canvasCount || 0), 0) || 0;
 
   // No auto-redirect - let users choose their action
 
   // Handle manual navigation
   const handleNavigateToProjects = () => {
     navigateTo('/projects');
-  };
-
-  const handleNavigateToLegacyCanvas = () => {
-    navigateTo('/canvas');
   };
 
   // Handle project creation
@@ -150,12 +152,6 @@ export default function Home({
                   </svg>
                   <span>Browse Projects</span>
                 </button>
-                <button
-                  onClick={handleNavigateToLegacyCanvas}
-                  className="px-8 py-4 bg-white/80 backdrop-blur-lg border-2 border-gray-300 rounded-xl font-semibold hover:bg-gray-50 transition-all duration-200 shadow-lg"
-                >
-                  Legacy Canvas
-                </button>
                 <button 
                   onClick={logout}
                   className="px-8 py-4 bg-white/80 backdrop-blur-lg border-2 border-gray-300 rounded-xl font-semibold hover:bg-gray-50 transition-all duration-200 shadow-lg"
@@ -167,14 +163,22 @@ export default function Home({
               {/* Quick Stats */}
               <div className="grid grid-cols-2 gap-4 max-w-md mx-auto">
                 <div className="bg-white/60 backdrop-blur-lg rounded-xl p-4 text-center border border-gray-200">
-                  <div className="text-2xl font-bold text-blue-600">0</div>
+                  <div className="text-2xl font-bold text-blue-600">
+                    {projectsLoading ? '...' : activeProjectsCount}
+                  </div>
                   <div className="text-sm text-gray-600">Active Projects</div>
-                  <div className="text-xs text-gray-500 mt-1">Create your first!</div>
+                  <div className="text-xs text-gray-500 mt-1">
+                    {activeProjectsCount === 0 ? 'Create your first!' : 'Keep building!'}
+                  </div>
                 </div>
                 <div className="bg-white/60 backdrop-blur-lg rounded-xl p-4 text-center border border-gray-200">
-                  <div className="text-2xl font-bold text-purple-600">0</div>
+                  <div className="text-2xl font-bold text-purple-600">
+                    {projectsLoading ? '...' : totalCanvasesCount}
+                  </div>
                   <div className="text-sm text-gray-600">Canvases Created</div>
-                  <div className="text-xs text-gray-500 mt-1">Start designing!</div>
+                  <div className="text-xs text-gray-500 mt-1">
+                    {totalCanvasesCount === 0 ? 'Start designing!' : 'Great work!'}
+                  </div>
                 </div>
               </div>
             </div>

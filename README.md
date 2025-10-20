@@ -364,3 +364,11 @@ For questions or issues, please open an issue on GitHub or contact the developer
 ---
 
 **Last Updated:** January 2025
+
+## 🔄 Recent Updates
+
+### Latest Fixes (January 2025)
+- ✅ **Fixed Profile Dropdown** - Sign out functionality now works correctly across all pages
+- ✅ **Removed Legacy Canvas Button** - Cleaned up home page interface
+- ✅ **Fixed Project Counters** - Active Projects and Canvases Created now show real data instead of static zeros
+- ✅ **Improved User Experience** - Dynamic messages based on actual project/canvas counts
