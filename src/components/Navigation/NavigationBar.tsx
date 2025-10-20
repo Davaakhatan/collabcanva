@@ -248,7 +248,7 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
                           }}
                           className="w-full flex items-center space-x-3 px-4 py-2 text-left hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                         >
-                          <UserCircleIcon className="w-4 h-4 text-gray-500" />
+                          <UserCircleIcon className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                           <span className="text-sm text-gray-900 dark:text-gray-100">Profile</span>
                         </button>
                         
@@ -259,7 +259,7 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
                           }}
                           className="w-full flex items-center space-x-3 px-4 py-2 text-left hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                         >
-                          <Cog6ToothIcon className="w-4 h-4 text-gray-500" />
+                          <Cog6ToothIcon className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                           <span className="text-sm text-gray-900 dark:text-gray-100">Settings</span>
                         </button>
                         
@@ -269,11 +269,7 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
                           onClick={handleSignOut}
                           className="w-full flex items-center space-x-3 px-4 py-2 text-left hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                         >
-                          <span className={`text-sm ${
-                            document.documentElement.classList.contains('dark') 
-                              ? 'text-red-400' 
-                              : 'text-red-600'
-                          }`}>Sign out</span>
+                          <span className="text-sm text-red-600 dark:text-red-400">Sign out</span>
                         </button>
                       </div>
                     </div>
@@ -442,7 +438,7 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
                         onClick={() => navigate('/profile')}
                         className="w-full flex items-center space-x-3 px-4 py-2 text-left hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                       >
-                        <UserCircleIcon className="w-4 h-4 text-gray-500" />
+                        <UserCircleIcon className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                         <span className="text-sm text-gray-900 dark:text-gray-100">Profile</span>
                       </button>
                       
@@ -450,7 +446,7 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
                         onClick={() => navigate('/settings')}
                         className="w-full flex items-center space-x-3 px-4 py-2 text-left hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                       >
-                        <Cog6ToothIcon className="w-4 h-4 text-gray-500" />
+                        <Cog6ToothIcon className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                         <span className="text-sm text-gray-900 dark:text-gray-100">Settings</span>
                       </button>
                       
@@ -460,11 +456,7 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
                         onClick={handleSignOut}
                         className="w-full flex items-center space-x-3 px-4 py-2 text-left hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                       >
-                        <span className={`text-sm ${
-                          document.documentElement.classList.contains('dark') 
-                            ? 'text-red-400' 
-                            : 'text-red-600'
-                        }`}>Sign out</span>
+                        <span className="text-sm text-red-600 dark:text-red-400">Sign out</span>
                       </button>
                     </div>
                   </div>
