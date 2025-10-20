@@ -17,17 +17,8 @@ export default function PresenceList({ cursors, onUserClick, projectId, canvasId
 
   // Convert cursors map to array for easier rendering
   const cursorUsers = Object.entries(cursors).map(([userId, cursor]) => {
-    console.log('🎨 [PresenceList] Processing cursor:', { 
-      userId, 
-      cursor, 
-      cursorColor: cursor.cursorColor,
-      hasCursorColor: !!cursor.cursorColor,
-      allCursorKeys: Object.keys(cursor)
-    });
-    
     // Use cursorColor from CursorData type
     const color = cursor.cursorColor || '#3B82F6';
-    console.log('🎨 [PresenceList] Final color for', userId, ':', color);
     
     return {
       userId,
@@ -39,18 +30,8 @@ export default function PresenceList({ cursors, onUserClick, projectId, canvasId
     };
   });
 
-  // TEMPORARY: Add test user for debugging
-  const testUser = {
-    userId: 'test-user-123',
-    displayName: 'Test User',
-    color: '#FF6B6B',
-    cursorX: 100,
-    cursorY: 100,
-    isOnline: true
-  };
-  
-  // Always include test user for debugging
-  const allUsers = [...cursorUsers, testUser];
+  // Use only real cursor users
+  const allUsers = cursorUsers;
 
   const userCount = allUsers.length;
 
@@ -63,34 +44,19 @@ export default function PresenceList({ cursors, onUserClick, projectId, canvasId
     rawCursors: cursors
   });
 
-  // TEMPORARY: Always show for debugging
-  // if (userCount === 0) {
-  //   console.log('⚠️ [PresenceList] No users online, returning null');
-  //   return null;
-  // }
+  if (userCount === 0) {
+    console.log('⚠️ [PresenceList] No users online, returning null');
+    return null;
+  }
   
   console.log('✅ [PresenceList] Rendering presence list with', userCount, 'users');
   console.log('🔍 [PresenceList] Cursor users data:', cursorUsers.map(u => ({ userId: u.userId, displayName: u.displayName, color: u.color })));
 
   const handleUserClick = (userId: string) => {
-    console.log('🎯 [PresenceList] handleUserClick called for:', userId);
     const cursor = cursors[userId];
-    console.log('🎯 [PresenceList] Full cursor object:', cursor);
-    console.log('🎯 [PresenceList] Available cursors:', Object.keys(cursors));
     
     if (cursor) {
-      console.log(`🎯 [PresenceList] Jumping to user ${userId} at cursor position:`, cursor.cursorX, cursor.cursorY);
-      console.log('🎯 [PresenceList] Cursor coordinates type check:', { 
-        cursorX: typeof cursor.cursorX, 
-        cursorY: typeof cursor.cursorY,
-        cursorXValue: cursor.cursorX,
-        cursorYValue: cursor.cursorY
-      });
-      console.log('🎯 [PresenceList] About to call onUserClick with:', { userId, cursorX: cursor.cursorX, cursorY: cursor.cursorY });
       onUserClick(userId, cursor.cursorX, cursor.cursorY);
-      console.log('✅ [PresenceList] onUserClick called successfully');
-    } else {
-      console.log('❌ [PresenceList] No cursor found for user:', userId);
     }
   };
 
