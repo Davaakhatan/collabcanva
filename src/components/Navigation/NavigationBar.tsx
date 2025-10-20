@@ -90,6 +90,27 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  // Update dropdown position when window resizes or scrolls
+  useEffect(() => {
+    const updatePosition = () => {
+      if (showUserDropdown && userMenuRef.current) {
+        const rect = userMenuRef.current.getBoundingClientRect();
+        // Update the dropdown position by re-rendering
+        setShowUserDropdown(false);
+        setTimeout(() => setShowUserDropdown(true), 0);
+      }
+    };
+
+    if (showUserDropdown) {
+      window.addEventListener('resize', updatePosition);
+      window.addEventListener('scroll', updatePosition);
+      return () => {
+        window.removeEventListener('resize', updatePosition);
+        window.removeEventListener('scroll', updatePosition);
+      };
+    }
+  }, [showUserDropdown]);
+
   // Handle search
   const handleSearch = (query: string) => {
     setSearchQuery(query);
@@ -230,7 +251,11 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
                   </button>
 
                   {showUserDropdown && (
-                    <div className="absolute top-full right-0 mt-2 w-56 rounded-lg shadow-xl border z-[99999] ring-1 ring-black ring-opacity-5 dark:ring-white dark:ring-opacity-10 bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-600" style={{ zIndex: 99999 }}>
+                    <div className="fixed w-56 rounded-lg shadow-xl border z-[99999] ring-1 ring-black ring-opacity-5 dark:ring-white dark:ring-opacity-10 bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-600" style={{ 
+                      top: userMenuRef.current ? userMenuRef.current.getBoundingClientRect().bottom + 8 : 0,
+                      right: userMenuRef.current ? window.innerWidth - userMenuRef.current.getBoundingClientRect().right : 0,
+                      zIndex: 99999 
+                    }}>
                       <div className="py-2">
                         <div className="px-4 py-2 border-b border-gray-200 dark:border-gray-700">
                           <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
@@ -423,7 +448,11 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
                 </button>
 
                 {showUserDropdown && (
-                  <div className="absolute top-full right-0 mt-2 w-56 rounded-lg shadow-xl border z-[99999] ring-1 ring-black ring-opacity-5 dark:ring-white dark:ring-opacity-10 bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-600" style={{ zIndex: 99999 }}>
+                  <div className="fixed w-56 rounded-lg shadow-xl border z-[99999] ring-1 ring-black ring-opacity-5 dark:ring-white dark:ring-opacity-10 bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-600" style={{ 
+                    top: userMenuRef.current ? userMenuRef.current.getBoundingClientRect().bottom + 8 : 0,
+                    right: userMenuRef.current ? window.innerWidth - userMenuRef.current.getBoundingClientRect().right : 0,
+                    zIndex: 99999 
+                  }}>
                     <div className="py-2">
                       <div className="px-4 py-2 border-b border-gray-200 dark:border-gray-700">
                         <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
