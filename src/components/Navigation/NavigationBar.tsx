@@ -230,11 +230,11 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
                   </button>
 
                   {showUserDropdown && (
-                    <div className={`absolute top-full right-0 mt-2 w-56 rounded-lg shadow-xl border z-[9999] ring-1 ring-black ring-opacity-5 dark:ring-white dark:ring-opacity-10 ${
+                    <div className={`absolute top-full right-0 mt-2 w-56 rounded-lg shadow-xl border z-[99999] ring-1 ring-black ring-opacity-5 dark:ring-white dark:ring-opacity-10 ${
                       document.documentElement.classList.contains('dark') 
                         ? 'bg-gray-900 border-gray-600' 
                         : 'bg-white border-gray-200'
-                    }`}>
+                    }`} style={{ zIndex: 99999 }}>
                       <div className="py-2">
                         <div className={`px-4 py-2 border-b ${
                           document.documentElement.classList.contains('dark') 
@@ -451,11 +451,11 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
                 </button>
 
                 {showUserDropdown && (
-                  <div className={`absolute top-full right-0 mt-2 w-56 rounded-lg shadow-xl border z-[9999] ring-1 ring-black ring-opacity-5 dark:ring-white dark:ring-opacity-10 ${
+                  <div className={`absolute top-full right-0 mt-2 w-56 rounded-lg shadow-xl border z-[99999] ring-1 ring-black ring-opacity-5 dark:ring-white dark:ring-opacity-10 ${
                     document.documentElement.classList.contains('dark') 
                       ? 'bg-gray-900 border-gray-600' 
                       : 'bg-white border-gray-200'
-                  }`}>
+                  }`} style={{ zIndex: 99999 }}>
                     <div className="py-2">
                       <div className={`px-4 py-2 border-b ${
                         document.documentElement.classList.contains('dark') 
